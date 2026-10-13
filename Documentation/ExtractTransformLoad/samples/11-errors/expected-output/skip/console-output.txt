@@ -1,6 +1,6 @@
 === Extract / Transform / Load (config-driven) ===
 
-Available ETL configs (~/Documents/DataMonger/Config/EtlConfig):
+Available ETL configs (~/Documents/DataMonger/EtlConfig):
   1) example.etlconfig
 Select a number, enter a path to your own .etlconfig, 'c' to change the config folder, or 'q' to cancel: 
 Config        : samples/11-errors/skip.etlconfig

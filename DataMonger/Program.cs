@@ -31,8 +31,6 @@ class Program
             throw new InvalidOperationException("Sites array is empty in appsettings.json");
         }
 
-        var products = CsvLoader.ReadProducts(DataPaths.Combine("products.csv")).ToList();
-
         var appLogPath = DataPaths.Combine("logs", "app.log");
         Directory.CreateDirectory(Path.GetDirectoryName(appLogPath)!);
         using var loggerFactory = LoggerFactory.Create(b => b
@@ -44,16 +42,16 @@ class Program
         var rest = new RestClient(httpClient, serializer, serializer, loggerFactory.CreateLogger<RestClient>());
 
         Console.WriteLine("=== DataMonger ===");
+        new ConfigFolders().EnsureAll(); // look for config folders under ~/Documents/DataMonger; prompt if missing
         Console.WriteLine($">>> Configured sites ({siteConfigs.Length}):");
         foreach (var cfg in siteConfigs)
         {
             Console.WriteLine($"      - {cfg.SiteId} @ {cfg.BaseUrl}  (user: {cfg.Username})");
         }
-        Console.WriteLine($"Products loaded:  {products.Count} (from products.csv)");
         Console.WriteLine();
 
         // Build a discovery context against the first config just to read command Names for the menu.
-        var menuContext = BuildContext(siteConfigs[0], products, rest, siteConfigs, loggerFactory);
+        var menuContext = BuildContext(siteConfigs[0], rest, siteConfigs, loggerFactory);
         var commandTypes = Assembly.GetExecutingAssembly().GetTypes()
             .Where(t => typeof(IConsoleCommand).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract)
             .ToList();
@@ -104,7 +102,7 @@ class Program
         {
             Console.WriteLine();
             Console.WriteLine($"=== {selectedName} ===");
-            var localCtx = BuildContext(siteConfigs[0], products, rest, siteConfigs, loggerFactory);
+            var localCtx = BuildContext(siteConfigs[0], rest, siteConfigs, loggerFactory);
             var localCommand = (IConsoleCommand)Activator.CreateInstance(selectedType, localCtx)!;
             await localCommand.Execute();
             return;
@@ -114,18 +112,17 @@ class Program
         {
             Console.WriteLine();
             Console.WriteLine($"=== {selectedName} -> site: {cfg.SiteId} ===");
-            var siteCtx = BuildContext(cfg, products, rest, siteConfigs, loggerFactory);
+            var siteCtx = BuildContext(cfg, rest, siteConfigs, loggerFactory);
             var siteCommand = (IConsoleCommand)Activator.CreateInstance(selectedType, siteCtx)!;
             await siteCommand.Execute();
         }
     }
 
-    static CommandContext BuildContext(SiteConfig cfg, IReadOnlyList<Product> products, RestClient rest, IReadOnlyList<SiteConfig> allSites, ILoggerFactory loggerFactory)
+    static CommandContext BuildContext(SiteConfig cfg, RestClient rest, IReadOnlyList<SiteConfig> allSites, ILoggerFactory loggerFactory)
     {
         var baseUrl = cfg.BaseUrl.TrimEnd('/');
         return new CommandContext
         {
-            Products = products,
             Rest = rest,
             ActivityUri = new Uri($"{baseUrl}/ver2/{cfg.SiteId}/activities"),
             IdentifyUri = new Uri($"{baseUrl}/ver2/{cfg.SiteId}/subscribers/identify"),

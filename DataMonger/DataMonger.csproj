@@ -29,6 +29,16 @@
     <Content Include="data\synthconfig\**\*.synthconfig">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <!-- Purchase and email-conversion config examples are copied to the build output. -->
+    <Content Include="data\purchaseanonymousconfig\**\*.purchaseanonymousconfig">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\purchaseknownconfig\**\*.purchaseknownconfig">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\emailconversionconfig\**\*.emailconversionconfig">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <!--
       The repo-level LocalData folder (sibling of DataMonger, gitignored) holds local CSV inputs.
       It lives outside DataMonger/data and is deliberately NOT copied to the build output: the files

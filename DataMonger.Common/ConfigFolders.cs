@@ -14,11 +14,20 @@ public enum ConfigKind
 
     /// <summary><c>.synthconfig</c> files used by Synthesize User Props.</summary>
     Synth,
+
+    /// <summary><c>.purchaseanonymousconfig</c> files used by Anonymous purchases.</summary>
+    PurchaseAnonymous,
+
+    /// <summary><c>.purchaseknownconfig</c> files used by Known (identified) purchases.</summary>
+    PurchaseKnown,
+
+    /// <summary><c>.emailconversionconfig</c> files used by Generate Email Conversion data.</summary>
+    EmailConversion,
 }
 
 /// <summary>
 /// Locates the folder each kind of config lives in. The first time a command needs a kind of config it asks
-/// where that folder is (default <c>~/Documents/DataMonger/Config/&lt;Kind&gt;Config</c>), creates it, copies in the
+/// where that folder is (default <c>~/Documents/DataMonger/&lt;Kind&gt;Config</c>), creates it, copies in the
 /// bundled example configs if it has none, and remembers the answer in <c>settings.json</c> under the DataMonger
 /// home folder. Set the <c>DATAMONGER_HOME</c> environment variable to relocate the home folder
 /// (default <c>~/Documents/DataMonger</c>).
@@ -53,8 +62,8 @@ public sealed class ConfigFolders
         return Path.Combine(documents, "DataMonger");
     }
 
-    /// <summary>Default config folder for a kind, e.g. <c>~/Documents/DataMonger/Config/SynthConfig</c>.</summary>
-    public static string DefaultFolder(ConfigKind kind) => Path.Combine(HomeFolder(), "Config", FolderName(kind));
+    /// <summary>Default config folder for a kind, e.g. <c>~/Documents/DataMonger/SynthConfig</c>.</summary>
+    public static string DefaultFolder(ConfigKind kind) => Path.Combine(HomeFolder(), FolderName(kind));
 
     public static string SettingsPath() => Path.Combine(HomeFolder(), SettingsFileName);
 
@@ -63,6 +72,9 @@ public sealed class ConfigFolders
         ConfigKind.Etl => ".etlconfig",
         ConfigKind.Anon => ".anonconfig",
         ConfigKind.Synth => ".synthconfig",
+        ConfigKind.PurchaseAnonymous => ".purchaseanonymousconfig",
+        ConfigKind.PurchaseKnown => ".purchaseknownconfig",
+        ConfigKind.EmailConversion => ".emailconversionconfig",
         _ => throw new ArgumentOutOfRangeException(nameof(kind)),
     };
 
@@ -71,6 +83,9 @@ public sealed class ConfigFolders
         ConfigKind.Etl => "EtlConfig",
         ConfigKind.Anon => "AnonConfig",
         ConfigKind.Synth => "SynthConfig",
+        ConfigKind.PurchaseAnonymous => "PurchaseAnonymousConfig",
+        ConfigKind.PurchaseKnown => "PurchaseKnownConfig",
+        ConfigKind.EmailConversion => "EmailConversionConfig",
         _ => throw new ArgumentOutOfRangeException(nameof(kind)),
     };
 
@@ -79,6 +94,9 @@ public sealed class ConfigFolders
         ConfigKind.Etl => "ETL",
         ConfigKind.Anon => "anonymization",
         ConfigKind.Synth => "synthetic-data",
+        ConfigKind.PurchaseAnonymous => "anonymous-purchase",
+        ConfigKind.PurchaseKnown => "known-purchase",
+        ConfigKind.EmailConversion => "email-conversion",
         _ => throw new ArgumentOutOfRangeException(nameof(kind)),
     };
 
@@ -101,6 +119,15 @@ public sealed class ConfigFolders
             return saved;
         }
         return Choose(kind, firstRun: saved is null);
+    }
+
+    /// <summary>Resolves every kind of config folder (used at boot), prompting for any that is missing.</summary>
+    public void EnsureAll()
+    {
+        foreach (var kind in Enum.GetValues<ConfigKind>())
+        {
+            Resolve(kind);
+        }
     }
 
     /// <summary>Asks for a new config folder for <paramref name="kind"/> and saves it.</summary>

@@ -11,6 +11,19 @@ file is meant to be replayed against an API by [API => Email Conversion Events](
 * [Input CSV formats](../PurchaseKnown/InputFormat.md) (`identified.csv` and `products.csv` are used)
 * [samples/](samples/README.md) - runnable inputs, seeded output and the exact reproduction steps
 
+## Config
+
+Prompts for a `.emailconversionconfig` from the config folder (see [Configuration](../Configuration.md)); `products.csv` is no longer
+loaded at app start-up. JSON with comments and trailing commas; every key is optional. Relative paths resolve against the
+config file's folder (`~` expands).
+
+| Key | Default | Meaning |
+|---|---|---|
+| `customersFile` | `LocalData/identified.csv` | identified-customers CSV |
+| `productsFile` | `LocalData/products.csv` | products CSV |
+| `outputFile` | `LocalData/EmailConversion.jsonl` | output JSONL |
+| `seed` | none | when set, the seed prompt is skipped |
+
 ## Syntax / how to run
 
 Menu entry text: `Generate Email Conversion data` (class `GenerateEmailConversions`; number `9` in the reference build).

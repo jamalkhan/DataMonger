@@ -22,10 +22,24 @@ No other prompts. The command runs once per configured site (`=== Anonymous purc
 printf '2\n' | dotnet DataMonger.dll
 ```
 
+## Config
+
+Prompts for a `.purchaseanonymousconfig` from the config folder (see [Configuration](../Configuration.md)); `products.csv` is no longer loaded at app start-up.
+JSON with comments and trailing commas; every key is optional. Relative paths resolve against the config file's folder (`~` expands).
+
+| Key | Default | Meaning |
+|---|---|---|
+| `customersFile` | `LocalData/anonymous.csv` | customers CSV |
+| `productsFile` | `LocalData/products.csv` | products CSV ([format](../PurchaseKnown/InputFormat.md#productscsv)) |
+| `minItems` / `maxItems` | `1` / `3` | each order gets a random number of distinct products in this range (inclusive) |
+| `orderIdPrefix` | `ORD-` | prefix of the generated `order_id` |
+
+A bundled `example.purchaseanonymousconfig` is copied into a new config folder.
+
 ## Inputs
 
 `LocalData/anonymous.csv` (3 columns: first name, last name, email; header skipped; only email used),
-`LocalData/products.csv` (loaded at startup), `appsettings.json` (`Sites[]`). First console line:
+`products.csv` (path from the config), `appsettings.json` (`Sites[]`). First console line:
 `Customers loaded: N (from anonymous.csv)`.
 
 ## What is sent

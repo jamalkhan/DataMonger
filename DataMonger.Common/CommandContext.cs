@@ -6,7 +6,6 @@ namespace DataMonger.Common;
 
 public class CommandContext
 {
-    public required IReadOnlyList<Product> Products { get; init; }
     public required RestClient Rest { get; init; }
     public required Uri ActivityUri { get; init; }
     public required Uri IdentifyUri { get; init; }

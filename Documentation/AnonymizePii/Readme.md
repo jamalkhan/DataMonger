@@ -49,7 +49,7 @@ The first time you run this command it asks where your `.anonconfig` files live 
 
 ```text
 First run: choose the folder where your anonymization config files (.anonconfig) live.
-Config folder [~/Documents/DataMonger/Config/AnonConfig]:
+Config folder [~/Documents/DataMonger/AnonConfig]:
 ```
 
 Press Enter to accept the default, or type a folder (quotes are trimmed, `~` expands). The command creates the
@@ -63,7 +63,7 @@ config-driven commands.
 **2. Config selection**
 
 ```text
-Available anonymization configs (~/Documents/DataMonger/Config/AnonConfig):
+Available anonymization configs (~/Documents/DataMonger/AnonConfig):
   1) example.anonconfig
 Select a number, enter a path to your own .anonconfig, 'c' to change the config folder, or 'q' to cancel:
 ```
@@ -96,7 +96,7 @@ Nothing else is prompted for: input files, columns and methods all come from the
 ### The config folder
 
 The list in prompt 2 is the content of your **anonymization config folder** (default
-`~/Documents/DataMonger/Config/AnonConfig`), not a folder bundled with the build. Within it, every `*.anonconfig` file
+`~/Documents/DataMonger/AnonConfig`), not a folder bundled with the build. Within it, every `*.anonconfig` file
 directly inside the folder (no subfolders) is listed, sorted by name, case-insensitively. The seeded
 `example.anonconfig` reads `~/Documents/DataMonger/Data/csvs` and writes to `~/Documents/DataMonger/Data/csvs_anonymized`
 (see [Configuration](../Configuration.md#relation-to-the-data-folder)); it is a template, so edit your copy or point

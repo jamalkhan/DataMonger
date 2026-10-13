@@ -1,6 +1,6 @@
 === Anonymize PII (config-driven) ===
 
-Available anonymization configs (~/Documents/DataMonger/Config/AnonConfig):
+Available anonymization configs (~/Documents/DataMonger/AnonConfig):
   1) example.anonconfig
 Select a number, enter a path to your own .anonconfig, 'c' to change the config folder, or 'q' to cancel: 
 Config        : configs/bad-cell-abort.anonconfig

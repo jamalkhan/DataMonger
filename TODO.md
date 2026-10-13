@@ -153,7 +153,7 @@ run · **[behavior]** = works as coded but is surprising · **[docs]** = comment
 
 - ETL warnings file: the key column is now a generic `record_key` derived from join keys (was a hardcoded `customer_key`); documented
   with tests.
-- Config files are found through a per-user config folder chosen on first run (`~/Documents/DataMonger/Config/<Kind>Config`), shared by the
+- Config files are found through a per-user config folder chosen on first run (`~/Documents/DataMonger/<Kind>Config`), shared by the
   ETL, Anonymize and Synthesize User Props commands (`ConfigFolders`).
 - Generate Email Conversion data / API ⇒ Email Conversion Events: neutral event schema; the "clicked" event was emitted with the bounce
   event name; purchase events had no timestamp; failure messages read the wrong field; the uploader printed no summary; the generator ran per

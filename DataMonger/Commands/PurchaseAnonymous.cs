@@ -13,16 +13,47 @@ class PurchaseAnonymous(CommandContext ctx) : IConsoleCommand
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
         var successCount = 0;
         var failureCount = 0;
-        var people = CsvLoader.ReadPeople(DataPaths.Combine("anonymous.csv")).ToList();
-        Console.WriteLine($"Customers loaded: {people.Count} (from anonymous.csv)");
+
+        var configPath = new ConfigFolders().PromptForConfig(ConfigKind.PurchaseAnonymous);
+        if (configPath is null)
+        {
+            Console.WriteLine("[FAIL] No config file provided or it does not exist. Aborting.");
+            return (0, 1);
+        }
+        PurchaseConfig config;
+        List<Person> people;
+        Product[] products;
+        try
+        {
+            config = CommandConfigFile.Load<PurchaseConfig>(configPath);
+            var configDir = Path.GetDirectoryName(Path.GetFullPath(configPath))!;
+            var customersFile = CommandConfigFile.ResolvePath(config.CustomersFile, configDir, DataPaths.Combine("anonymous.csv"));
+            var productsFile = CommandConfigFile.ResolvePath(config.ProductsFile, configDir, DataPaths.Combine("products.csv"));
+            people = CsvLoader.ReadPeople(customersFile).ToList();
+            products = CsvLoader.ReadProducts(productsFile).ToArray();
+            Console.WriteLine($"Config        : {configPath}");
+            Console.WriteLine($"Customers     : {people.Count} (from {customersFile})");
+            Console.WriteLine($"Products      : {products.Length} (from {productsFile})");
+        }
+        catch (Exception ex) when (ex is CommandConfigException or IOException or InvalidDataException or UnauthorizedAccessException)
+        {
+            Console.WriteLine($"[FAIL] {ex.Message}");
+            return (0, 1);
+        }
+        if (products.Length == 0)
+        {
+            Console.WriteLine("[FAIL] The products file has no rows: cannot pick items.");
+            return (0, 1);
+        }
+        var orderIdPrefix = config.OrderIdPrefix ?? "ORD-";
 
         await Parallel.ForEachAsync(
             people,
             new ParallelOptions { MaxDegreeOfParallelism = ctx.MaxParallelism },
             async (person, ct) =>
         {
-            var itemCount = Random.Shared.Next(1, 4);
-            var picked = ctx.Products.OrderBy(_ => Random.Shared.Next()).Take(itemCount).ToArray();
+            var itemCount = Random.Shared.Next(config.MinItems, config.MaxItems + 1);
+            var picked = products.OrderBy(_ => Random.Shared.Next()).Take(itemCount).ToArray();
 
             var payload = new
             {
@@ -35,7 +66,7 @@ class PurchaseAnonymous(CommandContext ctx) : IConsoleCommand
                     @event = "purchased",
                     properties = new
                     {
-                        order_id = $"ORD-{Random.Shared.Next(100000000, 999999999)}",
+                        order_id = $"{orderIdPrefix}{Random.Shared.Next(100000000, 999999999)}",
                         items = picked.Select(p => new
                         {
                             id = p.Id,

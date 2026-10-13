@@ -48,7 +48,7 @@ other commands; see [Configuration](../Configuration.md).)
 
    ```
    First run: choose the folder where your ETL config files (.etlconfig) live.
-   Config folder [~/Documents/DataMonger/Config/EtlConfig]:
+   Config folder [~/Documents/DataMonger/EtlConfig]:
    ```
 
    Press Enter to accept the default, or type a folder. The folder is created, filled with the bundled example
@@ -59,7 +59,7 @@ other commands; see [Configuration](../Configuration.md).)
 2. **Config selection**
 
    ```
-   Available ETL configs (~/Documents/DataMonger/Config/EtlConfig):
+   Available ETL configs (~/Documents/DataMonger/EtlConfig):
      1) example.etlconfig
    Select a number, enter a path to your own .etlconfig, 'c' to change the config folder, or 'q' to cancel:
    ```
@@ -107,7 +107,7 @@ Choice: 8
 
 === Extract / Transform / Load (config-driven) ===
 
-Available ETL configs (~/Documents/DataMonger/Config/EtlConfig):
+Available ETL configs (~/Documents/DataMonger/EtlConfig):
   1) example.etlconfig
 Select a number, enter a path to your own .etlconfig, 'c' to change the config folder, or 'q' to cancel: samples/01-basic-object/basic.etlconfig
 
@@ -170,7 +170,7 @@ and a final `Total elapsed: hh:mm:ss.fff`.
 The numbered list is the content of your **ETL config folder**, not of a folder bundled with the build. Where it is
 and how it is created is described in [Configuration](../Configuration.md#config-folders); in short:
 
-* **Default:** `~/Documents/DataMonger/Config/EtlConfig` (the `DataMonger` home folder is `$DATAMONGER_HOME` when
+* **Default:** `~/Documents/DataMonger/EtlConfig` (the `DataMonger` home folder is `$DATAMONGER_HOME` when
   that variable is set).
 * **First run:** the command asks for the folder (Enter accepts the default), creates it, **copies the bundled
   `example.etlconfig` into it** when it holds no `.etlconfig`, and saves the choice in

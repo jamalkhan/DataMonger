@@ -48,9 +48,12 @@ of config has a **config folder** that you choose once and that the app remember
 
 | Kind | Extension | Default folder | Used by |
 |---|---|---|---|
-| ETL | `.etlconfig` | `~/Documents/DataMonger/Config/EtlConfig` | Extract / Transform / Load (config-driven) |
-| Anonymization | `.anonconfig` | `~/Documents/DataMonger/Config/AnonConfig` | Anonymize PII (config-driven) |
-| Synthetic data | `.synthconfig` | `~/Documents/DataMonger/Config/SynthConfig` | Synthesize User Props (fake data) |
+| ETL | `.etlconfig` | `~/Documents/DataMonger/EtlConfig` | Extract / Transform / Load (config-driven) |
+| Anonymization | `.anonconfig` | `~/Documents/DataMonger/AnonConfig` | Anonymize PII (config-driven) |
+| Synthetic data | `.synthconfig` | `~/Documents/DataMonger/SynthConfig` | Synthesize User Props (fake data) |
+| Anonymous purchases | `.purchaseanonymousconfig` | `~/Documents/DataMonger/PurchaseAnonymousConfig` | Anonymous purchases |
+| Known purchases | `.purchaseknownconfig` | `~/Documents/DataMonger/PurchaseKnownConfig` | Known (identified) purchases |
+| Email conversions | `.emailconversionconfig` | `~/Documents/DataMonger/EmailConversionConfig` | Generate Email Conversion data |
 
 `~/Documents/DataMonger` is the **DataMonger home folder**. It is `$DATAMONGER_HOME` when that environment variable is
 set (a leading `~` is expanded), otherwise the `DataMonger` folder inside your operating system's Documents folder.
@@ -63,9 +66,9 @@ default, or type a folder (surrounding double quotes are removed, `~` expands to
 
 ```text
 First run: choose the folder where your ETL config files (.etlconfig) live.
-Config folder [~/Documents/DataMonger/Config/EtlConfig]:
-  Copied 1 example .etlconfig file(s) into ~/Documents/DataMonger/Config/EtlConfig
-  Saved. Using ~/Documents/DataMonger/Config/EtlConfig (settings: ~/Documents/DataMonger/settings.json)
+Config folder [~/Documents/DataMonger/EtlConfig]:
+  Copied 1 example .etlconfig file(s) into ~/Documents/DataMonger/EtlConfig
+  Saved. Using ~/Documents/DataMonger/EtlConfig (settings: ~/Documents/DataMonger/settings.json)
 ```
 
 The app then:
@@ -81,7 +84,7 @@ The app then:
 From then on the saved folder is used silently, and the config prompt lists its contents:
 
 ```text
-Available ETL configs (~/Documents/DataMonger/Config/EtlConfig):
+Available ETL configs (~/Documents/DataMonger/EtlConfig):
   1) example.etlconfig
 Select a number, enter a path to your own .etlconfig, 'c' to change the config folder, or 'q' to cancel:
 ```
@@ -106,9 +109,9 @@ The choices live in `<home>/settings.json` (`~/Documents/DataMonger/settings.jso
 ```json
 {
   "ConfigFolders": {
-    "Etl": "/home/you/Documents/DataMonger/Config/EtlConfig",
-    "Anon": "/home/you/Documents/DataMonger/Config/AnonConfig",
-    "Synth": "/home/you/Documents/DataMonger/Config/SynthConfig"
+    "Etl": "/home/you/Documents/DataMonger/EtlConfig",
+    "Anon": "/home/you/Documents/DataMonger/AnonConfig",
+    "Synth": "/home/you/Documents/DataMonger/SynthConfig"
   }
 }
 ```

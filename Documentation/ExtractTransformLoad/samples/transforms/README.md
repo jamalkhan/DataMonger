@@ -15,7 +15,7 @@ Reference pages: [Transforms/Readme.md](../../Transforms/Readme.md) (ops index) 
 | [`filters.etlconfig`](filters.etlconfig) | Nineteen outputs, one per filter operator/variant, plus an AND combination. |
 | [`errors-skip.etlconfig`](errors-skip.etlconfig), [`errors-nullify.etlconfig`](errors-nullify.etlconfig), [`errors-abort.etlconfig`](errors-abort.etlconfig) | The same failing pipeline under each run-level `onError` policy. |
 | [`expected-output/<config>/`](expected-output/) | The `.jsonl` (plus `_warnings.csv`, `_rejects.csv`, `_filtered.csv`) a real run produced. |
-| [`expected-output/<config>.console.txt`](expected-output/) | The console transcript of that run: paths made relative to the `ExtractTransformLoad` folder, the elapsed time and run timestamp normalised, the config folder shown as `~/Documents/DataMonger/Config/EtlConfig`. |
+| [`expected-output/<config>.console.txt`](expected-output/) | The console transcript of that run: paths made relative to the `ExtractTransformLoad` folder, the elapsed time and run timestamp normalised, the config folder shown as `~/Documents/DataMonger/EtlConfig`. |
 
 File names carry the run timestamp (`convert_20261007_213026.jsonl`); yours will differ, the content will not. The
 `_warnings.csv` files have a blank `record_key` column even though `items.csv` has a column called `customer_key`: the
@@ -28,7 +28,7 @@ the same rows until about 2050) and the warning/reject timestamps in file names.
 
 Run the app's menu entry **`Extract / Transform / Load (config-driven)`** (it is item 8 in the current menu; the
 number can change as commands are added, so read the menu). The command reads its configs from your ETL config
-folder (default `~/Documents/DataMonger/Config/EtlConfig`, asked for once on the first run and remembered in
+folder (default `~/Documents/DataMonger/EtlConfig`, asked for once on the first run and remembered in
 `settings.json`; see [Configuration](../../../Configuration.md#config-folders)), but you run these samples by typing the
 path to one of the configs at the prompt *Select a number, enter a path to your own .etlconfig, 'c' to change the
 config folder, or 'q' to cancel*. No output-folder prompt appears because each config sets `load.folder` (relative to

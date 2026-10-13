@@ -1,11 +1,11 @@
 === Anonymize PII (config-driven) ===
 
 First run: choose the folder where your anonymization config files (.anonconfig) live.
-Config folder [~/Documents/DataMonger/Config/AnonConfig]: 
-  Copied 1 example .anonconfig file(s) into ~/Documents/DataMonger/Config/AnonConfig
-  Saved. Using ~/Documents/DataMonger/Config/AnonConfig (settings: ~/Documents/DataMonger/settings.json)
+Config folder [~/Documents/DataMonger/AnonConfig]: 
+  Copied 1 example .anonconfig file(s) into ~/Documents/DataMonger/AnonConfig
+  Saved. Using ~/Documents/DataMonger/AnonConfig (settings: ~/Documents/DataMonger/settings.json)
 
-Available anonymization configs (~/Documents/DataMonger/Config/AnonConfig):
+Available anonymization configs (~/Documents/DataMonger/AnonConfig):
   1) example.anonconfig
 Select a number, enter a path to your own .anonconfig, 'c' to change the config folder, or 'q' to cancel: 
 Config        : configs/basic.anonconfig

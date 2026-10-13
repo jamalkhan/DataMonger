@@ -11,16 +11,11 @@ public class CommandContextTests
     [TestMethod]
     public void CommandContext_RoundTripsInitializedValues()
     {
-        var products = new[]
-        {
-            new Product("1", "product", 9.99m, 3, "Tee", "Tops", "Shirts", "M", "https://example.com/tee"),
-        };
         var activity = new Uri("https://example.com/activities");
         var identify = new Uri("https://example.com/identify");
 
         var ctx = new CommandContext
         {
-            Products = products,
             Rest = new RestClient(),
             ActivityUri = activity,
             IdentifyUri = identify,
@@ -29,8 +24,6 @@ public class CommandContextTests
             MaxParallelism = 50,
         };
 
-        Assert.AreEqual(1, ctx.Products.Count);
-        Assert.AreEqual("Tee", ctx.Products[0].ProductName);
         Assert.AreEqual(activity, ctx.ActivityUri);
         Assert.AreEqual(identify, ctx.IdentifyUri);
         Assert.AreEqual("user", ctx.Username);

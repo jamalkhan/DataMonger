@@ -26,10 +26,24 @@ configured site** (`RunsPerSite` defaults to true), sequentially, under the head
 printf '10\n' | dotnet DataMonger.dll
 ```
 
+## Config
+
+Prompts for a `.purchaseknownconfig` from the config folder (see [Configuration](../Configuration.md)); `products.csv` is no longer loaded at app start-up.
+JSON with comments and trailing commas; every key is optional. Relative paths resolve against the config file's folder (`~` expands).
+
+| Key | Default | Meaning |
+|---|---|---|
+| `customersFile` | `LocalData/identified.csv` | customers CSV |
+| `productsFile` | `LocalData/products.csv` | products CSV ([format](../PurchaseKnown/InputFormat.md#productscsv)) |
+| `minItems` / `maxItems` | `1` / `3` | each order gets a random number of distinct products in this range (inclusive) |
+| `orderIdPrefix` | `TST-ORD-` | prefix of the generated `order_id` |
+
+A bundled `example.purchaseknownconfig` is copied into a new config folder.
+
 ## Inputs
 
 * `LocalData/identified.csv` (read when the command starts) - see [InputFormat.md](InputFormat.md#identifiedcsv).
-* `LocalData/products.csv` (loaded at app startup) - see [InputFormat.md](InputFormat.md#productscsv).
+* `products.csv` (path from the config) - see [InputFormat.md](InputFormat.md#productscsv).
 * `appsettings.json` next to the DLL: `Sites[]` of `BaseUrl`, `SiteId`, `Username`, `Password`.
 
 Console line printed first: `Customers loaded: N (from identified.csv)`.

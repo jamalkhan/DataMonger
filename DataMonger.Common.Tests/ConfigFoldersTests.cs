@@ -36,9 +36,9 @@ public class ConfigFoldersTests
     [TestMethod]
     public void DefaultFolder_IsUnderHomeConfigKindFolder()
     {
-        Assert.AreEqual(Path.Combine(_home, "Config", "SynthConfig"), ConfigFolders.DefaultFolder(ConfigKind.Synth));
-        Assert.AreEqual(Path.Combine(_home, "Config", "EtlConfig"), ConfigFolders.DefaultFolder(ConfigKind.Etl));
-        Assert.AreEqual(Path.Combine(_home, "Config", "AnonConfig"), ConfigFolders.DefaultFolder(ConfigKind.Anon));
+        Assert.AreEqual(Path.Combine(_home, "SynthConfig"), ConfigFolders.DefaultFolder(ConfigKind.Synth));
+        Assert.AreEqual(Path.Combine(_home, "EtlConfig"), ConfigFolders.DefaultFolder(ConfigKind.Etl));
+        Assert.AreEqual(Path.Combine(_home, "AnonConfig"), ConfigFolders.DefaultFolder(ConfigKind.Anon));
     }
 
     [TestMethod]

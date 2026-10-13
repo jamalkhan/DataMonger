@@ -1,0 +1,9 @@
+// Config for "Generate Email Conversion data". JSON with comments (//, /* */) and trailing commas allowed; keys are case-insensitive.
+// Relative paths resolve against this file's folder; "~" expands to your home folder.
+// Every key is optional; omitted file paths default to the repo's LocalData folder.
+{
+  // "customersFile": "~/Documents/DataMonger/data/identified.csv", // default: LocalData/identified.csv
+  // "productsFile": "~/Documents/DataMonger/data/products.csv",    // default: LocalData/products.csv
+  // "outputFile": "~/Documents/DataMonger/data/EmailConversion.jsonl", // default: LocalData/EmailConversion.jsonl
+  // "seed": 42,   // same seed = byte-identical output; omit to be asked at run time (blank = unseeded)
+}

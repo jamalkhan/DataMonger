@@ -24,7 +24,7 @@ Config paths are relative to the config file, so the samples work from any check
 ## How to reproduce
 
 Run from this `samples` folder, with the built app. The command reads its configs from your **anonymization config
-folder** (default `~/Documents/DataMonger/Config/AnonConfig`, asked for once on the first run and remembered in
+folder** (default `~/Documents/DataMonger/AnonConfig`, asked for once on the first run and remembered in
 `settings.json`; see [Configuration](../../Configuration.md#config-folders)). The samples are run by typing the path of
 the config at the prompt. Point `DATAMONGER_HOME` at a scratch folder to keep the saved settings out of your real
 Documents folder:
@@ -38,7 +38,7 @@ printf '1\nconfigs/basic.anonconfig\n'    | dotnet path/to/DataMonger.dll   # la
 
 `1` is the menu number of **Anonymize PII (config-driven)** at the time of writing; the menu is alphabetical, so
 check the list the app prints. Interactively, run `dotnet path/to/DataMonger.dll`, choose the entry, press Enter at
-`Config folder [~/Documents/DataMonger/Config/AnonConfig]:` (first run only) and type `configs/basic.anonconfig` at
+`Config folder [~/Documents/DataMonger/AnonConfig]:` (first run only) and type `configs/basic.anonconfig` at
 the *Select a number, enter a path...* prompt. The app needs its usual `appsettings.json` and `LocalData/products.csv`
 in the working directory's `LocalData/` folder to start (see [Configuration](../../Configuration.md)); the command itself
 uses neither. Running writes into `expected-output/<scenario>/` (the configs point there), overwriting the
@@ -54,7 +54,7 @@ principle draw a different sequence from the same seed. Remove the `seed` line t
 `expected-output/console/*.txt` hold what the app printed from the `=== Anonymize PII ...` header onward. They
 have been edited in four ways: the `Total elapsed` line (varies run to run) is removed, stack traces after a
 `[FAIL]` line are removed, the absolute path of this folder is replaced by `<samples>`, and the config folder
-(a scratch `DATAMONGER_HOME` in the real runs) is shown as `~/Documents/DataMonger/Config/AnonConfig`.
+(a scratch `DATAMONGER_HOME` in the real runs) is shown as `~/Documents/DataMonger/AnonConfig`.
 Every transcript therefore begins with the config-folder listing (`Available anonymization configs (...)` with the
 seeded `example.anonconfig`) and the prompt. [`first-run.txt`](expected-output/console/first-run.txt) is a genuine
 first run on a fresh home: it additionally shows the `Config folder [...]:` question, the copy of the example config and

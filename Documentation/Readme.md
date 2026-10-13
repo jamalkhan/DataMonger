@@ -60,7 +60,7 @@ dotnet run --project DataMonger
 ```
 
 The first time you run a command that needs a config file (ETL, anonymize, synthesize user props), the app asks
-where to keep your configs (default `~/Documents/DataMonger/Config/<Kind>Config`), copies the bundled examples in,
+where to keep your configs (default `~/Documents/DataMonger/<Kind>Config`), copies the bundled examples in,
 and remembers the choice; see [Configuration](Configuration.md#config-folders).
 
 The app prints the configured sites, then a numbered menu. Type the number of a command and press Enter; the

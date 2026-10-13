@@ -1,0 +1,10 @@
+// Config for "Known (identified) purchases". JSON with comments (//, /* */) and trailing commas allowed; keys are case-insensitive.
+// Relative paths resolve against this file's folder; "~" expands to your home folder.
+// Every key is optional; omitted file paths default to the repo's LocalData folder.
+{
+  // "customersFile": "~/Documents/DataMonger/data/identified.csv", // default: LocalData/identified.csv
+  // "productsFile": "~/Documents/DataMonger/data/products.csv",    // default: LocalData/products.csv
+  "minItems": 1,         // each order gets between minItems and maxItems distinct products
+  "maxItems": 3,
+  "orderIdPrefix": "TST-ORD-",
+}

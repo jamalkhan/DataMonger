@@ -54,22 +54,47 @@ public class GenerateEmailConversions(CommandContext ctx) : IConsoleCommand
 
     public async Task<(int success, int failure)> Execute()
     {
-        var people = CsvLoader.ReadIdentified(DataPaths.Combine("identified.csv")).ToList();
-        var products = ctx.Products.ToArray();
+        var configPath = new ConfigFolders().PromptForConfig(ConfigKind.EmailConversion);
+        if (configPath is null)
+        {
+            Console.WriteLine("[FAIL] No config file provided or it does not exist. Aborting.");
+            return (0, 1);
+        }
+        EmailConversionConfig config;
+        List<IdentifiedPerson> people;
+        Product[] products;
+        string outputPath;
+        try
+        {
+            config = CommandConfigFile.Load<EmailConversionConfig>(configPath);
+            var configDir = Path.GetDirectoryName(Path.GetFullPath(configPath))!;
+            var customersFile = CommandConfigFile.ResolvePath(config.CustomersFile, configDir, DataPaths.Combine("identified.csv"));
+            var productsFile = CommandConfigFile.ResolvePath(config.ProductsFile, configDir, DataPaths.Combine("products.csv"));
+            outputPath = CommandConfigFile.ResolvePath(config.OutputFile, configDir, DataPaths.Combine("EmailConversion.jsonl"));
+            people = CsvLoader.ReadIdentified(customersFile).ToList();
+            products = CsvLoader.ReadProducts(productsFile).ToArray();
+            Console.WriteLine($"Config        : {configPath}");
+            Console.WriteLine($"Customers     : {people.Count} (from {customersFile})");
+            Console.WriteLine($"Products      : {products.Length} (from {productsFile})");
+        }
+        catch (Exception ex) when (ex is CommandConfigException or IOException or InvalidDataException or UnauthorizedAccessException)
+        {
+            Console.WriteLine($"[FAIL] {ex.Message}");
+            return (0, 1);
+        }
         if (products.Length == 0)
         {
-            Console.WriteLine("[FAIL] products.csv is empty: cannot pick featured products.");
+            Console.WriteLine("[FAIL] The products file has no rows: cannot pick featured products.");
             return (0, 1);
         }
 
-        var seed = PromptForSeed();
+        var seed = config.Seed ?? PromptForSeed();
         var rnd = seed.HasValue ? new Random(seed.Value) : new Random();
         var anchor = seed.HasValue ? DefaultSeededAnchor : DateTimeOffset.UtcNow;
         Console.WriteLine(seed.HasValue
             ? $"Seed {seed.Value}: output is reproducible (events are anchored at {FormatIsoMs(anchor)})."
             : "No seed: output differs on every run (events are anchored at the current time).");
 
-        var outputPath = DataPaths.Combine("EmailConversion.jsonl");
         Directory.CreateDirectory(Path.GetDirectoryName(outputPath)!);
 
         var rows = Generate(people, products, rnd, anchor);

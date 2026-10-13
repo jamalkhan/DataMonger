@@ -25,7 +25,7 @@ invented inputs (a fictional retailer, "Acme Outfitters"), one or more `.etlconf
 
 ## How to run a sample
 
-The command reads its configs from your **ETL config folder** (default `~/Documents/DataMonger/Config/EtlConfig`,
+The command reads its configs from your **ETL config folder** (default `~/Documents/DataMonger/EtlConfig`,
 chosen on the first run and remembered in `settings.json`; see [Configuration](../../Configuration.md#config-folders)).
 The samples are run by typing the path of the config at the prompt, so the config folder is not used to hold them.
 To keep your real Documents folder out of it, point `DATAMONGER_HOME` at a scratch folder.
@@ -49,7 +49,7 @@ with `Documentation/ExtractTransformLoad/`; the console then shows the longer pa
 
    ```
    First run: choose the folder where your ETL config files (.etlconfig) live.
-   Config folder [~/Documents/DataMonger/Config/EtlConfig]:
+   Config folder [~/Documents/DataMonger/EtlConfig]:
    ```
 
    Press Enter. It creates the folder, copies `example.etlconfig` into it and saves the choice. The complete
@@ -86,7 +86,7 @@ are done; they are not meant to be committed.
 * The real timestamp in file names and console text was replaced by `20260101_000000`, and the elapsed time by
   `00:00:00.000`, so the folders are stable. A real run has your current time instead.
 * Paths in `console-output.txt` are shown relative to the working directory (the `ExtractTransformLoad` folder),
-  `[~/Desktop]` stands for your Desktop folder, and `~/Documents/DataMonger/Config/EtlConfig` stands for the config
+  `[~/Desktop]` stands for your Desktop folder, and `~/Documents/DataMonger/EtlConfig` stands for the config
   folder (the real transcripts used a scratch `DATAMONGER_HOME` whose `settings.json` already pointed at a folder
   holding the seeded `example.etlconfig`). The first line of every transcript after the header is therefore the
   config-folder listing, then the prompt.
