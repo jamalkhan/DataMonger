@@ -1,0 +1,5 @@
+sku|product_name|category|notes
+TENT-2P|Summit 2-Person Tent|camping|"Seam-sealed | 3-season"
+SOCK-WOOL|Merino Trail Socks|apparel|"Pack of 3
+machine washable"
+CAP-TRAIL|Trail Cap|apparel|

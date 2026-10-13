@@ -1,0 +1,25 @@
+=== Extract / Transform / Load (config-driven) ===
+
+Available ETL configs (~/Documents/DataMonger/Config/EtlConfig):
+  1) example.etlconfig
+Select a number, enter a path to your own .etlconfig, 'c' to change the config folder, or 'q' to cancel: 
+Config        : samples/09-run-limits/sample.etlconfig
+Sources       : 3
+Outputs       : 1
+Join strategy : HashInMemory
+On error      : Skip
+Sample        : first 2 primary row(s), scoped by customer_id (SAMPLE RUN)
+Max records   : (no cap)
+Output folder : (from config)
+Run timestamp : 20260101_000000
+
+[SAMPLE RUN] customers: first 2 'customers' row(s), scoped by customer_id; children are complete for those parents.
+    sample: 2 primary row(s) from 'customers' -> 2 distinct customer_id value(s); other sources are scoped to those parents.
+    output 'customers': 1 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- customers (Object, HashInMemory) ---
+    output folder: samples/09-run-limits/output/run_20260101_000000
+
+=== Done ===
+customers: 2 records across 1 file(s):
+    samples/09-run-limits/output/run_20260101_000000/customers_20260101_000000.jsonl
+Total elapsed: 00:00:00.000

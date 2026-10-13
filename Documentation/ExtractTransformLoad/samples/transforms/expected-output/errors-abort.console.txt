@@ -1,0 +1,20 @@
+=== Extract / Transform / Load (config-driven) ===
+
+Available ETL configs (~/Documents/DataMonger/Config/EtlConfig):
+  1) example.etlconfig
+Select a number, enter a path to your own .etlconfig, 'c' to change the config folder, or 'q' to cancel: 
+Config        : samples/transforms/errors-abort.etlconfig
+Sources       : 1
+Outputs       : 1
+Join strategy : HashInMemory
+On error      : Abort
+Sample        : (full run)
+Max records   : (no cap)
+Output folder : (from config)
+Run timestamp : 20261007_213031
+
+    output 'errors_abort': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- errors_abort (Object, HashInMemory) ---
+    output folder: samples/transforms/output/run_20261007_213031
+[FAIL] EtlRowException: transform 'toInteger' failed: The input string '12.5' was not in a correct format.
+   [stack trace omitted]

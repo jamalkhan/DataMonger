@@ -1,0 +1,24 @@
+=== Extract / Transform / Load (config-driven) ===
+
+Available ETL configs (~/Documents/DataMonger/Config/EtlConfig):
+  1) example.etlconfig
+Select a number, enter a path to your own .etlconfig, 'c' to change the config folder, or 'q' to cancel: 
+Config        : samples/transforms/errors-skip.etlconfig
+Sources       : 1
+Outputs       : 1
+Join strategy : HashInMemory
+On error      : Skip
+Sample        : (full run)
+Max records   : (no cap)
+Output folder : (from config)
+Run timestamp : 20261007_213029
+
+    output 'errors_skip': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- errors_skip (Object, HashInMemory) ---
+    output folder: samples/transforms/output/run_20261007_213029
+    2 record(s) skipped -> samples/transforms/output/run_20261007_213029/errors_skip_20261007_213029_rejects.csv
+
+=== Done ===
+errors_skip: 8 records across 1 file(s), 2 skipped:
+    samples/transforms/output/run_20261007_213029/errors_skip_20261007_213029.jsonl
+Total elapsed: 00:00:00.000

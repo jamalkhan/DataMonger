@@ -1,0 +1,35 @@
+=== Extract / Transform / Load (config-driven) ===
+
+Available ETL configs (~/Documents/DataMonger/Config/EtlConfig):
+  1) example.etlconfig
+Select a number, enter a path to your own .etlconfig, 'c' to change the config folder, or 'q' to cancel: 
+Config        : samples/10-filter-distinct-require/filters.etlconfig
+Sources       : 3
+Outputs       : 3
+Join strategy : HashInMemory
+On error      : Skip
+Sample        : (full run)
+Max records   : (no cap)
+Output folder : (from config)
+Run timestamp : 20260101_000000
+
+    output 'orders_filtered': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- orders_filtered (Object, HashInMemory) ---
+    output folder: samples/10-filter-distinct-require/output/run_20260101_000000
+    3 record(s) filtered out -> samples/10-filter-distinct-require/output/run_20260101_000000/orders_filtered_20260101_000000_filtered.csv
+    output 'order_events': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- order_events (Object, HashInMemory) ---
+    output folder: samples/10-filter-distinct-require/output/run_20260101_000000
+    output 'customers_with_orders': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- customers_with_orders (Object, HashInMemory) ---
+    output folder: samples/10-filter-distinct-require/output/run_20260101_000000
+    2 record(s) filtered out -> samples/10-filter-distinct-require/output/run_20260101_000000/customers_with_orders_20260101_000000_filtered.csv
+
+=== Done ===
+orders_filtered: 5 records across 1 file(s), 3 filtered out:
+    samples/10-filter-distinct-require/output/run_20260101_000000/orders_filtered_20260101_000000.jsonl
+order_events: 7 records across 1 file(s):
+    samples/10-filter-distinct-require/output/run_20260101_000000/order_events_20260101_000000.jsonl
+customers_with_orders: 4 records across 1 file(s), 2 filtered out:
+    samples/10-filter-distinct-require/output/run_20260101_000000/customers_with_orders_20260101_000000.jsonl
+Total elapsed: 00:00:00.000

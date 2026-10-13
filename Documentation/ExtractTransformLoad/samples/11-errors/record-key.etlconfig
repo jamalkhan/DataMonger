@@ -1,0 +1,55 @@
+{
+  // 11-errors (record-key): what the warnings file's record_key column holds once relationships are involved.
+  //  - output "customers_with_orders": a warning on the PRIMARY row (a middle name is not an integer) reports the
+  //    join key towards its first relationship (customer_id); warnings on the CHILD rows (orders) report the
+  //    child-side join key (also customer_id here).
+  //  - output "prefs_with_emails": a composite join key (customer_id + brand), so record_key looks like "1001|Acme".
+  "version": 1,
+  "run": { "joinStrategy": "hashInMemory", "onError": "skip" },
+
+  "sources": {
+    "customers":    { "file": "../data/customers.csv" },
+    "messy_orders": { "file": "messy_orders.csv" },
+    "emails":      { "file": "../data/emails.csv" },
+    "email_prefs": { "file": "../data/email_prefs.csv" }
+  },
+
+  "outputs": [
+    {
+      "name": "customers_with_orders",
+      "mode": "object",
+      "source": "customers",
+      "fields": [
+        { "name": "customer_id", "from": "customer_id", "type": "integer" },
+        { "name": "middle_rank", "from": "middle_name", "type": "integer", "onError": "warnAndNull" }
+      ],
+      "children": [
+        { "source": "messy_orders", "as": "orders", "cardinality": "many",
+          "on": { "parent": "customer_id", "child": "customer_id" },
+          "fields": [
+            { "name": "order_id",  "from": "order_id",  "type": "integer" },
+            { "name": "ship_date", "from": "ship_date", "type": "date", "onError": "warnAndNull" },
+            { "name": "weight_kg", "from": "weight_kg", "type": "decimal" }
+          ] }
+      ],
+      "load": { "folder": "output", "fileBaseName": "customers_with_orders", "sampling": { "enabled": false } }
+    },
+    {
+      "name": "prefs_with_emails",
+      "mode": "object",
+      "source": "email_prefs",
+      "fields": [
+        { "name": "pref_id",      "from": "pref_id",  "type": "integer" },
+        { "name": "channel_rank", "from": "channel",  "type": "integer", "onError": "warnAndNull" }
+      ],
+      "children": [
+        { "source": "emails", "as": "emails", "cardinality": "many",
+          "on": { "parents": [ "customer_id", "brand" ], "children": [ "customer_id", "brand" ] },
+          "fields": [
+            { "name": "email_address", "from": "email_address", "type": "string" }
+          ] }
+      ],
+      "load": { "folder": "output", "fileBaseName": "prefs_with_emails", "sampling": { "enabled": false } }
+    }
+  ]
+}

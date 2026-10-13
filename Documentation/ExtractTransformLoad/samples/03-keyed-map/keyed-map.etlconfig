@@ -1,0 +1,53 @@
+{
+  // 03-keyed-map: one object per customer whose property NAMES are computed from the data.
+  // Each email row becomes the property "email::<address>"; rows for the same customer are grouped
+  // into one record. "dedup" keeps, per address, the row with the greatest status_date.
+  "version": 1,
+  "run": { "joinStrategy": "hashInMemory", "onError": "skip" },
+
+  "sources": {
+    "emails": { "file": "../data/emails.csv", "fields": { "customer_id": { "type": "integer" } } }
+  },
+
+  "outputs": [
+    {
+      "name": "email_map",
+      "mode": "keyedMap",
+      "source": "emails",
+      "groupBy": "customer_id",
+      "keyExpr": {
+        "pipeline": [ { "op": "concat", "values": [ { "literal": "email::" }, { "field": "email_address" } ] } ]
+      },
+      "dedup": { "within": "email_address", "keepMaxOf": "status_date" },
+
+      // Only active rows are considered (rows that fail the filter are dropped before grouping output).
+      "filter": [ { "column": "status", "op": "eq", "value": "active" } ],
+      "filterExcludedFile": true,
+
+      "fields": [
+        { "name": "status",      "from": "status",      "type": "string" },
+        { "name": "status_date", "from": "status_date", "type": "date" },
+        { "name": "brand",       "from": "brand",       "type": "string" }
+      ],
+      "load": { "folder": "output", "fileBaseName": "email_map" }
+    },
+
+    {
+      // Same shape without the filter, so "dedup" is visible: customer 1003 has the same address twice
+      // (an inactive 2022 row and an active 2024 row) and only the row with the larger status_date survives.
+      "name": "email_map_dedup",
+      "mode": "keyedMap",
+      "source": "emails",
+      "groupBy": "customer_id",
+      "keyExpr": {
+        "pipeline": [ { "op": "concat", "values": [ { "literal": "email::" }, { "field": "email_address" } ] } ]
+      },
+      "dedup": { "within": "email_address", "keepMaxOf": "status_date" },
+      "fields": [
+        { "name": "status",      "from": "status",      "type": "string" },
+        { "name": "status_date", "from": "status_date", "type": "date" }
+      ],
+      "load": { "folder": "output", "fileBaseName": "email_map_dedup" }
+    }
+  ]
+}

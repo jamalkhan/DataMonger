@@ -1,0 +1,10 @@
+﻿ticket_id,customer_id,message
+9001,1001,"Hello,
+my order arrived late.
+Thanks"
+9002,1002,"She said ""wrong size"" on the phone"
+
+9003,1003,Plain note
+9004,1004,"Line one
+line two"
+9005,1005,No trailing newline here

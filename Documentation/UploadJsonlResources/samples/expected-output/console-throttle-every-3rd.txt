@@ -1,0 +1,31 @@
+=== API => Upload JSONL Resources (create/update) -> site: demo ===
+Available JSONL files in LocalData/jsonl/products:
+  1) products.jsonl
+  2) products_bad.jsonl
+Choice [1-2]: 1
+Available sites:
+  1) demo  (http://localhost:5281)
+Choice [1-1]: 1
+
+File:    LocalData/jsonl/products/products.jsonl
+Site ID: demo
+Target:  http://localhost:5281/ver2/demo/resources/{resource_id}
+Parallelism: 50
+
+[FAIL] L2 resource_id=TENT-4P -> 429 TooManyRequests
+       {
+         "status": "error",
+         "error": "rate_limited"
+       }
+[FAIL] L10 resource_id=STOVE-1 -> 429 TooManyRequests
+       {
+         "status": "error",
+         "error": "rate_limited"
+       }
+[FAIL] L9 resource_id=BAG-SLP -> 429 TooManyRequests
+       {
+         "status": "error",
+         "error": "rate_limited"
+       }
+
+=== API => Upload JSONL Resources (create/update) summary ===  Site: demo   Success: 7   Failed: 3   Elapsed: <elapsed>

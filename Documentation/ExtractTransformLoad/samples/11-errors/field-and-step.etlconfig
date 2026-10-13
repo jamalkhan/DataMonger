@@ -1,0 +1,25 @@
+{
+  // 11-errors (field-and-step): field-level and step-level overrides on top of run.onError "skip".
+  "version": 1,
+  "run": { "joinStrategy": "hashInMemory", "onError": "skip" },
+
+  "sources": {
+    "messy_orders": { "file": "messy_orders.csv" }
+  },
+
+  "outputs": [
+    {
+      "name": "orders",
+      "mode": "object",
+      "source": "messy_orders",
+      "fields": [
+        { "name": "order_id",    "from": "order_id",   "type": "integer" },
+        { "name": "quantity",    "from": "quantity",   "type": "integer", "pipeline": [ { "op": "toInteger", "onError": { "default": 1 } } ] },
+        { "name": "unit_price",  "from": "unit_price", "type": "decimal", "pipeline": [ { "op": "toDecimal", "onError": "null" } ] },
+        { "name": "ship_date",   "from": "ship_date",  "type": "date", "onError": "warnAndNull" },
+        { "name": "weight_kg",   "from": "weight_kg",  "type": "decimal" }
+      ],
+      "load": { "folder": "output", "fileBaseName": "orders", "sampling": { "enabled": false } }
+    }
+  ]
+}

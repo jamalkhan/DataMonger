@@ -1,0 +1,87 @@
+{
+  // 13-joins-advanced:
+  //   caseInsensitiveJoin   match customers.email to emails.email_address ignoring case (default is exact)
+  //   composite join keys   on.parents / on.children (here: customer AND brand)
+  //   shareDistinct         several inline array fields with one name share a single distinct set + limit
+  //   two outputs           the identical lookup is built once and reused by the second output
+  "version": 1,
+  "run": { "joinStrategy": "hashInMemory", "onError": "skip" },
+
+  "sources": {
+    "customers":   { "file": "../data/customers.csv",   "fields": { "customer_id": { "type": "integer" } } },
+    "emails":      { "file": "../data/emails.csv" },
+    "email_prefs": { "file": "../data/email_prefs.csv" }
+  },
+
+  "outputs": [
+    {
+      "name": "customers_joined",
+      "mode": "object",
+      "source": "customers",
+      "fields": [
+        { "name": "customer_id", "from": "customer_id", "type": "integer" },
+        { "name": "email",       "from": "email",       "type": "string" },
+
+        // Two inline fields, one name, one array. shareDistinct: an address that arrives from BOTH
+        // sources is emitted once, and limit 3 caps the whole array rather than each source.
+        { "name": "known_addresses", "type": "array", "source": "emails", "shareDistinct": true,
+          "on": { "parent": "customer_id", "child": "customer_id" },
+          "distinctBy": "email_address", "limit": 3,
+          "fields": [ { "name": "address", "from": "email_address", "type": "string" },
+                      { "name": "origin",  "type": "string", "pipeline": [ { "op": "literal", "default": "emails" } ] } ] },
+        { "name": "known_addresses", "type": "array", "source": "email_prefs", "shareDistinct": true,
+          "on": { "parent": "customer_id", "child": "customer_id" },
+          "distinctBy": "email_address", "limit": 3,
+          "fields": [ { "name": "address", "from": "email_address", "type": "string" },
+                      { "name": "origin",  "type": "string", "pipeline": [ { "op": "literal", "default": "email_prefs" } ] } ] }
+      ],
+      "children": [
+        // customers.email is "Ada.Lovelace@example.com"; emails.email_address is lower-case.
+        { "source": "emails", "as": "email_match_ignoring_case", "cardinality": "many", "caseInsensitiveJoin": true,
+          "on": { "parent": "email", "child": "email_address" },
+          "distinctBy": "email_address",
+          "fields": [ { "name": "email_id", "from": "email_id", "type": "integer" } ] },
+        // The same join without caseInsensitiveJoin matches nothing for 1001.
+        { "source": "emails", "as": "email_match_exact", "cardinality": "many",
+          "on": { "parent": "email", "child": "email_address" },
+          "distinctBy": "email_address",
+          "fields": [ { "name": "email_id", "from": "email_id", "type": "integer" } ] }
+      ],
+      "load": { "folder": "output", "fileBaseName": "customers_joined", "sampling": { "enabled": false } }
+    },
+
+    {
+      // Composite key: an email row pairs with its preference row only when customer_id AND brand match.
+      "name": "email_with_prefs",
+      "mode": "object",
+      "source": "emails",
+      "fields": [
+        { "name": "email_id",      "from": "email_id",      "type": "integer" },
+        { "name": "email_address", "from": "email_address", "type": "string" },
+        { "name": "brand",         "from": "brand",         "type": "string" },
+        { "name": "customer_brands", "type": "array",
+          "lookup": { "source": "emails", "on": { "parent": "customer_id", "child": "customer_id" }, "column": "brand", "distinct": true } }
+      ],
+      "children": [
+        { "source": "email_prefs", "as": "prefs", "cardinality": "one",
+          "on": { "parents": [ "customer_id", "brand" ], "children": [ "customer_id", "brand" ] },
+          "fields": [ { "name": "channel", "from": "channel", "type": "string" },
+                      { "name": "opted_in", "from": "opted_in", "type": "bool" } ] }
+      ],
+      "load": { "folder": "output", "fileBaseName": "email_with_prefs", "sampling": { "enabled": false } }
+    },
+
+    {
+      // Another output, same lookup (same source/join column/projection): reused, not re-read.
+      "name": "customer_brands",
+      "mode": "object",
+      "source": "customers",
+      "fields": [
+        { "name": "customer_id", "from": "customer_id", "type": "integer" },
+        { "name": "brands", "type": "array",
+          "lookup": { "source": "emails", "on": { "parent": "customer_id", "child": "customer_id" }, "column": "brand", "distinct": true } }
+      ],
+      "load": { "folder": "output", "fileBaseName": "customer_brands", "sampling": { "enabled": false } }
+    }
+  ]
+}

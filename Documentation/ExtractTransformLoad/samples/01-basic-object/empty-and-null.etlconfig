@@ -1,0 +1,34 @@
+{
+  // 01-basic-object (empty-and-null): how blank and null values are written.
+  //   default                 null values and empty strings are OMITTED from the record
+  //   run.emitEmpty: true     a blank string cell is kept and written as ""
+  //   field emitNull: true    a field whose computed value is null is written as an explicit JSON null
+  // (Empty arrays and null values on fields WITHOUT emitNull are always omitted.)
+  "version": 1,
+  "run": { "joinStrategy": "hashInMemory", "onError": "skip", "emitEmpty": true },
+
+  "sources": {
+    "customers": { "file": "../data/customers.csv", "fields": { "customer_id": { "type": "integer" } } }
+  },
+
+  "outputs": [
+    {
+      "name": "customers_blank_values",
+      "mode": "object",
+      "source": "customers",
+      "fields": [
+        { "name": "customer_id", "from": "customer_id", "type": "integer" },
+        { "name": "middle_name", "from": "middle_name", "type": "string" },   // "" when blank (emitEmpty)
+        { "name": "tier",        "from": "tier",        "type": "string" },   // "" when blank (emitEmpty)
+        { "name": "phone",       "from": "phone",       "type": "string" },
+        // A bare "literal" with no "default" yields null; emitNull writes it as an explicit null.
+        { "name": "nickname",    "type": "string", "emitNull": true,
+          "pipeline": [ { "op": "literal" } ] },
+        // Same null, but without emitNull: the field is simply absent.
+        { "name": "suffix",      "type": "string",
+          "pipeline": [ { "op": "literal" } ] }
+      ],
+      "load": { "folder": "output", "fileBaseName": "customers_blank_values", "sampling": { "enabled": false } }
+    }
+  ]
+}

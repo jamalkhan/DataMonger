@@ -1,0 +1,6 @@
+subscriber_id|email|first_name|signup_date|source
+2001|ned.flanders25@springfield.example|Ned|2024-01-15|footer
+2002|jimbo.jones31@springfield.example|Jimbo|2024-02-03|checkout
+2003||Homer|2024-02-20|popup
+2004|patty.bouvier99@springfield.example||2024-03-11|footer
+2005|lenny.leonard92@springfield.example|Lenny|2024-03-30|checkout

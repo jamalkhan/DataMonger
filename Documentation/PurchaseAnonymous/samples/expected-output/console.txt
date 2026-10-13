@@ -1,0 +1,13 @@
+=== Anonymous purchases -> site: demo ===
+Customers loaded: 10 (from anonymous.csv)
+[OK]   john.mccarthy@example.com (2 items) -> 202 Accepted
+[OK]   joan.clarke@example.com (3 items) -> 202 Accepted
+[OK]   hedy.lamarr@example.com (1 item) -> 202 Accepted
+[OK]   frances.allen@example.com (2 items) -> 202 Accepted
+[OK]   donald.knuth@example.com (2 items) -> 202 Accepted
+[OK]   annie.easley@example.com (1 item) -> 202 Accepted
+[OK]   tim.berners-lee@example.com (3 items) -> 202 Accepted
+[OK]   shafi.goldwasser@example.com (1 item) -> 202 Accepted
+[OK]   ken.thompson@example.com (2 items) -> 202 Accepted
+[OK]   charles.babbage@example.com (1 item) -> 202 Accepted
+=== Anonymous purchases summary ===  Success: 10   Failed: 0   Elapsed: 00:00:00.099

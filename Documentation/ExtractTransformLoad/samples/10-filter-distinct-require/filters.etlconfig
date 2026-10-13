@@ -1,0 +1,78 @@
+{
+  // 10-filter-distinct-require: deciding WHICH primary records are emitted.
+  //   orders_filtered        output "filter" (AND of conditions) + filterExcludedFile
+  //   order_events           output "distinctBy": one record per order even though the primary is order_lines
+  //   customers_with_orders  output "requireRelations": only customers having at least one matching child
+  "version": 1,
+  "run": { "joinStrategy": "hashInMemory", "onError": "skip" },
+
+  "sources": {
+    "customers":   { "file": "../data/customers.csv" },
+    "orders":      { "file": "../data/orders.csv" },
+    "order_lines": { "file": "../data/order_lines.csv" }
+  },
+
+  "outputs": [
+    {
+      "name": "orders_filtered",
+      "mode": "object",
+      "source": "orders",
+      // Every condition must pass. A missing/unparseable date fails a date condition.
+      "filter": [
+        { "column": "status",     "op": "in",        "value": [ "shipped", "pending" ] },
+        { "column": "order_date", "op": "onOrAfter", "value": "2024-01-01" },
+        { "column": "order_date", "op": "after",     "value": "now-30years" },
+        { "column": "subtotal",   "op": "ge",        "value": 50 },
+        { "column": "store_id",   "op": "notEmpty" }
+      ],
+      "filterExcludedFile": true,
+      "fields": [
+        { "name": "order_id",   "from": "order_id",   "type": "integer" },
+        { "name": "status",     "from": "status",     "type": "string" },
+        { "name": "order_date", "from": "order_date", "type": "date" },
+        { "name": "subtotal",   "from": "subtotal",   "type": "decimal" }
+      ],
+      "load": { "folder": "output", "fileBaseName": "orders_filtered", "sampling": { "enabled": false } }
+    },
+
+    {
+      "name": "order_events",
+      "mode": "object",
+      "source": "order_lines",
+      "distinctBy": "order_id",
+      "fields": [
+        { "name": "order_id", "from": "order_id", "type": "integer" }
+      ],
+      "children": [
+        // The child joins against ALL lines sharing the order_id, not just the one kept as the primary row.
+        { "source": "order_lines", "as": "lines", "cardinality": "many",
+          "on": { "parent": "order_id", "child": "order_id" },
+          "fields": [
+            { "name": "sku",      "from": "sku",      "type": "string" },
+            { "name": "quantity", "from": "quantity", "type": "integer" }
+          ] }
+      ],
+      "load": { "folder": "output", "fileBaseName": "order_events", "sampling": { "enabled": false } }
+    },
+
+    {
+      "name": "customers_with_orders",
+      "mode": "object",
+      "source": "customers",
+      "requireRelations": [ "orders" ],
+      "filterExcludedFile": true,
+      "fields": [
+        { "name": "customer_id", "from": "customer_id", "type": "integer" },
+        { "name": "last_name",   "from": "last_name",   "type": "string" }
+      ],
+      "children": [
+        // Only shipped orders count, both for rendering and for the requireRelations check.
+        { "source": "orders", "as": "orders", "cardinality": "many",
+          "on": { "parent": "customer_id", "child": "customer_id" },
+          "filter": [ { "column": "status", "op": "eq", "value": "shipped" } ],
+          "fields": [ { "name": "order_id", "from": "order_id", "type": "integer" } ] }
+      ],
+      "load": { "folder": "output", "fileBaseName": "customers_with_orders", "sampling": { "enabled": false } }
+    }
+  ]
+}

@@ -1,0 +1,156 @@
+{
+  // Exercises every transform op once (plus input typing and step/field error handling).
+  // Each output groups one family of ops; the field name says which op/variant it demonstrates.
+  // File paths are relative to THIS file. Output lands in output/<run_timestamp>/.
+  "version": 1,
+  "run": { "onError": "skip" },
+
+  "sources": {
+    "items": {
+      "file": "items.csv",
+      "delimiter": "csv",
+      // Input typing: typed columns are parsed when read. Everything not listed stays a string.
+      "fields": {
+        "customer_key": { "type": "integer" },
+        "price":        { "type": "decimal" },
+        "ratio":        { "type": "double" },
+        "signup":       { "type": "date" },
+        "seen":         { "type": "dateTime" }
+      }
+    }
+  },
+
+  "outputs": [
+    {
+      "name": "convert", "source": "items",
+      "fields": [
+        { "name": "id", "from": "customer_key", "type": "integer" },
+
+        // Typed-input passthrough (no pipeline): the final field type formats the value.
+        { "name": "typed_price",  "from": "price",  "type": "decimal" },
+        { "name": "typed_ratio",  "from": "ratio",  "type": "double" },
+        { "name": "typed_signup", "from": "signup", "type": "date" },
+        { "name": "typed_seen",   "from": "seen",   "type": "dateTime" },
+
+        { "name": "toString_id",     "from": "customer_key", "type": "string", "pipeline": [ { "op": "toString" } ] },
+        { "name": "toString_price",  "from": "price",        "type": "string", "pipeline": [ { "op": "toString" } ] },
+        { "name": "toString_signup", "from": "signup",       "type": "string", "pipeline": [ { "op": "toString" } ] },
+        { "name": "toString_bool",   "from": "flag",         "type": "string", "pipeline": [ { "op": "toBool", "onError": "null" }, { "op": "toString" } ] },
+
+        { "name": "toInteger_qty",   "from": "qty",   "type": "integer", "pipeline": [ { "op": "toInteger" } ] },
+        { "name": "toInt_qty",       "from": "qty",   "type": "integer", "pipeline": [ { "op": "toInt" } ] },
+        { "name": "toInteger_score_rounded", "from": "score", "type": "integer", "pipeline": [ { "op": "toDecimal" }, { "op": "toInteger" } ] },
+        { "name": "toInteger_score_direct",  "from": "score", "type": "integer", "pipeline": [ { "op": "toInteger", "onError": { "default": -1 } } ] },
+
+        { "name": "toDecimal_eu",      "from": "price_eu", "type": "decimal", "pipeline": [ { "op": "toDecimal", "culture": "de-DE" } ] },
+        { "name": "toDecimal_invariant_misparse", "from": "price_eu", "type": "decimal", "pipeline": [ { "op": "toDecimal", "onError": "null" } ] },
+        { "name": "toDouble_discount", "from": "discount", "type": "double",  "pipeline": [ { "op": "toDouble" } ] },
+
+        { "name": "toBool_flag", "from": "flag", "type": "bool", "pipeline": [ { "op": "toBool", "onError": { "default": false } } ] },
+
+        { "name": "toDate_dob",      "from": "dob_us",     "type": "date",     "pipeline": [ { "op": "toDate", "format": "MM/dd/yyyy" } ] },
+        { "name": "toDate_birth_md", "from": "birth_md",   "type": "date",     "pipeline": [ { "op": "toDate" } ], "onError": "warnAndNull" },
+        { "name": "toDateTime_login","from": "last_login", "type": "dateTime", "pipeline": [ { "op": "toDateTime", "onError": "null" } ] },
+        { "name": "toDateTime_dob",  "from": "dob_us",     "type": "dateTime", "pipeline": [ { "op": "toDateTime", "format": "MM/dd/yyyy" } ] }
+      ],
+      "load": { "folder": "output/{run_timestamp}", "fileBaseName": "convert", "sampling": { "enabled": false } }
+    },
+
+    {
+      "name": "format", "source": "items",
+      "fields": [
+        { "name": "id", "from": "customer_key", "type": "integer" },
+        { "name": "dateFormat_long",    "from": "signup",     "type": "string", "pipeline": [ { "op": "dateFormat", "format": "MMMM d, yyyy", "culture": "en-US" } ] },
+        { "name": "dateFormat_de",      "from": "signup",     "type": "string", "pipeline": [ { "op": "dateFormat", "format": "dddd, d. MMMM yyyy", "culture": "de-DE" } ] },
+        { "name": "dateFormat_compact", "from": "signup",     "type": "string", "pipeline": [ { "op": "dateFormat", "format": "yyyyMMdd" } ] },
+        { "name": "dateFormat_time",    "from": "seen",       "type": "string", "pipeline": [ { "op": "dateFormat", "format": "HH:mm" } ] },
+        { "name": "dateFormat_string_input", "from": "last_login", "type": "string", "pipeline": [ { "op": "dateFormat", "format": "MMM yyyy", "culture": "en-US", "onError": "null" } ] },
+        { "name": "numberFormat_n2",       "from": "price",  "type": "string", "pipeline": [ { "op": "numberFormat", "format": "N2", "culture": "en-US" } ] },
+        { "name": "numberFormat_n2_de",    "from": "price",  "type": "string", "pipeline": [ { "op": "numberFormat", "format": "N2", "culture": "de-DE" } ] },
+        { "name": "numberFormat_currency", "from": "price",  "type": "string", "pipeline": [ { "op": "numberFormat", "format": "C2", "culture": "en-US" } ] },
+        { "name": "numberFormat_pad",      "from": "customer_key", "type": "string", "pipeline": [ { "op": "numberFormat", "format": "00000000" } ] },
+        { "name": "numberFormat_percent",  "from": "ratio",  "type": "string", "pipeline": [ { "op": "numberFormat", "format": "P1", "culture": "en-US" } ] },
+        { "name": "numberFormat_string_input", "from": "qty", "type": "string", "pipeline": [ { "op": "numberFormat", "format": "0.0" } ] }
+      ],
+      "load": { "folder": "output/{run_timestamp}", "fileBaseName": "format", "sampling": { "enabled": false } }
+    },
+
+    {
+      "name": "math", "source": "items",
+      "fields": [
+        { "name": "id", "from": "customer_key", "type": "integer" },
+        { "name": "add_literal",        "from": "qty",   "type": "integer", "pipeline": [ { "op": "add", "rhs": { "literal": 10 } } ] },
+        { "name": "add_field",          "from": "price", "type": "decimal", "pipeline": [ { "op": "add", "rhs": { "field": "discount" }, "onError": "null" } ] },
+        { "name": "add_null_defaulted", "from": "discount", "type": "decimal", "pipeline": [ { "op": "add", "rhs": { "literal": 1 }, "onError": { "default": 0 } } ] },
+        { "name": "subtract_literal",   "from": "price", "type": "decimal", "pipeline": [ { "op": "subtract", "rhs": { "literal": 0.99 } } ] },
+        { "name": "multiply_field",     "from": "price", "type": "decimal", "pipeline": [ { "op": "multiply", "rhs": { "field": "qty" } } ] },
+        { "name": "multiply_value_square", "from": "qty", "type": "integer", "pipeline": [ { "op": "toInteger" }, { "op": "multiply", "rhs": { "value": true } } ] },
+        { "name": "divide_literal",     "from": "score", "type": "decimal", "pipeline": [ { "op": "divide", "rhs": { "literal": 2 } } ] },
+        { "name": "divide_field_by_zero_nulled", "from": "price", "type": "decimal", "pipeline": [ { "op": "divide", "rhs": { "field": "qty" }, "onError": "null" } ] },
+        { "name": "divide_double",      "from": "ratio", "type": "double",  "pipeline": [ { "op": "divide", "rhs": { "literal": 3 } } ] },
+        { "name": "chain_discounted_price", "from": "price", "type": "decimal",
+          "pipeline": [ { "op": "multiply", "rhs": { "literal": 0.9 } }, { "op": "numberFormat", "format": "0.00" }, { "op": "toDecimal" } ] }
+      ],
+      "load": { "folder": "output/{run_timestamp}", "fileBaseName": "math", "sampling": { "enabled": false } }
+    },
+
+    {
+      "name": "string", "source": "items",
+      "fields": [
+        { "name": "id", "from": "customer_key", "type": "integer" },
+        { "name": "lower_email",        "from": "email",    "type": "string", "pipeline": [ { "op": "lower" } ] },
+        { "name": "upper_category",     "from": "category", "type": "string", "pipeline": [ { "op": "upper" } ] },
+        { "name": "lower_blank_middle", "from": "middle",   "type": "string", "pipeline": [ { "op": "lower" } ] },
+        { "name": "snakeCase_category", "from": "category", "type": "string", "pipeline": [ { "op": "snakeCase" } ] },
+        { "name": "split_tags",         "from": "tags",     "type": "array",  "pipeline": [ { "op": "split" } ] },
+        { "name": "split_category_words", "from": "category", "type": "array", "pipeline": [ { "op": "split", "separator": " " } ] },
+        { "name": "concat_label",       "type": "string", "pipeline": [ { "op": "concat", "separator": "-", "values": [ { "field": "brand" }, { "field": "customer_key" } ] } ] },
+        { "name": "concat_with_value",  "from": "name", "type": "string",
+          "pipeline": [ { "op": "concat", "values": [ { "value": true }, { "literal": " <" }, { "field": "email" }, { "literal": ">" } ] } ] },
+        { "name": "concat_null_operand", "type": "string", "pipeline": [ { "op": "concat", "separator": "|", "values": [ { "field": "name" }, { "field": "middle" }, { "field": "brand" } ] } ] },
+        { "name": "concat_typed_operands", "type": "string", "pipeline": [ { "op": "concat", "separator": " @ ", "values": [ { "field": "price" }, { "field": "signup" } ] } ] }
+      ],
+      "load": { "folder": "output/{run_timestamp}", "fileBaseName": "string", "sampling": { "enabled": false } }
+    },
+
+    {
+      "name": "conditional", "source": "items",
+      "fields": [
+        { "name": "id", "from": "customer_key", "type": "integer" },
+        { "name": "map_brand", "from": "brand", "type": "string",
+          "pipeline": [ { "op": "map", "cases": { "A": "acme", "K": "acme-kids" }, "default": "other" } ] },
+        { "name": "map_tier_rank", "from": "tier", "type": "integer",
+          "pipeline": [ { "op": "map", "cases": { "GOLD": 3, "Silver": 2 }, "default": 1 } ] },
+        { "name": "map_no_default_nulled", "from": "brand", "type": "string",
+          "pipeline": [ { "op": "map", "cases": { "A": "acme", "K": "acme-kids" }, "onError": "null" } ] },
+        { "name": "map_flag", "from": "flag", "type": "bool",
+          "pipeline": [ { "op": "map", "cases": { "1": true, "0": false, "true": true, "false": false }, "default": false } ] },
+        { "name": "literal_text",  "type": "string",  "pipeline": [ { "op": "literal", "default": "ACME-FEED" } ] },
+        { "name": "literal_int",   "type": "integer", "pipeline": [ { "op": "literal", "default": 1 } ] },
+        { "name": "literal_bool",  "type": "bool",    "pipeline": [ { "op": "literal", "default": false } ] },
+        { "name": "literal_ignores_input", "from": "name", "type": "string", "pipeline": [ { "op": "literal", "default": "constant" } ] },
+        { "name": "literal_null_omitted", "type": "string", "pipeline": [ { "op": "literal" } ] },
+        { "name": "literal_null_emitted", "type": "string", "pipeline": [ { "op": "literal" } ], "emitNull": true },
+        { "name": "coalesce_middle_or_name", "type": "string",
+          "coalesce": [ { "from": "middle" }, { "from": "name" } ] },
+        { "name": "coalesce_source", "type": "string", "coalesceEmit": "label",
+          "coalesce": [ { "from": "middle", "label": "middle" }, { "from": "name", "label": "name" } ] }
+      ],
+      "load": { "folder": "output/{run_timestamp}", "fileBaseName": "conditional", "sampling": { "enabled": false } }
+    },
+
+    {
+      "name": "step_errors", "source": "items",
+      "fields": [
+        { "name": "id", "from": "customer_key", "type": "integer" },
+        { "name": "err_null",    "from": "discount", "type": "integer", "pipeline": [ { "op": "toInteger", "onError": "null" } ] },
+        { "name": "err_default", "from": "discount", "type": "integer", "pipeline": [ { "op": "toInteger", "onError": { "default": -1 } } ] },
+        { "name": "err_default_text", "from": "discount", "type": "string", "pipeline": [ { "op": "toInteger", "onError": { "default": "n/a" } } ] },
+        { "name": "err_chain", "from": "discount", "type": "integer",
+          "pipeline": [ { "op": "toInteger", "onError": "null" }, { "op": "add", "rhs": { "literal": 1 }, "onError": { "default": 0 } } ] },
+        { "name": "err_field_warn", "from": "birth_md", "type": "date", "pipeline": [ { "op": "toDate" } ], "onError": "warnAndNull" }
+      ],
+      "load": { "folder": "output/{run_timestamp}", "fileBaseName": "step_errors", "sampling": { "enabled": false } }
+    }
+  ]
+}

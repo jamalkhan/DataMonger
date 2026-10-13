@@ -1,0 +1,11 @@
+customer_id,first_name,last_name,full_name,email,phone,dob,address_line1,address_line2,city,state,postal_code,email_sha256,card_last4,store_pref,notes
+57e5163446a7c7870091e0819dee3c18,Lionel,Homer,Selma Bouvier,lisa.simpson7@mail.example,5555550132,19700804,7740 Spalding Way,,Springfield,QC,4597,ba68a3f343d64137,934516,1344EE4C-8159-7FB1-20FD-1BC64F45B556,Prefers e-receipts
+39a231ecec8335c72ba81f443182f153,Agnes,Edna,Maude Flanders,kearney.zzyzwicz34@mail.example,5555550164,19711022,2964 Evergreen Terrace,,Springfield,NS,2291,83fd9fa36355b9a3,027939,1D90234E-715B-4C16-1EEC-0A94FEFA74D3,
+d200c4397dbb75fe375a6f79f97f882c,Marge,Lisa,Lenny Leonard,lenny.leonard69@mail.example,,19720703,130 Elm Street,,Springfield,NS,2376,66c0cf146cea4480,695236,794C82EC-2451-9D4B-76E0-5810C71F4369,"Said ""call me Amazing Grace"""
+d966399ec57f4ca89b4bf235d998f9b4,Jimbo,Edna,Ralph Wiggum,,5555550100,19730217,3491 Bourbon Street,,Springfield,NS,4065,,038031,2441D97B-AC5C-7DBB-0120-23441EAC1A33,
+c6cf30daee117e900fd716ff69c08894,Lisa,Helen,Helen Lovejoy,maggie.simpson48@mail.example,5555550130,,558 Plympton Street,,Springfield,MB,7550,978fdffc271000c9,873574,9D801562-E560-1AA1-5494-98462C4EE0C9,VIP
+6a2d9b74b9f4786d96fec6c1e965558c,Carl,Maggie,Rainier Wolfcastle,marge.simpson90@mail.example,5555550198,19720617,6672 Spalding Way,,Springfield,QC,9781,6411dc27af029e45,115253,16756581-4D90-87DB-D472-9571A779C01F,
+533703389ca80e520cdafa570229690d,Montgomery,Kent,Agnes Skinner,dolph.starbeam44@mail.example,5555550148,19710412,8347 Bourbon Street,,Springfield,QC,1048,a46fff3981d06551,279504,E7C6B7B9-968A-D34C-F570-DB7C1EC6121F,
+61c92aed02b6a6645c875e4533424f21,Agnes,Groundskeeper,Otto Mann,selma.bouvier81@mail.example,5555550173,19751006,6274 Bourbon Street,,Springfield,NS,8017,a01a4ac952fcc4f9,643782,01D04D7E-145F-44E9-8885-EFD7855ECF0C,
+751e52320d9cffed0bbce069bc9ec601,Jeff,Barney,Manjula Nahasapeemapetilon,barney.gumble70@mail.example,5555550182,19730207,7125 Highland Avenue,,Springfield,MB,1832,de7a286bd13c1095,533307,4C131524-0107-3FC8-481A-84751D0CECA3,Reward check
+deec9a4e57d7b76935283017150a1b92,Carl,Marge,Barney Gumble,jasper.beardley50@mail.example,5555550176,19751122,5278 Highland Avenue,,Springfield,ON,5886,5557d8225e7604c4,291633,EA154AA2-4D8B-A7DB-4A46-ED339C877204,

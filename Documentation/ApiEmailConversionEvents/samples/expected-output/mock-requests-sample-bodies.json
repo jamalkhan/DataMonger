@@ -1,0 +1,108 @@
+[
+  {
+    "id": 16,
+    "at": "2026-10-08T02:02:03.459419+00:00",
+    "method": "POST",
+    "path": "/ver2/demo/activities",
+    "route": "activities",
+    "hadAuthorizationHeader": true,
+    "status": 202,
+    "body": {
+      "event_id": "16ea32a7-ff20-da23-8ac5-5a3ef4a14b0a",
+      "event_type": "email_bounced",
+      "event_time": "2025-01-10T21:00:04.553Z",
+      "recipient_email": "alan.turing@example.com",
+      "user_id": "1002",
+      "message_id": "msg-c289a9d1649ff7a0",
+      "campaign": {
+        "id": 5006,
+        "name": "kids-collection-20250115",
+        "brand": "Acme",
+        "category": "Accessories",
+        "subject": "New Collection for Kids",
+        "preheader": "Playful styles for the whole family"
+      },
+      "bounce_type": "soft",
+      "bounce_reason": "temporary server error"
+    }
+  },
+  {
+    "id": 29,
+    "at": "2026-10-08T02:02:03.460255+00:00",
+    "method": "POST",
+    "path": "/ver2/demo/activities",
+    "route": "activities",
+    "hadAuthorizationHeader": true,
+    "status": 202,
+    "body": {
+      "event_id": "ea29c54d-a27f-c0c5-acae-cb3bcc55e9b6",
+      "event_type": "email_clicked",
+      "event_time": "2025-01-14T14:50:28.39Z",
+      "recipient_email": "margaret.hamilton@example.com",
+      "user_id": "1006",
+      "message_id": "msg-561785ccbbea6aa9",
+      "campaign": {
+        "id": 5004,
+        "name": "final-sale-20250115",
+        "brand": "Acme Kids",
+        "category": "Sleepwear",
+        "subject": "Last Chance: Final Sale",
+        "preheader": "Limited stock, shop before it's gone"
+      },
+      "link_url": "https://shop.example.com/p/2004?utm_source=email&utm_medium=email&utm_campaign=final-sale-20250115",
+      "device_type": "mobile"
+    }
+  },
+  {
+    "id": 32,
+    "at": "2026-10-08T02:02:03.461313+00:00",
+    "method": "POST",
+    "path": "/ver2/demo/activities",
+    "route": "activities",
+    "hadAuthorizationHeader": true,
+    "status": 202,
+    "body": {
+      "event_id": "ed267c35-db3a-8c7a-45f4-15371553f15f",
+      "event_type": "purchase",
+      "event_time": "2025-01-14T14:56:13.176Z",
+      "recipient_email": "margaret.hamilton@example.com",
+      "user_id": "1006",
+      "message_id": "msg-561785ccbbea6aa9",
+      "campaign": {
+        "id": 5004,
+        "name": "final-sale-20250115",
+        "brand": "Acme Kids",
+        "category": "Sleepwear",
+        "subject": "Last Chance: Final Sale",
+        "preheader": "Limited stock, shop before it's gone"
+      },
+      "order": {
+        "order_id": "ORD-981998754",
+        "currency": "USD",
+        "total": 79.94,
+        "items": [
+          {
+            "sku": "P-2004",
+            "product_name": "Acme Baby Fleece Onesie",
+            "category": "Sleepwear",
+            "subcategory": "Baby",
+            "unit_price": 19.99,
+            "quantity": 1,
+            "size": "6-9M",
+            "url": "https://shop.example.com/p/2004"
+          },
+          {
+            "sku": "P-2001",
+            "product_name": "Acme Trail Jacket",
+            "category": "Outerwear",
+            "subcategory": "Mens",
+            "unit_price": 59.95,
+            "quantity": 1,
+            "size": "M",
+            "url": "https://shop.example.com/p/2001"
+          }
+        ]
+      }
+    }
+  }
+]

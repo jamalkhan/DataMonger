@@ -1,0 +1,50 @@
+=== API => Upload JSONL Events (track event) -> site: demo ===
+Available JSONL files in LocalData/jsonl/events/Loads:
+  1) events_a.jsonl
+Choice [1-1], or type a full path to a .jsonl file or a folder (uploads every .jsonl file under it, recursively): samples/input
+Found 2 .jsonl file(s) under samples/input.
+Available sites:
+  1) demo  (http://localhost:5281)
+Choice [1-1]: 1
+
+Site ID: demo
+Target:  http://localhost:5281/ver2/demo/activities
+Parallelism: 50
+(folder upload: skipping the first-request/first-response preview prompts for every file)
+
+--- File 1/2: samples/input/events_a.jsonl ---
+File: samples/input/events_a.jsonl
+
+[FAIL] L8 -> 500 InternalServerError
+       {
+         "status": "error",
+         "error": "injected_failure"
+       }
+[FAIL] L7 -> 500 InternalServerError
+       {
+         "status": "error",
+         "error": "injected_failure"
+       }
+
+=== API => Upload JSONL Events (track event) summary ===  Site: demo   Success: 8   Failed: 2   Elapsed: <elapsed>
+
+--- File 2/2: samples/input/events_bad.jsonl ---
+File: samples/input/events_bad.jsonl
+
+[FAIL] L1 -> 400 BadRequest
+       {
+         "status": "error",
+         "error": "invalid_json",
+         "detail": "Expected depth to be zero at the end of the JSON payload. There is an open JSON object or array that should be closed. LineNumber: 0 | BytePositionInLine: 134."
+       }
+[FAIL] L5 -> 500 InternalServerError
+       {
+         "status": "error",
+         "error": "injected_failure"
+       }
+[WARN] Skipping malformed line 4: Unexpected character encountered while parsing value: n. Path '', line 0, position 0.
+
+=== API => Upload JSONL Events (track event) summary ===  Site: demo   Success: 1   Failed: 3   Elapsed: <elapsed>
+
+=== API => Upload JSONL Events (track event) grand total ===  Site: demo   Success: 9   Failed: 5
+Failure detail log: LocalData/logs/events_upload/failures_<yyyyMMdd_HHmmss>.log

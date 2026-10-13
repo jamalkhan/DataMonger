@@ -1,0 +1,44 @@
+=== API => Upload JSONL Events (track event) -> site: demo ===
+Available JSONL files in LocalData/jsonl/events/Loads:
+  1) events_a.jsonl
+Choice [1-1], or type a full path to a .jsonl file or a folder (uploads every .jsonl file under it, recursively): 1
+Available sites:
+  1) demo  (http://localhost:5281)
+Choice [1-1]: 1
+
+Site ID: demo
+Target:  http://localhost:5281/ver2/demo/activities
+Parallelism: 50
+
+--- File 1/1: LocalData/jsonl/events/Loads/events_a.jsonl ---
+File: LocalData/jsonl/events/Loads/events_a.jsonl
+
+First request preview:
+POST  http://localhost:5281/ver2/demo/activities
+{
+  "activity": {
+    "user_id": "1001",
+    "event_name": "page_viewed",
+    "event_id": "evt-0001",
+    "timestamp": "2026-03-01T10:01:00Z",
+    "brand": "Acme",
+    "properties": {
+      "page": "/tents/trail-2p",
+      "referrer": "search"
+    }
+  }
+}
+
+Send this first request (of 10 total)? [Enter to continue, Esc to abort] 
+
+First response preview:
+202 Accepted
+{
+  "status": "accepted",
+  "requestId": 1,
+  "route": "activities"
+}
+
+Continue with the remaining 9 line(s)? [Enter to continue, Esc to abort] 
+
+=== API => Upload JSONL Events (track event) summary ===  Site: demo   Success: 10   Failed: 0   Elapsed: <elapsed>

@@ -1,0 +1,133 @@
+{
+  // 02-nested-children: relationships (children) of every flavour.
+  //  - many / one cardinality, nested to three levels (customer -> order -> line -> product)
+  //  - a relationship filter, distinctBy and limit
+  //  - two sources sharing one "as" (concatenated into a single array)
+  //  - an object-group field and an inline relationship field (positioned among scalar fields)
+  //  - "inline": true, splicing a cardinality-one child's fields into its parent
+  "version": 1,
+  "run": { "joinStrategy": "hashInMemory", "onError": "skip" },
+
+  "sources": {
+    "customers":   { "file": "../data/customers.csv",   "fields": { "customer_id": { "type": "integer" } } },
+    "orders":      { "file": "../data/orders.csv" },
+    "order_lines": { "file": "../data/order_lines.csv" },
+    "products":    { "file": "../data/products.csv" },
+    "stores":      { "file": "../data/stores.csv" },
+    "emails":      { "file": "../data/emails.csv" },
+    "phones":      { "file": "../data/phones.csv" }
+  },
+
+  "outputs": [
+    {
+      "name": "customers_nested",
+      "mode": "object",
+      "source": "customers",
+      "fields": [
+        { "name": "customer_id", "from": "customer_id", "type": "integer" },
+        { "name": "name", "type": "string",
+          "pipeline": [ { "op": "concat", "values": [ { "field": "first_name" }, { "field": "last_name" } ], "separator": " " } ] },
+
+        // Object-group: a nested object built from the SAME customer row.
+        { "name": "profile", "type": "object",
+          "fields": [
+            { "name": "tier",      "from": "tier",      "type": "string" },
+            { "name": "is_member", "from": "is_member", "type": "bool" }
+          ] },
+
+        // Inline relationship field: an array of objects placed exactly here, between scalar fields.
+        { "name": "mobile_numbers", "type": "array",
+          "source": "phones",
+          "on": { "parent": "customer_id", "child": "customer_id" },
+          "filter": [ { "column": "phone_type", "op": "eq", "value": "mobile" } ],
+          "distinctBy": "phone_number",
+          "limit": 1,
+          "fields": [
+            { "name": "number", "from": "phone_number", "type": "string" },
+            { "name": "brand",  "from": "brand",        "type": "string" }
+          ] },
+
+        { "name": "signed_up", "type": "string", "from": "signup_ts" }
+      ],
+      "children": [
+        // Many-cardinality, three levels deep. The relation filter drops returned orders.
+        {
+          "source": "orders", "as": "orders", "cardinality": "many",
+          "on": { "parent": "customer_id", "child": "customer_id" },
+          "filter": [ { "column": "status", "op": "ne", "value": "returned" } ],
+          "fields": [
+            { "name": "order_id",   "from": "order_id",   "type": "integer" },
+            { "name": "order_date", "from": "order_date", "type": "date" },
+            { "name": "status",     "from": "status",     "type": "string" },
+            { "name": "subtotal",   "from": "subtotal",   "type": "decimal" }
+          ],
+          "children": [
+            // cardinality "one": an object (omitted when there is no match).
+            { "source": "stores", "as": "store", "cardinality": "one",
+              "on": { "parent": "store_id", "child": "store_id" },
+              "fields": [
+                { "name": "store_name", "from": "store_name", "type": "string" },
+                { "name": "region",     "from": "region",     "type": "string" }
+              ] },
+            { "source": "order_lines", "as": "lines", "cardinality": "many",
+              "on": { "parent": "order_id", "child": "order_id" },
+              "fields": [
+                { "name": "sku",      "from": "sku",      "type": "string" },
+                { "name": "quantity", "from": "quantity", "type": "integer" }
+              ],
+              "children": [
+                { "source": "products", "as": "product", "cardinality": "one",
+                  "on": { "parent": "sku", "child": "sku" },
+                  "fields": [
+                    { "name": "product_name", "from": "product_name", "type": "string" },
+                    { "name": "category",     "from": "category",     "type": "string" }
+                  ] }
+              ] }
+          ]
+        },
+
+        // Two sources, one "as": the results are concatenated, in declaration order, into ONE array.
+        { "source": "emails", "as": "contacts", "cardinality": "many",
+          "on": { "parent": "customer_id", "child": "customer_id" },
+          "filter": [ { "column": "status", "op": "eq", "value": "active" } ],
+          "distinctBy": "email_address",
+          "fields": [
+            { "name": "contact_type",  "type": "string", "pipeline": [ { "op": "literal", "default": "email" } ] },
+            { "name": "contact_value", "from": "email_address", "type": "string" }
+          ] },
+        { "source": "phones", "as": "contacts", "cardinality": "many",
+          "on": { "parent": "customer_id", "child": "customer_id" },
+          "fields": [
+            { "name": "contact_type",  "type": "string", "pipeline": [ { "op": "literal", "default": "phone" } ] },
+            { "name": "contact_value", "from": "phone_number", "type": "string" }
+          ] }
+      ],
+      "load": { "folder": "output", "fileBaseName": "customers_nested", "sampling": { "enabled": false } }
+    },
+
+    {
+      // "inline": true splices a cardinality-one child's fields into the parent object (no wrapper key).
+      "name": "order_lines_flat",
+      "mode": "object",
+      "source": "order_lines",
+      "fields": [
+        { "name": "line_id",    "from": "line_id",    "type": "integer" },
+        { "name": "sku",        "from": "sku",        "type": "string" },
+        { "name": "quantity",   "from": "quantity",   "type": "integer" },
+        { "name": "unit_price", "from": "unit_price", "type": "decimal" }
+      ],
+      "children": [
+        { "source": "orders", "as": "order", "cardinality": "one", "inline": true,
+          "on": { "parent": "order_id", "child": "order_id" },
+          "fields": [
+            { "name": "order_id",   "from": "order_id",   "type": "integer" },
+            { "name": "order_date", "from": "order_date", "type": "date" }
+          ] },
+        { "source": "products", "as": "product", "cardinality": "one", "inline": true,
+          "on": { "parent": "sku", "child": "sku" },
+          "fields": [ { "name": "product_name", "from": "product_name", "type": "string" } ] }
+      ],
+      "load": { "folder": "output", "fileBaseName": "order_lines_flat", "sampling": { "enabled": false } }
+    }
+  ]
+}

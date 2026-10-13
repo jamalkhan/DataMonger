@@ -1,0 +1,47 @@
+[
+  {
+    "id": 1,
+    "method": "PUT",
+    "path": "/ver2/demo/resources/TENT-6P",
+    "route": "resources",
+    "hadAuthorizationHeader": true,
+    "status": 200,
+    "body": {
+      "resource_type": "product",
+      "resource_id": "TENT-6P",
+      "name": "Family 6-Person Tent",
+      "category": "Camping",
+      "price": 449.0,
+      "brand": "Acme"
+    }
+  },
+  {
+    "id": 2,
+    "method": "PUT",
+    "path": "/ver2/demo/resources/LAMP%201%2F2",
+    "route": "resources",
+    "hadAuthorizationHeader": true,
+    "status": 200,
+    "body": {
+      "resource_type": "product",
+      "resource_id": "LAMP 1/2",
+      "name": "Camp Lamp",
+      "price": 24.0,
+      "brand": "Acme"
+    }
+  },
+  {
+    "id": 3,
+    "method": "PUT",
+    "path": "/ver2/demo/resources/77",
+    "route": "resources",
+    "hadAuthorizationHeader": true,
+    "status": 200,
+    "body": {
+      "resource_type": "product",
+      "resource_id": 77,
+      "name": "Numeric id",
+      "price": 5.0
+    }
+  }
+]

@@ -1,0 +1,13 @@
+=== Known (identified) purchases -> site: demo ===
+Customers loaded: 10 (from identified.csv)
+[OK]   katherine.johnson@example.com identify+activity (1 item) -> 202/202
+[OK]   margaret.hamilton@example.com identify+activity (2 items) -> 202/202
+[OK]   dennis.ritchie@example.com identify+activity (3 items) -> 202/202
+[OK]   grace.hopper@example.com identify+activity (1 item) -> 202/202
+[OK]   linus.torvalds@example.com identify+activity (2 items) -> 202/202
+[OK]   edsger.dijkstra@example.com identify+activity (2 items) -> 202/202
+[OK]   alan.turing@example.com identify+activity (3 items) -> 202/202
+[OK]   ada.lovelace@example.com identify+activity (3 items) -> 202/202
+[OK]   radia.perlman@example.com identify+activity (1 item) -> 202/202
+[OK]   barbara.liskov@example.com identify+activity (3 items) -> 202/202
+=== Known (identified) purchases summary ===  Success: 10   Failed: 0   Elapsed: 00:00:00.171

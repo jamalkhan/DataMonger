@@ -1,0 +1,12 @@
+
+First response preview:
+202 Accepted
+{
+  "status": "accepted",
+  "requestId": 1,
+  "route": "activities"
+}
+
+Continue with the remaining 9 line(s)? [Enter to continue, Esc to abort] 
+[ABORT] Remaining lines not sent.
+=== API => Upload JSONL Events (track event) summary ===  Site: demo   Success: 1   Failed: 0   Elapsed: <elapsed>

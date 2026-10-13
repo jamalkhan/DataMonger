@@ -1,0 +1,18 @@
+{
+  "customer_id": 1003,
+  "first_name": "Grace",
+  "last_name": "Hopper",
+  "orders": [
+    {
+      "order_id": 5005
+    }
+  ],
+  "emails": [
+    {
+      "email_address": "grace.hopper@example.com"
+    },
+    {
+      "email_address": "grace.hopper@example.com"
+    }
+  ]
+}

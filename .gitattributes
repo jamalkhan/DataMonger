@@ -1,0 +1,4 @@
+# Sample inputs/outputs under Documentation are byte-exact fixtures (some rely on CRLF line endings
+# and UTF-8 BOMs). Never let git normalize them.
+Documentation/**/samples/** -text
+*.gz binary

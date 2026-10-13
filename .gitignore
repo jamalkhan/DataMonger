@@ -1,0 +1,118 @@
+## DataMonger .gitignore
+## Real credentials, local data, and build output must never be committed.
+
+# --- Secrets / local configuration -------------------------------------------------------------
+# appsettings.json and appsettings.user.json hold real API credentials. Only appsettings.example.json
+# (dummy values) is committed.
+appsettings.json
+appsettings.user.json
+appsettings.*.json
+!appsettings.example.json
+# The mock API's config holds only localhost/failure-injection settings (no credentials) and is needed to run it.
+!DataMonger.MockApi/appsettings.json
+*.pfx
+*.snk
+*.key
+*.pem
+.env
+.env.*
+secrets.json
+
+# --- Local data (never commit real customer/client data) ----------------------------------------
+LocalData/
+logs/
+*.jsonl
+*.jsonl.gz
+*.csv
+*.tsv
+*.xlsx
+*.zip
+*.gz
+*.parquet
+*.sqlite
+*.bak
+*.log
+!**/TestData/**/*.csv
+!**/TestData/**/*.jsonl
+
+# Documentation samples are committed (invented, non-client data only).
+!Documentation/**/*.csv
+!Documentation/**/*.tsv
+!Documentation/**/*.jsonl
+!Documentation/**/*.json
+!Documentation/**/*.etlconfig
+!Documentation/**/*.anonconfig
+!Documentation/**/*.synthconfig
+!Documentation/**/*.gz
+!Documentation/**/*.psv
+!Documentation/**/*.txt
+!Documentation/**/*.log
+
+# --- .NET build output ---------------------------------------------------------------------------
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+[Ll]og/
+[Ll]ogs/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+artifacts/
+publish/
+*.dll
+*.exe
+*.pdb
+*.nupkg
+*.snupkg
+.nuget/
+project.lock.json
+project.fragment.lock.json
+[Pp]ackages/
+*.pubxml
+*.pubxml.user
+*.publishsettings
+*.cache
+**/Properties/launchSettings.json
+
+# --- Tests / coverage ------------------------------------------------------------------------------
+TestResults/
+[Tt]est[Rr]esult*/
+*.trx
+*.coverage
+*.coveragexml
+coverage*.json
+coverage*.xml
+*.cobertura.xml
+.coverage
+BenchmarkDotNet.Artifacts/
+
+# --- IDE / tooling ------------------------------------------------------------------------------------
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.DotSettings.user
+_ReSharper*/
+*.rsuser
+.fake/
+.ionide/
+
+# --- OS --------------------------------------------------------------------------------------------------
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# --- Claude Code / local agent state ------------------------------------------------------------------
+.claude/
+CLAUDE.md

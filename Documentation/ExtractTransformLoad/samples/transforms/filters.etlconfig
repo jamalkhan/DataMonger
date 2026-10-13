@@ -1,0 +1,616 @@
+{
+  "version": 1,
+  "run": {
+    "onError": "skip"
+  },
+  "sources": {
+    "items": {
+      "file": "items.csv",
+      "delimiter": "csv"
+    }
+  },
+  "outputs": [
+    {
+      "name": "filter_onOrAfter",
+      "source": "items",
+      "filter": [
+        {
+          "column": "last_login",
+          "op": "onOrAfter",
+          "value": "2024-01-01"
+        }
+      ],
+      "filterExcludedFile": true,
+      "fields": [
+        {
+          "name": "id",
+          "from": "customer_key",
+          "type": "integer"
+        },
+        {
+          "name": "last_login",
+          "from": "last_login",
+          "type": "string"
+        }
+      ],
+      "load": {
+        "folder": "output/{run_timestamp}",
+        "fileBaseName": "filter_onOrAfter",
+        "sampling": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "name": "filter_after",
+      "source": "items",
+      "filter": [
+        {
+          "column": "last_login",
+          "op": "after",
+          "value": "2024-02-29"
+        }
+      ],
+      "filterExcludedFile": false,
+      "fields": [
+        {
+          "name": "id",
+          "from": "customer_key",
+          "type": "integer"
+        },
+        {
+          "name": "last_login",
+          "from": "last_login",
+          "type": "string"
+        }
+      ],
+      "load": {
+        "folder": "output/{run_timestamp}",
+        "fileBaseName": "filter_after",
+        "sampling": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "name": "filter_onOrBefore",
+      "source": "items",
+      "filter": [
+        {
+          "column": "last_login",
+          "op": "onOrBefore",
+          "value": "2022-07-04"
+        }
+      ],
+      "filterExcludedFile": false,
+      "fields": [
+        {
+          "name": "id",
+          "from": "customer_key",
+          "type": "integer"
+        },
+        {
+          "name": "last_login",
+          "from": "last_login",
+          "type": "string"
+        }
+      ],
+      "load": {
+        "folder": "output/{run_timestamp}",
+        "fileBaseName": "filter_onOrBefore",
+        "sampling": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "name": "filter_before",
+      "source": "items",
+      "filter": [
+        {
+          "column": "last_login",
+          "op": "before",
+          "value": "2022-07-04"
+        }
+      ],
+      "filterExcludedFile": false,
+      "fields": [
+        {
+          "name": "id",
+          "from": "customer_key",
+          "type": "integer"
+        },
+        {
+          "name": "last_login",
+          "from": "last_login",
+          "type": "string"
+        }
+      ],
+      "load": {
+        "folder": "output/{run_timestamp}",
+        "fileBaseName": "filter_before",
+        "sampling": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "name": "filter_onOrAfter_relative",
+      "source": "items",
+      "filter": [
+        {
+          "column": "last_login",
+          "op": "onOrAfter",
+          "value": "now-100years"
+        }
+      ],
+      "filterExcludedFile": false,
+      "fields": [
+        {
+          "name": "id",
+          "from": "customer_key",
+          "type": "integer"
+        },
+        {
+          "name": "last_login",
+          "from": "last_login",
+          "type": "string"
+        }
+      ],
+      "load": {
+        "folder": "output/{run_timestamp}",
+        "fileBaseName": "filter_onOrAfter_relative",
+        "sampling": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "name": "filter_before_relative",
+      "source": "items",
+      "filter": [
+        {
+          "column": "last_login",
+          "op": "before",
+          "value": "now+50years"
+        }
+      ],
+      "filterExcludedFile": false,
+      "fields": [
+        {
+          "name": "id",
+          "from": "customer_key",
+          "type": "integer"
+        },
+        {
+          "name": "last_login",
+          "from": "last_login",
+          "type": "string"
+        }
+      ],
+      "load": {
+        "folder": "output/{run_timestamp}",
+        "fileBaseName": "filter_before_relative",
+        "sampling": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "name": "filter_eq",
+      "source": "items",
+      "filter": [
+        {
+          "column": "tier",
+          "op": "eq",
+          "value": "gold"
+        }
+      ],
+      "filterExcludedFile": true,
+      "fields": [
+        {
+          "name": "id",
+          "from": "customer_key",
+          "type": "integer"
+        },
+        {
+          "name": "tier",
+          "from": "tier",
+          "type": "string"
+        }
+      ],
+      "load": {
+        "folder": "output/{run_timestamp}",
+        "fileBaseName": "filter_eq",
+        "sampling": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "name": "filter_ne",
+      "source": "items",
+      "filter": [
+        {
+          "column": "tier",
+          "op": "ne",
+          "value": "gold"
+        }
+      ],
+      "filterExcludedFile": false,
+      "fields": [
+        {
+          "name": "id",
+          "from": "customer_key",
+          "type": "integer"
+        },
+        {
+          "name": "tier",
+          "from": "tier",
+          "type": "string"
+        }
+      ],
+      "load": {
+        "folder": "output/{run_timestamp}",
+        "fileBaseName": "filter_ne",
+        "sampling": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "name": "filter_eq_numeric",
+      "source": "items",
+      "filter": [
+        {
+          "column": "qty",
+          "op": "eq",
+          "value": "3.0"
+        }
+      ],
+      "filterExcludedFile": false,
+      "fields": [
+        {
+          "name": "id",
+          "from": "customer_key",
+          "type": "integer"
+        },
+        {
+          "name": "qty",
+          "from": "qty",
+          "type": "string"
+        }
+      ],
+      "load": {
+        "folder": "output/{run_timestamp}",
+        "fileBaseName": "filter_eq_numeric",
+        "sampling": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "name": "filter_gt",
+      "source": "items",
+      "filter": [
+        {
+          "column": "qty",
+          "op": "gt",
+          "value": 5
+        }
+      ],
+      "filterExcludedFile": false,
+      "fields": [
+        {
+          "name": "id",
+          "from": "customer_key",
+          "type": "integer"
+        },
+        {
+          "name": "qty",
+          "from": "qty",
+          "type": "string"
+        }
+      ],
+      "load": {
+        "folder": "output/{run_timestamp}",
+        "fileBaseName": "filter_gt",
+        "sampling": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "name": "filter_ge",
+      "source": "items",
+      "filter": [
+        {
+          "column": "qty",
+          "op": "ge",
+          "value": 5
+        }
+      ],
+      "filterExcludedFile": false,
+      "fields": [
+        {
+          "name": "id",
+          "from": "customer_key",
+          "type": "integer"
+        },
+        {
+          "name": "qty",
+          "from": "qty",
+          "type": "string"
+        }
+      ],
+      "load": {
+        "folder": "output/{run_timestamp}",
+        "fileBaseName": "filter_ge",
+        "sampling": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "name": "filter_lt",
+      "source": "items",
+      "filter": [
+        {
+          "column": "qty",
+          "op": "lt",
+          "value": 3
+        }
+      ],
+      "filterExcludedFile": false,
+      "fields": [
+        {
+          "name": "id",
+          "from": "customer_key",
+          "type": "integer"
+        },
+        {
+          "name": "qty",
+          "from": "qty",
+          "type": "string"
+        }
+      ],
+      "load": {
+        "folder": "output/{run_timestamp}",
+        "fileBaseName": "filter_lt",
+        "sampling": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "name": "filter_le",
+      "source": "items",
+      "filter": [
+        {
+          "column": "qty",
+          "op": "le",
+          "value": 3
+        }
+      ],
+      "filterExcludedFile": false,
+      "fields": [
+        {
+          "name": "id",
+          "from": "customer_key",
+          "type": "integer"
+        },
+        {
+          "name": "qty",
+          "from": "qty",
+          "type": "string"
+        }
+      ],
+      "load": {
+        "folder": "output/{run_timestamp}",
+        "fileBaseName": "filter_le",
+        "sampling": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "name": "filter_gt_string",
+      "source": "items",
+      "filter": [
+        {
+          "column": "name",
+          "op": "gt",
+          "value": "Grace"
+        }
+      ],
+      "filterExcludedFile": false,
+      "fields": [
+        {
+          "name": "id",
+          "from": "customer_key",
+          "type": "integer"
+        },
+        {
+          "name": "name",
+          "from": "name",
+          "type": "string"
+        }
+      ],
+      "load": {
+        "folder": "output/{run_timestamp}",
+        "fileBaseName": "filter_gt_string",
+        "sampling": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "name": "filter_in",
+      "source": "items",
+      "filter": [
+        {
+          "column": "brand",
+          "op": "in",
+          "value": [
+            "A",
+            "K"
+          ]
+        }
+      ],
+      "filterExcludedFile": false,
+      "fields": [
+        {
+          "name": "id",
+          "from": "customer_key",
+          "type": "integer"
+        },
+        {
+          "name": "brand",
+          "from": "brand",
+          "type": "string"
+        }
+      ],
+      "load": {
+        "folder": "output/{run_timestamp}",
+        "fileBaseName": "filter_in",
+        "sampling": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "name": "filter_in_numeric",
+      "source": "items",
+      "filter": [
+        {
+          "column": "customer_key",
+          "op": "in",
+          "value": [
+            1001,
+            1003
+          ]
+        }
+      ],
+      "filterExcludedFile": false,
+      "fields": [
+        {
+          "name": "id",
+          "from": "customer_key",
+          "type": "integer"
+        },
+        {
+          "name": "customer_key",
+          "from": "customer_key",
+          "type": "string"
+        }
+      ],
+      "load": {
+        "folder": "output/{run_timestamp}",
+        "fileBaseName": "filter_in_numeric",
+        "sampling": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "name": "filter_empty",
+      "source": "items",
+      "filter": [
+        {
+          "column": "middle",
+          "op": "empty"
+        }
+      ],
+      "filterExcludedFile": false,
+      "fields": [
+        {
+          "name": "id",
+          "from": "customer_key",
+          "type": "integer"
+        },
+        {
+          "name": "middle",
+          "from": "middle",
+          "type": "string"
+        }
+      ],
+      "load": {
+        "folder": "output/{run_timestamp}",
+        "fileBaseName": "filter_empty",
+        "sampling": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "name": "filter_notEmpty",
+      "source": "items",
+      "filter": [
+        {
+          "column": "middle",
+          "op": "notEmpty"
+        }
+      ],
+      "filterExcludedFile": false,
+      "fields": [
+        {
+          "name": "id",
+          "from": "customer_key",
+          "type": "integer"
+        },
+        {
+          "name": "middle",
+          "from": "middle",
+          "type": "string"
+        }
+      ],
+      "load": {
+        "folder": "output/{run_timestamp}",
+        "fileBaseName": "filter_notEmpty",
+        "sampling": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "name": "filter_and_combined",
+      "source": "items",
+      "filter": [
+        {
+          "column": "tier",
+          "op": "eq",
+          "value": "gold"
+        },
+        {
+          "column": "qty",
+          "op": "ge",
+          "value": 5
+        }
+      ],
+      "fields": [
+        {
+          "name": "id",
+          "from": "customer_key",
+          "type": "integer"
+        },
+        {
+          "name": "tier",
+          "from": "tier",
+          "type": "string"
+        },
+        {
+          "name": "qty",
+          "from": "qty",
+          "type": "string"
+        }
+      ],
+      "load": {
+        "folder": "output/{run_timestamp}",
+        "fileBaseName": "filter_and_combined",
+        "sampling": {
+          "enabled": false
+        }
+      }
+    }
+  ]
+}

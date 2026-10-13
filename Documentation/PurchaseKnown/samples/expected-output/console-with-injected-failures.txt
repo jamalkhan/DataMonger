@@ -1,0 +1,41 @@
+=== Known (identified) purchases -> site: demo ===
+Customers loaded: 10 (from identified.csv)
+[FAIL] ada.lovelace@example.com identify -> 429 TooManyRequests
+       {
+         "status": "error",
+         "error": "rate_limited"
+       }
+[FAIL] katherine.johnson@example.com identify -> 500 InternalServerError
+       {
+         "status": "error",
+         "error": "injected_failure"
+       }
+[FAIL] edsger.dijkstra@example.com identify -> 500 InternalServerError
+       {
+         "status": "error",
+         "error": "injected_failure"
+       }
+[FAIL] margaret.hamilton@example.com identify -> 429 TooManyRequests
+       {
+         "status": "error",
+         "error": "rate_limited"
+       }
+[OK]   barbara.liskov@example.com identify+activity (3 items) -> 202/202
+[FAIL] radia.perlman@example.com activity -> 500 InternalServerError
+       {
+         "status": "error",
+         "error": "injected_failure"
+       }
+[FAIL] dennis.ritchie@example.com activity -> 500 InternalServerError
+       {
+         "status": "error",
+         "error": "injected_failure"
+       }
+[FAIL] linus.torvalds@example.com activity -> 429 TooManyRequests
+       {
+         "status": "error",
+         "error": "rate_limited"
+       }
+[OK]   alan.turing@example.com identify+activity (2 items) -> 202/202
+[OK]   grace.hopper@example.com identify+activity (2 items) -> 202/202
+=== Known (identified) purchases summary ===  Success: 3   Failed: 7   Elapsed: 00:00:00.160

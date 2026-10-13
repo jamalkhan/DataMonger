@@ -1,0 +1,17 @@
+// Sample 4a: a column whose options make the anonymizer throw (minYear 0 is not a valid year).
+// onError "skip": bad cells are left unchanged and counted; the run continues.
+{
+  "run": { "seed": 1, "onError": "skip" },
+  "inputFolder": "../input",
+  "outputFolder": "../expected-output/bad-cell-skip",
+  "files": [
+    {
+      "input": "src_customers.csv",
+      "columns": [
+        { "name": "dob",   "method": "fakeDate", "options": { "minYear": 0 } },
+        { "name": "phone", "method": "fakePhone" }
+      ]
+    },
+    { "input": "src_returns.csv", "columns": [ { "name": "contact_name", "method": "simpsonsName" } ] }
+  ]
+}

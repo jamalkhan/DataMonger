@@ -1,0 +1,18 @@
+=== API => Upload JSONL Resources (create/update) -> site: demo ===
+Available JSONL files in LocalData/jsonl/products:
+  1) products.jsonl
+  2) products_bad.jsonl
+Choice [1-2]: 2
+Available sites:
+  1) demo  (http://localhost:5281)
+Choice [1-1]: 1
+
+File:    LocalData/jsonl/products/products_bad.jsonl
+Site ID: demo
+Target:  http://localhost:5281/ver2/demo/resources/{resource_id}
+Parallelism: 50
+
+[WARN] Skipping malformed line 5: Unterminated string. Expected delimiter: ". Path 'name', line 1, position 68.
+[WARN] Skipping line 2: missing 'resource_id'.
+
+=== API => Upload JSONL Resources (create/update) summary ===  Site: demo   Success: 3   Failed: 2   Elapsed: <elapsed>

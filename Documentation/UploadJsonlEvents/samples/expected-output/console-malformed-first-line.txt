@@ -1,0 +1,5 @@
+--- File 1/1: samples/input/events_bad.jsonl ---
+File: samples/input/events_bad.jsonl
+
+[FAIL] First line is not valid JSON: Unexpected end of content while loading JObject. Path 'activity.properties.page', line 1, position 134.
+[ABORT] Upload cancelled.

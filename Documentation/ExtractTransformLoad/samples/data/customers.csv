@@ -1,0 +1,7 @@
+customer_id,first_name,middle_name,last_name,email,phone,birth_date,signup_ts,is_member,lifetime_spend,tier
+1001,Ada,Augusta,Lovelace,Ada.Lovelace@example.com,555-0101,1985-12-10,2021-03-04 09:15:00,true,1250.50,gold
+1002,Alan,,Turing,alan.turing@example.com,555-0102,1990-06-23,2022-07-19 14:02:30,true,310.00,silver
+1003,Grace,Brewster,Hopper,grace.hopper@example.com,,1978-12-09,2020-01-15 08:00:00,false,89.99,
+1004,Edith,,Clarke,edith.clarke@example.com,555-0104,1992-02-01,2023-11-30 17:45:10,true,0,bronze
+1005,Barbara,,Liskov,,555-0105,1988-11-07,2019-05-21 12:30:00,0,42.10,bronze
+1006,Katherine,,Johnson,katherine.johnson@example.com,555-0106,1975-08-26,2018-09-09 10:10:10,1,980.00,gold

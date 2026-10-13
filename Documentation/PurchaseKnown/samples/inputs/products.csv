@@ -1,0 +1,11 @@
+sku,resource_type,price,quantity,product_name,category,subcategory,size,url
+P-2001,product,59.95,1,Acme Trail Jacket,Outerwear,Mens,M,https://shop.example.com/p/2001
+P-2002,product,34.50,1,Acme Merino Crew Sweater,Knitwear,Womens,S,https://shop.example.com/p/2002
+P-2003,product,24.00,2,Acme Kids Rain Boots,Footwear,Kids,12,https://shop.example.com/p/2003
+P-2004,product,19.99,1,Acme Baby Fleece Onesie,Sleepwear,Baby,6-9M,https://shop.example.com/p/2004
+P-2005,product,79.00,1,Acme Summit Hiking Pants,Bottoms,Mens,32,https://shop.example.com/p/2005?color=olive
+P-2006,product,44.25,1,Acme Everyday Denim,Bottoms,Womens,8,https://shop.example.com/p/2006
+P-2007,product,12.50,3,Acme Wool Socks 3-Pack,Accessories,Unisex,L,https://shop.example.com/p/2007
+P-2008,product,149.00,1,Acme Down Parka,Outerwear,Womens,L,https://shop.example.com/p/2008
+P-2009,product,29.95,2,Acme Kids Graphic Tee,Tops,Kids,8,https://shop.example.com/p/2009
+P-2010,product,9.99,1,Acme Canvas Tote,Accessories,Unisex,OS,https://shop.example.com/p/2010

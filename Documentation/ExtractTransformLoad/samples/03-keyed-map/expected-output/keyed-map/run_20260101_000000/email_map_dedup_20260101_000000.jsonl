@@ -1,0 +1,4 @@
+{"email::ada.lovelace@example.com":{"status":"active","status_date":"2025-02-01"},"email::ada.l@example.org":{"status":"inactive","status_date":"2023-06-01"}}
+{"email::alan.turing@example.com":{"status":"active","status_date":"2024-09-09"}}
+{"email::grace.hopper@example.com":{"status":"active","status_date":"2024-12-12"}}
+{"email::katherine.johnson@example.com":{"status":"active","status_date":"2024-03-03"}}

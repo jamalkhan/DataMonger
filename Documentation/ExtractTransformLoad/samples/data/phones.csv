@@ -1,0 +1,7 @@
+customer_id,phone_number,brand,phone_type,priority
+1001,555-0101,Acme,mobile,1
+1002,555-0102,Acme,mobile,2
+1002,555-0112,Acme,work,1
+1002,555-0192,Acme Kids,home,1
+1004,555-0104,Acme Kids,mobile,1
+1006,555-0106,Acme,mobile,

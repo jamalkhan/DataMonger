@@ -1,0 +1,8 @@
+email_id,customer_id,email_address,status,status_date,brand
+1,1001,ada.lovelace@example.com,active,2024-01-01,Acme
+2,1001,ada.lovelace@example.com,active,2025-02-01,Acme Kids
+3,1001,ada.l@example.org,inactive,2023-06-01,Acme
+4,1002,alan.turing@example.com,active,2024-09-09,Acme
+5,1003,grace.hopper@example.com,inactive,2022-04-04,Acme
+6,1003,grace.hopper@example.com,active,2024-12-12,Acme
+7,1006,katherine.johnson@example.com,active,2024-03-03,Acme Kids

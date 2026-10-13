@@ -1,0 +1,2 @@
+<timestamp>	samples/input/events_a.jsonl	success=8 failed=2 elapsed=<elapsed>
+<timestamp>	samples/input/events_bad.jsonl	success=1 failed=3 elapsed=<elapsed>

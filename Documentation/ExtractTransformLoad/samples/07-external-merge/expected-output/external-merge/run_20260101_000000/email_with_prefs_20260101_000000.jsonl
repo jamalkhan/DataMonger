@@ -1,0 +1,7 @@
+{"customer_id":1001,"email_address":"ada.lovelace@example.com","brand":"Acme","prefs":{"channel":"newsletter","opted_in":true}}
+{"customer_id":1001,"email_address":"ada.l@example.org","brand":"Acme"}
+{"customer_id":1001,"email_address":"ada.lovelace@example.com","brand":"Acme Kids"}
+{"customer_id":1002,"email_address":"alan.turing@example.com","brand":"Acme","prefs":{"channel":"newsletter","opted_in":false}}
+{"customer_id":1003,"email_address":"grace.hopper@example.com","brand":"Acme"}
+{"customer_id":1003,"email_address":"grace.hopper@example.com","brand":"Acme"}
+{"customer_id":1006,"email_address":"katherine.johnson@example.com","brand":"Acme Kids","prefs":{"channel":"promos","opted_in":true}}

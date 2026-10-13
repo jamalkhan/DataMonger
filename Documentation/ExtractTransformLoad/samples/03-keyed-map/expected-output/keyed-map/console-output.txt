@@ -1,0 +1,29 @@
+=== Extract / Transform / Load (config-driven) ===
+
+Available ETL configs (~/Documents/DataMonger/Config/EtlConfig):
+  1) example.etlconfig
+Select a number, enter a path to your own .etlconfig, 'c' to change the config folder, or 'q' to cancel: 
+Config        : samples/03-keyed-map/keyed-map.etlconfig
+Sources       : 1
+Outputs       : 2
+Join strategy : HashInMemory
+On error      : Skip
+Sample        : (full run)
+Max records   : (no cap)
+Output folder : (from config)
+Run timestamp : 20260101_000000
+
+    output 'email_map': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- email_map (KeyedMap, HashInMemory) ---
+    output folder: samples/03-keyed-map/output/run_20260101_000000
+    2 record(s) filtered out -> samples/03-keyed-map/output/run_20260101_000000/email_map_20260101_000000_filtered.csv
+    output 'email_map_dedup': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- email_map_dedup (KeyedMap, HashInMemory) ---
+    output folder: samples/03-keyed-map/output/run_20260101_000000
+
+=== Done ===
+email_map: 4 records across 1 file(s), 2 filtered out:
+    samples/03-keyed-map/output/run_20260101_000000/email_map_20260101_000000.jsonl
+email_map_dedup: 4 records across 1 file(s):
+    samples/03-keyed-map/output/run_20260101_000000/email_map_dedup_20260101_000000.jsonl
+Total elapsed: 00:00:00.000

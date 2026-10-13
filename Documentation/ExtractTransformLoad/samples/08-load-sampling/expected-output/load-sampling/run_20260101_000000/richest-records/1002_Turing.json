@@ -1,0 +1,15 @@
+{
+  "customer_id": 1002,
+  "first_name": "Alan",
+  "last_name": "Turing",
+  "orders": [
+    {
+      "order_id": 5004
+    }
+  ],
+  "emails": [
+    {
+      "email_address": "alan.turing@example.com"
+    }
+  ]
+}

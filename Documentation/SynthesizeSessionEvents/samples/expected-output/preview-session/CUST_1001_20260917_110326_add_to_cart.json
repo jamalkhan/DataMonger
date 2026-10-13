@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "event_id": "evt-edde9eb3",
+  "event_type": "add_to_cart",
+  "event_time": "2026-09-17T11:03:26-07:00",
+  "session_id": "sess-03053cd9",
+  "user_id": "CUST_1001",
+  "email": "barbara.turing+1001@turing.example.com",
+  "storefront_id": "acme-us",
+  "channel": "mobile_app",
+  "locale": "en-US",
+  "currency": "USD",
+  "source_system": "web_store",
+  "items": [
+    {
+      "sku": "KB-300-RED-2",
+      "product_id": "KB-300",
+      "name": "Acme Kids Rain Boot",
+      "brand": "Acme Kids",
+      "category": "Kids",
+      "color": "Red",
+      "size": "2",
+      "quantity": 2,
+      "unit_price": 34.99,
+      "line_total": 69.98
+    },
+    {
+      "sku": "KT-310-GRN-S",
+      "product_id": "KT-310",
+      "name": "Acme Kids Fleece Top",
+      "brand": "Acme Kids",
+      "category": "Tops",
+      "color": "Green",
+      "size": "S",
+      "quantity": 1,
+      "unit_price": 22.5,
+      "line_total": 22.5
+    }
+  ],
+  "item_count": 3,
+  "cart_total": 92.48
+}

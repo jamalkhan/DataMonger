@@ -1,0 +1,11 @@
+customer_id,first_name,last_name,email,city,lifetime_spend
+1001,Ada,Lovelace,ada.lovelace0@example.com,Springfield,0.00
+1002,Alan,Johnson,alan.johnson1@example.com,Riverton,37.07
+1003,Grace,Liskov,grace.liskov2@example.com,Lakeside,74.14
+1004,Katherine,Perlman,katherine.perlman3@example.com,Fairview,111.21
+1005,Margaret,Hopper,margaret.hopper4@example.com,Georgetown,148.28
+1006,Linus,Torvalds,linus.torvalds5@example.com,Springfield,185.35
+1007,Barbara,Knuth,barbara.knuth6@example.com,Riverton,222.42
+1008,Edsger,Turing,edsger.turing7@example.com,Lakeside,259.49
+1009,Donald,Hamilton,donald.hamilton8@example.com,Fairview,296.56
+1010,Radia,Dijkstra,radia.dijkstra9@example.com,Georgetown,333.63

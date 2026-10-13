@@ -1,0 +1,105 @@
+[
+  {
+    "id": 1,
+    "method": "POST",
+    "path": "/ver2/demo/activities",
+    "route": "activities",
+    "hadAuthorizationHeader": true,
+    "status": 202,
+    "body": {
+      "activity": {
+        "subscriber": {
+          "unique_client_id": {
+            "name": "email_address",
+            "value": "frances.allen@example.com"
+          }
+        },
+        "event": "purchased",
+        "properties": {
+          "order_id": "ORD-782825041",
+          "items": [
+            {
+              "id": "P-2001",
+              "resourceType": "product",
+              "price": 59.95,
+              "quantity": 1,
+              "productname": "Acme Trail Jacket",
+              "category": "Outerwear",
+              "subcategory": "Mens",
+              "size": "M",
+              "url": "https://shop.example.com/p/2001"
+            },
+            {
+              "id": "P-2008",
+              "resourceType": "product",
+              "price": 149.0,
+              "quantity": 1,
+              "productname": "Acme Down Parka",
+              "category": "Outerwear",
+              "subcategory": "Womens",
+              "size": "L",
+              "url": "https://shop.example.com/p/2008"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": 2,
+    "method": "POST",
+    "path": "/ver2/demo/activities",
+    "route": "activities",
+    "hadAuthorizationHeader": true,
+    "status": 202,
+    "body": {
+      "activity": {
+        "subscriber": {
+          "unique_client_id": {
+            "name": "email_address",
+            "value": "joan.clarke@example.com"
+          }
+        },
+        "event": "purchased",
+        "properties": {
+          "order_id": "ORD-426952858",
+          "items": [
+            {
+              "id": "P-2001",
+              "resourceType": "product",
+              "price": 59.95,
+              "quantity": 1,
+              "productname": "Acme Trail Jacket",
+              "category": "Outerwear",
+              "subcategory": "Mens",
+              "size": "M",
+              "url": "https://shop.example.com/p/2001"
+            },
+            {
+              "id": "P-2007",
+              "resourceType": "product",
+              "price": 12.5,
+              "quantity": 3,
+              "productname": "Acme Wool Socks 3-Pack",
+              "category": "Accessories",
+              "subcategory": "Unisex",
+              "size": "L",
+              "url": "https://shop.example.com/p/2007"
+            },
+            {
+              "id": "P-2010",
+              "resourceType": "product",
+              "price": 9.99,
+              "quantity": 1,
+              "productname": "Acme Canvas Tote",
+              "category": "Accessories",
+              "subcategory": "Unisex",
+              "size": "OS",
+              "url": "https://shop.example.com/p/2010"
+            }
+          ]
+        }
+      }
+    }
+  }
+]

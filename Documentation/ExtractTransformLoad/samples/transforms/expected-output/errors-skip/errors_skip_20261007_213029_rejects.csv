@@ -1,0 +1,5 @@
+# reason	row
+# field 'discount_int': transform 'toInteger' failed: The input string '12.5' was not in a correct format.
+1001,Ada Lovelace,ADA@Example.com,3,19.99,"1.234,50",12.5,1,2020-01-15,12/10/1985,2024-03-05T14:30:00Z,red;blue; green,Outerwear Jackets,A,Augusta,0.125,2.5,1985-12-10,2024-05-01,gold
+# field 'discount_int': transform 'toInteger' failed: The input string '2.5' was not in a correct format.
+1008,Margaret Hamilton,mh@example.com,12,8.25,"8,25",2.5,1,2024-01-01,08/17/1936,2024-06-01T06:00:00Z,x,Outerwear Vests,A,,0.9,10.5,,2100-01-01,silver

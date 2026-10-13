@@ -1,0 +1,5 @@
+{"order_id":6001,"quantity":2,"unit_price":19.99,"ship_date":"2025-01-10","weight_kg":1.25}
+{"order_id":6002,"unit_price":5.00,"ship_date":"2025-01-11","weight_kg":0.40}
+{"order_id":6003,"quantity":1,"ship_date":"2025-01-12","weight_kg":2.00}
+{"order_id":6004,"quantity":4,"unit_price":12.50,"weight_kg":0.000015}
+{"order_id":6005,"quantity":1,"unit_price":8.00,"ship_date":"2025-01-14","weight_kg":0.75}

@@ -1,0 +1,6 @@
+subscriber_id|email|first_name|signup_date|source
+2001|ada.lovelace@example.com|Ada|2024-01-15|footer
+2002|alan.turing@example.com|Alan|2024-02-03|checkout
+2003||Grace|2024-02-20|popup
+2004|katherine.johnson@example.com||2024-03-11|footer
+2005|margaret.hamilton@example.com|Margaret|2024-03-30|checkout

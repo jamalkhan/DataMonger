@@ -1,0 +1,25 @@
+=== API => Bulk Runner (stress test) -> site: demo ===
+[WARN] Skipping line 8: unknown verb 'FETCH'.
+[WARN] Skipping line 9: missing 'url'.
+[WARN] Skipping malformed line 10: Error parsing boolean value. Path '', line 1, position 1.
+Loaded 8 API calls from LocalData/massive_apis.jsonl
+Firing with MaxDegreeOfParallelism = 1000. No delay, no rate limit.
+Progress refreshes every ~3 seconds. Failures will scroll past the progress line.
+
+
+[FAIL] L11 GET http://localhost:5281/ver2/demo/missing-route -> 404 NotFound
+       
+
+[FAIL] L5 PUT http://localhost:5281/ver2/demo/resources/BOOT-RDG -> 500 InternalServerError
+       {
+         "status": "error",
+         "error": "injected_failure"
+       }
+
+[FAIL] L6 POST http://localhost:5281/ver2/demo/activities -> 500 InternalServerError
+       {
+         "status": "error",
+         "error": "injected_failure"
+       }
+
+[##############################] 8/8 (100.0%)  ok 5  fail 3  elapsed 00:00:00  ETA 00:00:00                   

@@ -1,0 +1,10 @@
+{"activity": {"user_id": "1001", "event_name": "page_viewed", "event_id": "evt-0001", "timestamp": "2026-03-01T10:01:00Z", "brand": "Acme", "properties": {"page": "/tents/trail-2p", "referrer": "search"}}}
+{"activity": {"user_id": "1001", "event_name": "add_to_cart", "event_id": "evt-0002", "timestamp": "2026-03-01T10:02:00Z", "brand": "Acme", "properties": {"sku": "TENT-2P", "quantity": 1, "price": 199.0}}}
+{"activity": {"user_id": "1002", "event_name": "page_viewed", "event_id": "evt-0003", "timestamp": "2026-03-01T10:03:00Z", "brand": "Acme", "properties": {"page": "/boots/ridge", "referrer": "email"}}}
+{"activity": {"user_id": "1002", "event_name": "add_to_cart", "event_id": "evt-0004", "timestamp": "2026-03-01T10:04:00Z", "brand": "Acme", "properties": {"sku": "BOOT-RDG", "quantity": 1, "price": 129.5}}}
+{"activity": {"user_id": "1001", "event_name": "purchase", "event_id": "evt-0005", "timestamp": "2026-03-01T10:05:00Z", "brand": "Acme", "properties": {"order_id": "A-5001", "total": 199.0, "currency": "USD"}}}
+{"activity": {"user_id": "1003", "event_name": "page_viewed", "event_id": "evt-0006", "timestamp": "2026-03-01T10:06:00Z", "brand": "Acme", "properties": {"page": "/packs/day-20", "referrer": "direct"}}}
+{"activity": {"user_id": "1003", "event_name": "add_to_cart", "event_id": "evt-0007", "timestamp": "2026-03-01T10:07:00Z", "brand": "Acme", "properties": {"sku": "PACK-D20", "quantity": 2, "price": 59.0}}}
+{"activity": {"user_id": "1003", "event_name": "purchase", "event_id": "evt-0008", "timestamp": "2026-03-01T10:08:00Z", "brand": "Acme", "properties": {"order_id": "A-5002", "total": 118.0, "currency": "USD"}}}
+{"activity": {"user_id": "1004", "event_name": "page_viewed", "event_id": "evt-0009", "timestamp": "2026-03-01T10:09:00Z", "brand": "Acme", "properties": {"page": "/kids/rain-jacket", "referrer": "social"}}}
+{"activity": {"user_id": "1002", "event_name": "purchase", "event_id": "evt-0010", "timestamp": "2026-03-01T10:10:00Z", "brand": "Acme", "properties": {"order_id": "A-5003", "total": 129.5, "currency": "USD"}}}

@@ -1,0 +1,17 @@
+=== Anonymize PII (config-driven) ===
+
+Available anonymization configs (~/Documents/DataMonger/Config/AnonConfig):
+  1) example.anonconfig
+Select a number, enter a path to your own .anonconfig, 'c' to change the config folder, or 'q' to cancel: 
+Config        : configs/all-methods.anonconfig
+Files         : 1
+On error      : Skip
+Output folder : (from config)
+Rename        : src_* -> anonymized_*
+
+[anon] src_customers.csv -> customers_all_methods.csv: 10 rows, 146 cells across 15 column(s)
+
+=== Done ===
+customers_all_methods.csv: 10 rows, 146 cells anonymized
+
+Files: 1, rows anonymized: 10, cells: 146

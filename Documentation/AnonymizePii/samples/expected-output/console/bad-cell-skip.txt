@@ -1,0 +1,28 @@
+=== Anonymize PII (config-driven) ===
+
+Available anonymization configs (~/Documents/DataMonger/Config/AnonConfig):
+  1) example.anonconfig
+Select a number, enter a path to your own .anonconfig, 'c' to change the config folder, or 'q' to cancel: 
+Config        : configs/bad-cell-skip.anonconfig
+Files         : 2
+On error      : Skip
+Output folder : (from config)
+Rename        : src_* -> anonymized_*
+
+[warn] src_customers.csv row 1 column 'dob': Year, Month, and Day parameters describe an un-representable DateTime. (left unchanged)
+[warn] src_customers.csv row 2 column 'dob': Year, Month, and Day parameters describe an un-representable DateTime. (left unchanged)
+[warn] src_customers.csv row 3 column 'dob': Year, Month, and Day parameters describe an un-representable DateTime. (left unchanged)
+[warn] src_customers.csv row 4 column 'dob': Year, Month, and Day parameters describe an un-representable DateTime. (left unchanged)
+[warn] src_customers.csv row 6 column 'dob': Year, Month, and Day parameters describe an un-representable DateTime. (left unchanged)
+[warn] src_customers.csv row 7 column 'dob': Year, Month, and Day parameters describe an un-representable DateTime. (left unchanged)
+[warn] src_customers.csv row 8 column 'dob': Year, Month, and Day parameters describe an un-representable DateTime. (left unchanged)
+[warn] src_customers.csv row 9 column 'dob': Year, Month, and Day parameters describe an un-representable DateTime. (left unchanged)
+[warn] src_customers.csv row 10 column 'dob': Year, Month, and Day parameters describe an un-representable DateTime. (left unchanged)
+[anon] src_customers.csv -> anonymized_customers.csv: 10 rows, 9 cells across 2 column(s), 9 error(s)
+[anon] src_returns.csv -> anonymized_returns.csv: 3 rows, 3 cells across 1 column(s)
+
+=== Done ===
+anonymized_customers.csv: 10 rows, 9 cells anonymized, 9 error(s)
+anonymized_returns.csv: 3 rows, 3 cells anonymized
+
+Files: 2, rows anonymized: 13, cells: 12

@@ -1,0 +1,10 @@
+{"user_id": "1001", "email": "ada.lovelace@example.com", "first_name": "Ada", "last_name": "Lovelace", "phone": "555-0100", "brand": "Acme Kids", "marketing_opt_in": true}
+{"user_id": "1002", "email": "alan.turing@example.com", "first_name": "Alan", "last_name": "Turing", "phone": "555-0101", "brand": "Acme", "marketing_opt_in": false}
+{"user_id": "1003", "email": "grace.hopper@example.com", "first_name": "Grace", "last_name": "Hopper", "phone": "555-0102", "brand": "Acme", "marketing_opt_in": true}
+{"user_id": "1004", "email": "katherine.johnson@example.com", "first_name": "Katherine", "last_name": "Johnson", "phone": "555-0103", "brand": "Acme Kids", "marketing_opt_in": false}
+{"user_id": "1005", "email": "edsger.dijkstra@example.com", "first_name": "Edsger", "last_name": "Dijkstra", "phone": "555-0104", "brand": "Acme", "marketing_opt_in": true}
+{"user_id": "1006", "email": "barbara.liskov@example.com", "first_name": "Barbara", "last_name": "Liskov", "phone": "555-0105", "brand": "Acme", "marketing_opt_in": false}
+{"user_id": "1007", "email": "margaret.hamilton@example.com", "first_name": "Margaret", "last_name": "Hamilton", "phone": "555-0106", "brand": "Acme Kids", "marketing_opt_in": true}
+{"user_id": "1008", "email": "linus.torvalds@example.com", "first_name": "Linus", "last_name": "Torvalds", "phone": "555-0107", "brand": "Acme", "marketing_opt_in": false}
+{"user_id": "1009", "email": "donald.knuth@example.com", "first_name": "Donald", "last_name": "Knuth", "phone": "555-0108", "brand": "Acme", "marketing_opt_in": true}
+{"user_id": "1010", "email": "radia.perlman@example.com", "first_name": "Radia", "last_name": "Perlman", "phone": "555-0109", "brand": "Acme Kids", "marketing_opt_in": false}

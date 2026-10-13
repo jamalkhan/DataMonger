@@ -1,0 +1,2 @@
+record_key	field	reason	raw_value
+	weight_kg	scientific notation in a numeric column	1.5e-05

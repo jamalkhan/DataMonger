@@ -1,0 +1,5 @@
+{"activity": {"user_id": "1001", "event_name": "page_viewed", "event_id": "evt-0101", "brand": "Acme", "properties": {"page": "/tents"
+{"activity": {"user_id": "1002", "event_name": "page_viewed", "event_id": "evt-0102", "timestamp": "2026-03-02T09:00:00Z", "brand": "Acme", "properties": {"page": "/boots"}}}
+
+not json at all
+{"activity": {"user_id": "1002", "event_name": "add_to_cart", "event_id": "evt-0103", "timestamp": "2026-03-02T09:01:00Z", "brand": "Acme", "properties": {"sku": "BOOT-RDG", "quantity": 1}}}

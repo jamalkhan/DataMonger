@@ -1,0 +1,4 @@
+pref_id,customer_id,email_address,brand,channel,opted_in
+1,1001,ada.lovelace@example.com,Acme,newsletter,true
+2,1002,alan.turing@example.com,Acme,newsletter,false
+3,1006,katherine.johnson@example.com,Acme Kids,promos,true

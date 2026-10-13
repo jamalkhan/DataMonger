@@ -1,0 +1,24 @@
+{
+  "customer_id": 1001,
+  "first_name": "Ada",
+  "last_name": "Lovelace",
+  "orders": [
+    {
+      "order_id": 5001
+    },
+    {
+      "order_id": 5002
+    }
+  ],
+  "emails": [
+    {
+      "email_address": "ada.lovelace@example.com"
+    },
+    {
+      "email_address": "ada.lovelace@example.com"
+    },
+    {
+      "email_address": "ada.l@example.org"
+    }
+  ]
+}

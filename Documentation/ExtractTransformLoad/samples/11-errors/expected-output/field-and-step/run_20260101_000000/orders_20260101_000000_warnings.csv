@@ -1,0 +1,3 @@
+record_key	field	reason	raw_value
+	ship_date	'12-25' has no year (month-day only) — refusing to guess a year.	12-25
+	weight_kg	scientific notation in a numeric column	1.5e-05

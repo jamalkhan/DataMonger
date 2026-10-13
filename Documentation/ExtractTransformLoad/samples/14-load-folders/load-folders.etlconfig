@@ -1,0 +1,34 @@
+{
+  // 14-load-folders: where output files go.
+  //   customers   load.folder with the {run_timestamp} token: the per-run folder is placed exactly there
+  //   orders      same token, sibling folder: both feeds end up under one shared per-run folder
+  //   products    no load.folder at all: the command prompts for a fallback output folder
+  //               (relative answers resolve against THIS file's folder)
+  // Without the token the engine appends run_<timestamp> to the folder instead (as in the other samples).
+  "version": 1,
+  "run": { "joinStrategy": "hashInMemory", "onError": "skip" },
+
+  "sources": {
+    "customers": { "file": "../data/customers.csv" },
+    "orders":    { "file": "../data/orders.csv" },
+    "products":  { "file": "../data/products.csv" }
+  },
+
+  "outputs": [
+    {
+      "name": "customers", "mode": "object", "source": "customers",
+      "fields": [ { "name": "customer_id", "from": "customer_id", "type": "integer" } ],
+      "load": { "folder": "output/{run_timestamp}/customers", "fileBaseName": "customers", "sampling": { "enabled": false } }
+    },
+    {
+      "name": "orders", "mode": "object", "source": "orders",
+      "fields": [ { "name": "order_id", "from": "order_id", "type": "integer" } ],
+      "load": { "folder": "output/{run_timestamp}/orders", "fileBaseName": "orders", "splitEvery": 5, "sampling": { "enabled": false } }
+    },
+    {
+      "name": "products", "mode": "object", "source": "products",
+      "fields": [ { "name": "sku", "from": "sku", "type": "string" } ],
+      "load": { "fileBaseName": "products", "sampling": { "enabled": false } }
+    }
+  ]
+}

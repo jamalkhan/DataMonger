@@ -1,0 +1,11 @@
+customer_id,first_name,last_name,full_name,email,phone,dob,address_line1,address_line2,city,state,postal_code,email_sha256,card_last4,store_pref,notes
+1001,Lionel,Hutz,Lionel Hutz,lionel.hutz13@springfield.example,555-555-0116,1957-05-01,7243 Third Street,,Shelbyville,FL,33158,56480d9621bd80b2eb82049d08cb6200ca13c4a209806ba30541b170c7870d00,0637,Downtown,Prefers e-receipts
+1002,Troy,McClure,Troy McClure,troy.mcclure91@springfield.example,555-555-0146,1964-10-09,6165 Evergreen Terrace,,Ogdenville,OH,81304,64e9b0ef5b2175c22398fcab48fa05e03403961f1155cd00de3ed48aa34203ef,7816,Mall,
+1003,Maude,Flanders,Maude Flanders,maude.flanders19@springfield.example,,1976-12-16,5561 Bourbon Street,,Springfield,NY,89282,5f78fc2102fb6961efe2589fdb458c3ea343da16cecff7ef293a8b1c58b38c93,9347,Downtown,"Said ""call me Amazing Grace"""
+1004,Bart,Simpson,Bart Simpson,,555-555-0121,1960-09-13,1715 Fake Street,,Shelbyville,WA,43074,,7634,Outlet,
+1005,Lionel,Hutz,Lionel Hutz,lionel.hutz36@springfield.example,555-555-0131,,1835 Highland Avenue,,North Haverbrook,TX,96050,7e4eee0490e6aaf4fc05a0a85539a95a12d4f509522a1f2a3aad59663c88a6af,6967,Mall,VIP
+1006,Montgomery,Burns,Montgomery Burns,montgomery.burns54@springfield.example,555-555-0169,1960-12-09,5892 Bourbon Street,,Ogdenville,MA,87347,662960f747b613c7ef83feaad8511eae9262510a03edd692c4800a18c8beae56,8587,Downtown,
+1007,Jeff,Albertson,Jeff Albertson,jeff.albertson94@springfield.example,555-555-0166,1945-11-21,7976 Highland Avenue,,Cypress Creek,OH,96967,d7e34d59ee0d5d61f2e8f08a523b12769fb4f79804eeef536dd0d7dce4e2997c,4537,Outlet,
+1008,Kent,Brockman,Kent Brockman,kent.brockman37@springfield.example,555-555-0111,1947-03-21,4941 Third Street,,Ogdenville,IL,23852,c5df5446812e6b97e6d173af14b687f2a4785a42701233b5e070d029add09ed1,1246,Mall,
+1009,Groundskeeper,Willie,Groundskeeper Willie,groundskeeper.willie13@springfield.example,555-555-0107,1949-12-17,2489 Plympton Street,,North Haverbrook,TX,17219,be95780f491ed7c3992003e91ce3e36b722f736502bb053b7e004077ff4a9d11,1716,Downtown,Reward check
+1010,Nelson,Muntz,Nelson Muntz,nelson.muntz69@springfield.example,555-555-0182,1989-10-31,4040 Plympton Street,,Capital City,NT,58331,9b93bf2577ba08fbb3198af8592ae609fc681611eceffad3761cceafc0d1c870,4313,Outlet,

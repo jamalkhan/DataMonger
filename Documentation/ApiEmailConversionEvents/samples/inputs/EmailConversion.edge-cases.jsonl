@@ -1,0 +1,8 @@
+{"recipient":{"email":"ada.lovelace@example.com"},"events":[{"event_type":"email_sent"}]}
+{"recipient":{"email":"alan.turing@example.com"},"events":[{"event_type":"email_opened"}]}
+
+{"recipient":{"email":"grace.hopper@example.com"},"events":[{"note":"event without event_type"}]}
+this line is not json
+{"recipient":{},"events":[{"event_type":"email_sent"}]}
+{"recipient":{"email":"linus.torvalds@example.com"},"events":[{"event_type":"email_sent","x":1},{"event_type":"email_clicked"}]}
+{"recipient":{"email":"edsger.dijkstra@example.com"}}

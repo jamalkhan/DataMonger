@@ -1,0 +1,5 @@
+record_key	field	reason	raw_value
+1001	middle_rank	The input string 'Augusta' was not in a correct format.	Augusta
+1003	middle_rank	The input string 'Brewster' was not in a correct format.	Brewster
+1004	ship_date	'12-25' has no year (month-day only) — refusing to guess a year.	12-25
+1004	weight_kg	scientific notation in a numeric column	1.5e-05

@@ -1,0 +1,6 @@
+{"customer_id":1001,"email":"Ada.Lovelace@example.com","known_addresses":[{"address":"ada.lovelace@example.com","origin":"emails"},{"address":"ada.l@example.org","origin":"emails"}],"email_match_ignoring_case":[{"email_id":1}]}
+{"customer_id":1002,"email":"alan.turing@example.com","known_addresses":[{"address":"alan.turing@example.com","origin":"emails"}],"email_match_ignoring_case":[{"email_id":4}],"email_match_exact":[{"email_id":4}]}
+{"customer_id":1003,"email":"grace.hopper@example.com","known_addresses":[{"address":"grace.hopper@example.com","origin":"emails"}],"email_match_ignoring_case":[{"email_id":5}],"email_match_exact":[{"email_id":5}]}
+{"customer_id":1004,"email":"edith.clarke@example.com"}
+{"customer_id":1005}
+{"customer_id":1006,"email":"katherine.johnson@example.com","known_addresses":[{"address":"katherine.johnson@example.com","origin":"emails"}],"email_match_ignoring_case":[{"email_id":7}],"email_match_exact":[{"email_id":7}]}

@@ -1,0 +1,6 @@
+=== API => Email Conversion Events -> site: demo ===
+Max random delay between events in seconds [120] (0 = no delay): Loaded 10 rows (33 events) from <scratch>/LocalData/EmailConversion.jsonl
+Posting with no delay between events.
+Progress refreshes every ~3 seconds. Failures will scroll past the progress line.
+[##############################] 33/33 (100.0%)  elapsed 00:00:00  ETA 00:00:00
+=== API => Email Conversion Events summary ===  Success: 33   Failed: 0   Elapsed: 00:00:00.131

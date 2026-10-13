@@ -1,0 +1,4 @@
+order_id|sku|note
+5001|SKU-100|plain
+5002|SKU-101|has, a comma
+5003|SKU-102|quoted|pipe

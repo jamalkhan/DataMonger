@@ -1,0 +1,34 @@
+=== Extract / Transform / Load (config-driven) ===
+
+Available ETL configs (~/Documents/DataMonger/Config/EtlConfig):
+  1) example.etlconfig
+Select a number, enter a path to your own .etlconfig, 'c' to change the config folder, or 'q' to cancel: 
+Config        : samples/13-joins-advanced/joins-advanced.etlconfig
+Sources       : 3
+Outputs       : 3
+Join strategy : HashInMemory
+On error      : Skip
+Sample        : (full run)
+Max records   : (no cap)
+Output folder : (from config)
+Run timestamp : 20260101_000000
+
+    output 'customers_joined': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- customers_joined (Object, HashInMemory) ---
+    output folder: samples/13-joins-advanced/output/run_20260101_000000
+    output 'email_with_prefs': 1 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- email_with_prefs (Object, HashInMemory) ---
+    output folder: samples/13-joins-advanced/output/run_20260101_000000
+    output 'customer_brands': 1 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- customer_brands (Object, HashInMemory) ---
+    lookup reused from an earlier output in this run (identical source/join/projection) — skipped re-scanning it.
+    output folder: samples/13-joins-advanced/output/run_20260101_000000
+
+=== Done ===
+customers_joined: 6 records across 1 file(s):
+    samples/13-joins-advanced/output/run_20260101_000000/customers_joined_20260101_000000.jsonl
+email_with_prefs: 7 records across 1 file(s):
+    samples/13-joins-advanced/output/run_20260101_000000/email_with_prefs_20260101_000000.jsonl
+customer_brands: 6 records across 1 file(s):
+    samples/13-joins-advanced/output/run_20260101_000000/customer_brands_20260101_000000.jsonl
+Total elapsed: 00:00:00.000

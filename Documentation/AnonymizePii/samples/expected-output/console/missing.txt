@@ -1,0 +1,20 @@
+=== Anonymize PII (config-driven) ===
+
+Available anonymization configs (~/Documents/DataMonger/Config/AnonConfig):
+  1) example.anonconfig
+Select a number, enter a path to your own .anonconfig, 'c' to change the config folder, or 'q' to cancel: 
+Config        : configs/missing.anonconfig
+Files         : 2
+On error      : Skip
+Output folder : (from config)
+Rename        : src_* -> anonymized_*
+
+[warn] src_returns.csv: column 'mobile_phone' not found in header — skipped.
+[anon] src_returns.csv -> anonymized_returns.csv: 3 rows, 3 cells across 1 column(s)
+[skip] src_does_not_exist.csv: input not found: input/src_does_not_exist.csv
+
+=== Done ===
+anonymized_returns.csv: 3 rows, 3 cells anonymized, missing columns: mobile_phone
+src_does_not_exist.csv: SKIPPED (input not found: input/src_does_not_exist.csv)
+
+Files: 2, rows anonymized: 3, cells: 3

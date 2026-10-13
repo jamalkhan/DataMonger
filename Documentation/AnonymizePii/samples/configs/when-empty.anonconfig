@@ -1,0 +1,19 @@
+// Sample 2: whenEmpty "passthrough" (default) vs "generate" on the same column pair.
+{
+  "run": { "seed": 7 },
+  "inputFolder": "../input",
+  "outputFolder": "../expected-output/when-empty",
+  "files": [
+    {
+      "input": "src_customers.csv",
+      "output": "customers_when_empty.csv",
+      "columns": [
+        // Row 1004 has an empty email, row 1003 an empty phone, row 1005 an empty dob.
+        { "name": "email", "method": "simpsonsEmail" },
+        { "name": "phone", "method": "fakePhone", "whenEmpty": "generate" },
+        { "name": "dob",   "method": "fakeDate",  "whenEmpty": "generate", "options": { "minYear": 1990, "maxYear": 1995, "format": "MM/dd/yyyy" } },
+        { "name": "notes", "method": "constant",  "whenEmpty": "generate", "options": { "value": "[redacted]" } }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,83 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- appsettings.json is gitignored (create it from appsettings.example.json); copied when present. -->
+    <Content Include="appsettings.json" Condition="Exists('appsettings.json')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <!--
+      Local input CSVs (anonymous.csv, identified.csv, products.csv) live under the repo-level
+      LocalData folder (see DataPaths in DataMonger.Common), not DataMonger/data, so they are not
+      copied to the build output here.
+    -->
+    <!-- All ETL config files are copied to the build output. -->
+    <Content Include="data\etlconfig\**\*.etlconfig">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <!-- All anonymization config files are copied to the build output. -->
+    <Content Include="data\anonconfig\**\*.anonconfig">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <!-- All synthetic-data config files are copied to the build output. -->
+    <Content Include="data\synthconfig\**\*.synthconfig">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <!--
+      The repo-level LocalData folder (sibling of DataMonger, gitignored) holds local CSV inputs.
+      It lives outside DataMonger/data and is deliberately NOT copied to the build output: the files
+      can be multi-GB and copying them would bloat every build, and keeping them outside the project
+      tree avoids accidentally committing data. Config files (.etlconfig, .anonconfig, .synthconfig) are
+      kept in a per-user config folder chosen on first run (see ConfigFolders in DataMonger.Common); the
+      bundled data/*config examples above are copied into that folder the first time it is created.
+    -->
+  </ItemGroup>
+
+  <!--
+    Fresh clones have neither appsettings.json nor appsettings.user.json (both are gitignored), so
+    fall back to the committed dummy appsettings.example.json. The app then starts, but any API
+    call fails against the placeholder site.
+  -->
+  <Target Name="CopyExampleAppSettings" AfterTargets="Build"
+          Condition="!Exists('$(MSBuildProjectDirectory)/appsettings.json') And !Exists('$(MSBuildProjectDirectory)/appsettings.user.json')">
+    <Copy SourceFiles="$(MSBuildProjectDirectory)/appsettings.example.json"
+          DestinationFiles="$(OutDir)appsettings.json"
+          SkipUnchangedFiles="false" />
+  </Target>
+
+  <!--
+    If appsettings.user.json exists (your real, gitignored credentials — same shape as
+    appsettings.example.json), copy it over the build output's appsettings.json so the app picks up real
+    credentials instead of the committed dummy values. Runs after Build, so it covers both
+    `dotnet build` and `dotnet run` (which builds first).
+  -->
+  <Target Name="CopyUserAppSettings" AfterTargets="Build">
+    <Copy
+      Condition="Exists('$(MSBuildProjectDirectory)\appsettings.user.json')"
+      SourceFiles="$(MSBuildProjectDirectory)\appsettings.user.json"
+      DestinationFiles="$(OutDir)appsettings.json"
+      SkipUnchangedFiles="false" />
+  </Target>
+
+  <ItemGroup>
+    <PackageReference Include="bleak.Api.Rest" Version="2.3.22" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.8" />
+    <PackageReference Include="System.Threading.RateLimiting" Version="10.0.8" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DataMonger.Common\DataMonger.Common.csproj" />
+    <PackageReference Include="bleak.Data.InfiniteDataLoader" Version="1.0.0" />
+    <PackageReference Include="bleak.Data.Transformer" Version="1.0.0" />
+    <PackageReference Include="bleak.Data.Anonymizer" Version="1.0.0" />
+  </ItemGroup>
+
+</Project>

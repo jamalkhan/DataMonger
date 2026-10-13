@@ -1,0 +1,4 @@
+{"customer_id":1001,"last_name":"Lovelace","orders":[{"order_id":5001},{"order_id":5002}]}
+{"customer_id":1002,"last_name":"Turing","orders":[{"order_id":5004}]}
+{"customer_id":1003,"last_name":"Hopper","orders":[{"order_id":5005}]}
+{"customer_id":1006,"last_name":"Johnson","orders":[{"order_id":5006}]}

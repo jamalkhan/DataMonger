@@ -1,0 +1,25 @@
+{
+  // 11-errors (nullify): run.onError "nullify": only the failing field is omitted; the record is kept.
+  "version": 1,
+  "run": { "joinStrategy": "hashInMemory", "onError": "nullify" },
+
+  "sources": {
+    "messy_orders": { "file": "messy_orders.csv" }
+  },
+
+  "outputs": [
+    {
+      "name": "orders",
+      "mode": "object",
+      "source": "messy_orders",
+      "fields": [
+        { "name": "order_id",    "from": "order_id",   "type": "integer" },
+        { "name": "quantity",    "from": "quantity",   "type": "integer" },
+        { "name": "unit_price",  "from": "unit_price", "type": "decimal" },
+        { "name": "ship_date",   "from": "ship_date",  "type": "date" },
+        { "name": "weight_kg",   "from": "weight_kg",  "type": "decimal" }
+      ],
+      "load": { "folder": "output", "fileBaseName": "orders", "sampling": { "enabled": false } }
+    }
+  ]
+}

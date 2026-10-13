@@ -1,0 +1,3 @@
+record_key	field	reason	raw_value
+	toDate_birth_md	transform 'toDate' failed: '09-3' has no year (month-day only) — refusing to guess a year.	09-3
+	typed_ratio	scientific notation in a numeric column	1.5e-05

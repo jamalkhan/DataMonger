@@ -1,0 +1,31 @@
+{
+  // 09-run-limits (sample): run.sample takes the first 2 primary rows and keeps every related row (children AND lookups) for exactly those customers.
+  "version": 1,
+  "run": { "joinStrategy": "hashInMemory", "onError": "skip", "sample": { "primaryRows": 2, "keyColumn": "customer_id" } },
+
+  "sources": {
+    "customers": { "file": "../data/customers.csv" },
+    "orders":    { "file": "../data/orders.csv" },
+    "emails":    { "file": "../data/emails.csv" }
+  },
+
+  "outputs": [
+    {
+      "name": "customers",
+      "mode": "object",
+      "source": "customers",
+      "fields": [
+        { "name": "customer_id", "from": "customer_id", "type": "integer" },
+        { "name": "last_name",   "from": "last_name",   "type": "string" },
+        { "name": "email_addresses", "type": "array",
+          "lookup": { "source": "emails", "on": { "parent": "customer_id", "child": "customer_id" }, "column": "email_address", "distinct": true } }
+      ],
+      "children": [
+        { "source": "orders", "as": "orders", "cardinality": "many",
+          "on": { "parent": "customer_id", "child": "customer_id" },
+          "fields": [ { "name": "order_id", "from": "order_id", "type": "integer" } ] }
+      ],
+      "load": { "folder": "output", "fileBaseName": "customers", "sampling": { "enabled": false } }
+    }
+  ]
+}

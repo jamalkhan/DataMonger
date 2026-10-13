@@ -1,0 +1,172 @@
+[
+  {
+    "id": 1,
+    "method": "PUT",
+    "path": "/ver2/demo/resources/PACK-T65",
+    "route": "resources",
+    "hadAuthorizationHeader": true,
+    "status": 200,
+    "body": {
+      "resource_type": "product",
+      "resource_id": "PACK-T65",
+      "name": "Trek Pack 65L",
+      "category": "Packs",
+      "price": 189.0,
+      "brand": "Acme",
+      "url": "https://shop.example.com/p/pack-t65"
+    }
+  },
+  {
+    "id": 2,
+    "method": "PUT",
+    "path": "/ver2/demo/resources/JKT-RAIN",
+    "route": "resources",
+    "hadAuthorizationHeader": true,
+    "status": 200,
+    "body": {
+      "resource_type": "product",
+      "resource_id": "JKT-RAIN",
+      "name": "Rain Jacket",
+      "category": "Apparel",
+      "price": 99.0,
+      "brand": "Acme",
+      "url": "https://shop.example.com/p/jkt-rain"
+    }
+  },
+  {
+    "id": 3,
+    "method": "PUT",
+    "path": "/ver2/demo/resources/TENT-4P",
+    "route": "resources",
+    "hadAuthorizationHeader": true,
+    "status": 429,
+    "body": {
+      "resource_type": "product",
+      "resource_id": "TENT-4P",
+      "name": "Basecamp 4-Person Tent",
+      "category": "Camping",
+      "price": 329.0,
+      "brand": "Acme",
+      "url": "https://shop.example.com/p/tent-4p"
+    }
+  },
+  {
+    "id": 4,
+    "method": "PUT",
+    "path": "/ver2/demo/resources/BOOT-CRK",
+    "route": "resources",
+    "hadAuthorizationHeader": true,
+    "status": 200,
+    "body": {
+      "resource_type": "product",
+      "resource_id": "BOOT-CRK",
+      "name": "Creek Water Shoe",
+      "category": "Footwear",
+      "price": 79.0,
+      "brand": "Acme",
+      "url": "https://shop.example.com/p/boot-crk"
+    }
+  },
+  {
+    "id": 5,
+    "method": "PUT",
+    "path": "/ver2/demo/resources/PACK-D20",
+    "route": "resources",
+    "hadAuthorizationHeader": true,
+    "status": 200,
+    "body": {
+      "resource_type": "product",
+      "resource_id": "PACK-D20",
+      "name": "Day Pack 20L",
+      "category": "Packs",
+      "price": 59.0,
+      "brand": "Acme",
+      "url": "https://shop.example.com/p/pack-d20"
+    }
+  },
+  {
+    "id": 6,
+    "method": "PUT",
+    "path": "/ver2/demo/resources/BAG-SLP",
+    "route": "resources",
+    "hadAuthorizationHeader": true,
+    "status": 429,
+    "body": {
+      "resource_type": "product",
+      "resource_id": "BAG-SLP",
+      "name": "Three-Season Sleeping Bag",
+      "category": "Camping",
+      "price": 149.0,
+      "brand": "Acme",
+      "url": "https://shop.example.com/p/bag-slp"
+    }
+  },
+  {
+    "id": 7,
+    "method": "PUT",
+    "path": "/ver2/demo/resources/BOOT-RDG",
+    "route": "resources",
+    "hadAuthorizationHeader": true,
+    "status": 200,
+    "body": {
+      "resource_type": "product",
+      "resource_id": "BOOT-RDG",
+      "name": "Ridge Hiking Boot",
+      "category": "Footwear",
+      "price": 129.5,
+      "brand": "Acme",
+      "url": "https://shop.example.com/p/boot-rdg"
+    }
+  },
+  {
+    "id": 8,
+    "method": "PUT",
+    "path": "/ver2/demo/resources/JKT-KID",
+    "route": "resources",
+    "hadAuthorizationHeader": true,
+    "status": 200,
+    "body": {
+      "resource_type": "product",
+      "resource_id": "JKT-KID",
+      "name": "Kids Rain Jacket",
+      "category": "Apparel",
+      "price": 64.0,
+      "brand": "Acme Kids",
+      "url": "https://shop.example.com/p/jkt-kid"
+    }
+  },
+  {
+    "id": 9,
+    "method": "PUT",
+    "path": "/ver2/demo/resources/STOVE-1",
+    "route": "resources",
+    "hadAuthorizationHeader": true,
+    "status": 429,
+    "body": {
+      "resource_type": "product",
+      "resource_id": "STOVE-1",
+      "name": "Pocket Stove",
+      "category": "Camping",
+      "price": 39.0,
+      "brand": "Acme",
+      "url": "https://shop.example.com/p/stove-1"
+    }
+  },
+  {
+    "id": 10,
+    "method": "PUT",
+    "path": "/ver2/demo/resources/TENT-2P",
+    "route": "resources",
+    "hadAuthorizationHeader": true,
+    "status": 200,
+    "body": {
+      "resource_type": "product",
+      "resource_id": "TENT-2P",
+      "name": "Trail 2-Person Tent",
+      "category": "Camping",
+      "price": 199.0,
+      "brand": "Acme",
+      "url": "https://shop.example.com/p/tent-2p"
+    }
+  }
+]

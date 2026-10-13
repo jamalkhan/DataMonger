@@ -1,0 +1,10 @@
+{"resource_type": "product", "resource_id": "TENT-2P", "name": "Trail 2-Person Tent", "category": "Camping", "price": 199.0, "brand": "Acme", "url": "https://shop.example.com/p/tent-2p"}
+{"resource_type": "product", "resource_id": "TENT-4P", "name": "Basecamp 4-Person Tent", "category": "Camping", "price": 329.0, "brand": "Acme", "url": "https://shop.example.com/p/tent-4p"}
+{"resource_type": "product", "resource_id": "BOOT-RDG", "name": "Ridge Hiking Boot", "category": "Footwear", "price": 129.5, "brand": "Acme", "url": "https://shop.example.com/p/boot-rdg"}
+{"resource_type": "product", "resource_id": "BOOT-CRK", "name": "Creek Water Shoe", "category": "Footwear", "price": 79.0, "brand": "Acme", "url": "https://shop.example.com/p/boot-crk"}
+{"resource_type": "product", "resource_id": "PACK-D20", "name": "Day Pack 20L", "category": "Packs", "price": 59.0, "brand": "Acme", "url": "https://shop.example.com/p/pack-d20"}
+{"resource_type": "product", "resource_id": "PACK-T65", "name": "Trek Pack 65L", "category": "Packs", "price": 189.0, "brand": "Acme", "url": "https://shop.example.com/p/pack-t65"}
+{"resource_type": "product", "resource_id": "JKT-RAIN", "name": "Rain Jacket", "category": "Apparel", "price": 99.0, "brand": "Acme", "url": "https://shop.example.com/p/jkt-rain"}
+{"resource_type": "product", "resource_id": "JKT-KID", "name": "Kids Rain Jacket", "category": "Apparel", "price": 64.0, "brand": "Acme Kids", "url": "https://shop.example.com/p/jkt-kid"}
+{"resource_type": "product", "resource_id": "BAG-SLP", "name": "Three-Season Sleeping Bag", "category": "Camping", "price": 149.0, "brand": "Acme", "url": "https://shop.example.com/p/bag-slp"}
+{"resource_type": "product", "resource_id": "STOVE-1", "name": "Pocket Stove", "category": "Camping", "price": 39.0, "brand": "Acme", "url": "https://shop.example.com/p/stove-1"}

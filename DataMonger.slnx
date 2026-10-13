@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="DataMonger.Common/DataMonger.Common.csproj" />
+  <Project Path="DataMonger.Common.Tests/DataMonger.Common.Tests.csproj" />
+  <Project Path="DataMonger/DataMonger.csproj" />
+  <Project Path="DataMonger.Tests/DataMonger.Tests.csproj" />
+  <Project Path="DataMonger.MockApi/DataMonger.MockApi.csproj" />
+</Solution>

@@ -1,0 +1,43 @@
+--- File 1/1: samples/input/identifies.jsonl ---
+File: samples/input/identifies.jsonl
+
+First request preview:
+POST  http://localhost:5281/ver2/demo/subscribers/identify
+{
+  "user_id": "1001",
+  "email": "ada.lovelace@example.com",
+  "first_name": "Ada",
+  "last_name": "Lovelace",
+  "phone": "555-0100",
+  "brand": "Acme Kids",
+  "marketing_opt_in": true
+}
+
+Send this first request (of 10 total)? [Enter to continue, Esc to abort] 
+
+First response preview:
+202 Accepted
+{
+  "status": "accepted",
+  "requestId": 1,
+  "route": "identify"
+}
+
+Continue with the remaining 9 line(s)? [Enter to continue, Esc to abort] 
+[FAIL] L7 -> 429 TooManyRequests
+       {
+         "status": "error",
+         "error": "rate_limited"
+       }
+[FAIL] L5 -> 429 TooManyRequests
+       {
+         "status": "error",
+         "error": "rate_limited"
+       }
+[FAIL] L8 -> 429 TooManyRequests
+       {
+         "status": "error",
+         "error": "rate_limited"
+       }
+
+=== API => Upload JSONL Identifies (identify user) summary ===  Site: demo   Success: 7   Failed: 3   Elapsed: <elapsed>

@@ -1,0 +1,11 @@
+{"verb":"GET","url":"ver2/{site}/ping"}
+{"verb":"POST","url":"ver2/{site}/activities","payload":{"activity":{"user_id":"1001","event_name":"page_viewed","properties":{"page":"/tents/trail-2p"}}}}
+{"verb":"POST","url":"ver2/{site}/subscribers/identify","payload":{"user_id":"1001","email":"ada.lovelace@example.com","first_name":"Ada"}}
+{"verb":"PUT","url":"ver2/{site}/resources/TENT-2P","payload":{"resource_type":"product","resource_id":"TENT-2P","name":"Trail 2-Person Tent","price":199.0}}
+{"verb":"PUT","url":"ver2/{site}/resources/BOOT-RDG","payload":"{\"resource_type\":\"product\",\"resource_id\":\"BOOT-RDG\",\"price\":129.5}"}
+{"url":"ver2/{site}/activities","payload":{"activity":{"user_id":"1002","event_name":"add_to_cart"}}}
+{"verb":"DELETE","url":"http://localhost:5281/ver2/demo/ping"}
+{"verb":"FETCH","url":"ver2/{site}/ping"}
+{"verb":"GET"}
+this line is not json
+{"verb":"GET","url":"ver2/{site}/missing-route"}

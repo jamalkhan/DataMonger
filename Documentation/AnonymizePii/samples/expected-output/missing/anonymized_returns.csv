@@ -1,0 +1,4 @@
+return_id,customer_id,reason,contact_name,contact_email
+3001,1001,Too small,Edna Krabappel,ada.lovelace@example.com
+3002,1002,Wrong color,Brandine Spuckler,alan.turing@example.com
+3003,1003,Defective,Timothy Lovejoy,grace.hopper@example.com

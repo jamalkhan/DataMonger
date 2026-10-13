@@ -1,0 +1,66 @@
+// Example config for the "Synthesize User Props (fake data)" command: the invented retailer "Acme Outfitters"
+// (brands "Acme" and "Acme Kids"). The file is JSON with comments (//, /* */) and trailing commas allowed.
+// Key names are matched case-insensitively. Everything here is invented.
+{
+  // ---- run settings -------------------------------------------------------------------------------------
+  "recordCount": 12,               // default for the "Number of customers" prompt (you can override it there)
+  "seed": 42,                      // optional integer; same seed + same anchorDate + same config = identical output
+  "anchorDate": "2026-10-01",      // optional yyyy-MM-dd (UTC) used as "today"; omit to use the real current date
+  "startUserSeq": 1001,            // first customer is CUST_1001, the next CUST_1002, ...
+  "fileBaseName": "acme_profiles", // output files are <fileBaseName>_<timestamp>[_<n>].jsonl
+  "splitEvery": 5,                 // records per output file; tiny here so 12 records show up as 3 files
+
+  // ---- names and email ----------------------------------------------------------------------------------
+  // A customer's name is one first name plus one last name picked independently, so the name pool grows as
+  // firstNames x lastNames.
+  "firstNames": ["Ada", "Alan", "Grace", "Linus", "Edsger", "Barbara", "Dennis", "Margaret"],
+  "lastNames": ["Lovelace", "Turing", "Hopper", "Torvalds", "Dijkstra", "Liskov", "Ritchie", "Hamilton"],
+  // "{lastName}" becomes the picked last name (letters and digits only, lowercased).
+  "emailDomainTemplate": "{lastName}.example.com",
+
+  // ---- brands: every customer gets one membership per brand ----------------------------------------------
+  "brands": [
+    // code: short id | name: display name | storefrontId: copied onto memberships and events
+    // contactPrefix: prefix of the flat contact keys (ac_tier, ac_points, ...); must be unique
+    { "code": "AC", "name": "Acme",      "storefrontId": "acme-us",      "contactPrefix": "ac" },
+    { "code": "AK", "name": "Acme Kids", "storefrontId": "acme-kids-us", "contactPrefix": "ak" }
+  ],
+
+  // ---- probabilities (0..1) of the yes/no fields; every key is optional (defaults shown) -----------------
+  "probabilities": {
+    "employee": 0.05,       // is_employee
+    "active": 0.90,         // is_active
+    "emailConsent": 0.80,   // consent.email
+    "smsConsent": 0.50,     // consent.sms
+    "pushConsent": 0.50,    // consent.push
+    "postalConsent": 0.60,  // consent.postal
+    "hasOrders": 0.85,      // otherwise order_summary is all zeros/nulls
+    "secondAddress": 0.40,  // adds a "shipping" address next to the "billing" one
+    "tierChanged": 0.30     // a membership gets a previous_tier
+  },
+
+  // ---- picklists: name -> pool of values. One value is picked uniformly at random per use, so repeat a
+  // value to weight it (see membershipStatus). Names are case-insensitive. All names below are required.
+  "picklists": {
+    "acquisitionChannel": ["web", "store", "mobile_app", "referral"],
+    "gender": ["F", "M", "X"],
+    "timezone": ["America/New_York", "America/Chicago", "America/Denver", "America/Los_Angeles"],
+    // The country is the part after the dash, so "en-CA" gives country CA and currency CAD in the events.
+    "locale": ["en-US", "en-US", "en-US", "es-US", "en-CA"],
+    "streetName": ["Maple St", "Oak Ave", "Pine Rd", "Cedar Ln", "Elm Blvd"],
+    // Entries are "City|Region|PostalCode" so an address stays internally consistent.
+    "cityRegionPostal": [
+      "Springfield|IL|62701",
+      "Portland|OR|97201",
+      "Austin|TX|73301",
+      "Denver|CO|80201",
+      "Albany|NY|12201"
+    ],
+    // Only Bronze, Silver and Gold are valid. Points are derived from the tier (Bronze 0-999, Silver 1000-4999, Gold 5000-14999).
+    "membershipTier": ["Bronze", "Bronze", "Bronze", "Silver", "Silver", "Gold"],
+    "membershipStatus": ["active", "active", "active", "active", "lapsed", "suspended"],
+    "favoriteChannel": ["online", "store"],
+    "favoriteCategory": ["Outerwear", "Footwear", "Denim", "Camping", "Accessories"],
+    "contactFrequency": ["daily", "weekly", "monthly"]
+  }
+}

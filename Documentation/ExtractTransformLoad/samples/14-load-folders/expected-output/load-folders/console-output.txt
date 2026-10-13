@@ -1,0 +1,34 @@
+=== Extract / Transform / Load (config-driven) ===
+
+Available ETL configs (~/Documents/DataMonger/Config/EtlConfig):
+  1) example.etlconfig
+Select a number, enter a path to your own .etlconfig, 'c' to change the config folder, or 'q' to cancel: Output folder for the .jsonl files [~/Desktop]: 
+Config        : samples/14-load-folders/load-folders.etlconfig
+Sources       : 3
+Outputs       : 3
+Join strategy : HashInMemory
+On error      : Skip
+Sample        : (full run)
+Max records   : (no cap)
+Output folder : output/fallback
+Run timestamp : 20260101_000000
+
+    output 'customers': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- customers (Object, HashInMemory) ---
+    output folder: samples/14-load-folders/output/run_20260101_000000/customers
+    output 'orders': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- orders (Object, HashInMemory) ---
+    output folder: samples/14-load-folders/output/run_20260101_000000/orders
+    output 'products': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- products (Object, HashInMemory) ---
+    output folder: samples/14-load-folders/output/fallback/run_20260101_000000
+
+=== Done ===
+customers: 6 records across 1 file(s):
+    samples/14-load-folders/output/run_20260101_000000/customers/customers_20260101_000000.jsonl
+orders: 8 records across 2 file(s):
+    samples/14-load-folders/output/run_20260101_000000/orders/orders_20260101_000000_1.jsonl
+    samples/14-load-folders/output/run_20260101_000000/orders/orders_20260101_000000_2.jsonl
+products: 6 records across 1 file(s):
+    samples/14-load-folders/output/fallback/run_20260101_000000/products_20260101_000000.jsonl
+Total elapsed: 00:00:00.000

@@ -1,0 +1,6 @@
+{"customer_id":1001,"orders":[{"order_id":6001,"ship_date":"2025-01-10","weight_kg":1.25}]}
+{"customer_id":1002,"orders":[{"order_id":6002,"ship_date":"2025-01-11","weight_kg":0.40}]}
+{"customer_id":1003,"orders":[{"order_id":6003,"ship_date":"2025-01-12","weight_kg":2.00}]}
+{"customer_id":1004,"orders":[{"order_id":6004,"weight_kg":0.000015}]}
+{"customer_id":1005,"orders":[{"order_id":6005,"ship_date":"2025-01-14","weight_kg":0.75}]}
+{"customer_id":1006}

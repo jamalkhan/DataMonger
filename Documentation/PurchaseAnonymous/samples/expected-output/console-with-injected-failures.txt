@@ -1,0 +1,29 @@
+=== Anonymous purchases -> site: demo ===
+Customers loaded: 10 (from anonymous.csv)
+[OK]   hedy.lamarr@example.com (1 item) -> 202 Accepted
+[OK]   frances.allen@example.com (3 items) -> 202 Accepted
+[OK]   donald.knuth@example.com (3 items) -> 202 Accepted
+[OK]   shafi.goldwasser@example.com (3 items) -> 202 Accepted
+[FAIL] tim.berners-lee@example.com (1 item) -> 429 TooManyRequests
+       {
+         "status": "error",
+         "error": "rate_limited"
+       }
+[FAIL] john.mccarthy@example.com (2 items) -> 500 InternalServerError
+       {
+         "status": "error",
+         "error": "injected_failure"
+       }
+[OK]   joan.clarke@example.com (1 item) -> 202 Accepted
+[FAIL] ken.thompson@example.com (3 items) -> 500 InternalServerError
+       {
+         "status": "error",
+         "error": "injected_failure"
+       }
+[OK]   annie.easley@example.com (3 items) -> 202 Accepted
+[FAIL] charles.babbage@example.com (3 items) -> 429 TooManyRequests
+       {
+         "status": "error",
+         "error": "rate_limited"
+       }
+=== Anonymous purchases summary ===  Success: 6   Failed: 4   Elapsed: 00:00:00.097

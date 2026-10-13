@@ -1,0 +1,70 @@
+{
+  // 06-merge-by: merge rows that share a value into ONE array entry.
+  // Two sources (emails and email_prefs) both render into the keyed relation "contacts". Rows are grouped
+  // by email_address (mergeBy) and merged: scalar fields come from the first row of the group, while the
+  // "properties" object-group has every row's fields merged in, each key prefixed by that row's
+  // mergePrefix (here the brand). The nested "orders" array inside the group is NOT prefixed; it is
+  // written once as the de-duplicated union of every merged row's matches.
+  "version": 1,
+  "run": { "joinStrategy": "hashInMemory", "onError": "skip" },
+
+  "sources": {
+    "customers":   { "file": "../data/customers.csv",   "fields": { "customer_id": { "type": "integer" } } },
+    "emails":      { "file": "../data/emails.csv" },
+    "email_prefs": { "file": "../data/email_prefs.csv" },
+    "orders":      { "file": "../data/orders.csv" }
+  },
+
+  "outputs": [
+    {
+      "name": "merged_contacts",
+      "mode": "object",
+      "source": "customers",
+      "fields": [
+        { "name": "customer_id", "from": "customer_id", "type": "integer" }
+      ],
+      "children": [
+        {
+          "source": "emails", "as": "contacts", "cardinality": "many",
+          "on": { "parent": "customer_id", "child": "customer_id" },
+          // Every row lands under one constant key; mergeBy then collapses rows with the same address.
+          "keyBy": { "pipeline": [ { "op": "literal", "default": "acme-shop" } ] },
+          "mergeBy": "email_address",
+          "mergePrefix": { "from": "brand", "pipeline": [ { "op": "map", "cases": { "Acme": "acme", "Acme Kids": "kids" } } ] },
+          "fields": [
+            { "name": "contact_type",  "type": "string", "pipeline": [ { "op": "literal", "default": "email" } ] },
+            { "name": "contact_value", "from": "email_address", "type": "string" },
+            { "name": "properties", "type": "object",
+              "fields": [
+                { "name": "status",      "from": "status",      "type": "string" },
+                { "name": "status_date", "from": "status_date", "type": "date" }
+              ],
+              "children": [
+                { "source": "orders", "as": "order_ids", "cardinality": "many",
+                  "on": { "parent": "customer_id", "child": "customer_id" },
+                  "distinctBy": "order_id",
+                  "fields": [ { "name": "order_id", "from": "order_id", "type": "integer" } ] }
+              ] }
+          ]
+        },
+        {
+          "source": "email_prefs", "as": "contacts", "cardinality": "many",
+          "on": { "parent": "customer_id", "child": "customer_id" },
+          "keyBy": { "pipeline": [ { "op": "literal", "default": "acme-shop" } ] },
+          "mergeBy": "email_address",
+          "mergePrefix": { "from": "brand", "pipeline": [ { "op": "map", "cases": { "Acme": "acme", "Acme Kids": "kids" } } ] },
+          "fields": [
+            { "name": "contact_type",  "type": "string", "pipeline": [ { "op": "literal", "default": "email" } ] },
+            { "name": "contact_value", "from": "email_address", "type": "string" },
+            { "name": "properties", "type": "object",
+              "fields": [
+                { "name": "channel",  "from": "channel",  "type": "string" },
+                { "name": "opted_in", "from": "opted_in", "type": "bool" }
+              ] }
+          ]
+        }
+      ],
+      "load": { "folder": "output", "fileBaseName": "merged_contacts", "sampling": { "enabled": false } }
+    }
+  ]
+}

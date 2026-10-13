@@ -1,0 +1,2 @@
+record_key	field	reason	raw_value
+	divide_double	scientific notation in a numeric column	1.5e-05

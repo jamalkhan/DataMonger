@@ -1,0 +1,11 @@
+customer_id,first_name,last_name,full_name,email,phone,dob,address_line1,address_line2,city,state,postal_code,email_sha256,card_last4,store_pref,notes
+1001,Ada,Lovelace,Ada Lovelace,ada.lovelace@example.com,555-0101,1815-12-10,12 Analytical Way,,London,NY,10001,9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08,4242,Downtown,Prefers e-receipts
+1002,Alan,Turing,Alan Turing,alan.turing@example.com,555-0102,1912-06-23,"Unit 4, Bletchley Park",Building B,Milton Keynes,CA,94016,60303ae22b998861bce3b28f33eec1be758a213c86c93c076dbe9f558c11c752,1111,Mall,
+1003,Grace,Hopper,Grace Hopper,grace.hopper@example.com,,1906-12-09,1 Cobol Court,,Arlington,TX,22201,fd61a03af4f77d870fc21e05e7e80678095c92d808cfb3b5c279ee04c74aca13,2222,Downtown,"Said ""call me Amazing Grace"""
+1004,Katherine,Johnson,Katherine Johnson,,555-0104,1918-08-26,7 Orbit Road,Apt 9,Hampton,VA,23666,,3333,Outlet,
+1005,Margaret,Hamilton,Margaret Hamilton,margaret.hamilton@example.com,555-0105,,88 Apollo Lane,,Cambridge,MA,02139,5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9,4444,Mall,VIP
+1006,Linus,Torvalds,Linus Torvalds,linus.torvalds@example.com,555-0106,1969-12-28,3 Kernel Street,,Portland,OR,97201,6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b,5555,Downtown,
+1007,Barbara,Liskov,Barbara Liskov,barbara.liskov@example.com,555-0107,1939-11-07,5 Substitution Blvd,Suite 200,Boston,MA,02110,d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35,6666,Outlet,
+1008,Edsger,Dijkstra,Edsger Dijkstra,edsger.dijkstra@example.com,555-0108,1930-05-11,9 Semaphore Ave,,Austin,TX,73301,4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce,7777,Mall,
+1009,Donald,Knuth,Donald Knuth,donald.knuth@example.com,555-0109,1938-01-10,2 Art Of Programming Dr,,Stanford,CA,94305,4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a,8888,Downtown,Reward check
+1010,Radia,Perlman,Radia Perlman,radia.perlman@example.com,555-0110,1951-01-01,4 Spanning Tree Rd,,Seattle,WA,98101,ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d,9999,Outlet,

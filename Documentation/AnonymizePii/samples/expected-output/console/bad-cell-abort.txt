@@ -1,0 +1,13 @@
+=== Anonymize PII (config-driven) ===
+
+Available anonymization configs (~/Documents/DataMonger/Config/AnonConfig):
+  1) example.anonconfig
+Select a number, enter a path to your own .anonconfig, 'c' to change the config folder, or 'q' to cancel: 
+Config        : configs/bad-cell-abort.anonconfig
+Files         : 2
+On error      : Abort
+Output folder : (from config)
+Rename        : src_* -> anonymized_*
+
+[FAIL] ArgumentOutOfRangeException: Year, Month, and Day parameters describe an un-representable DateTime.
+   [stack trace omitted]

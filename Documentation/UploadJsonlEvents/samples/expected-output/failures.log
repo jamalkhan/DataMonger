@@ -1,0 +1,5 @@
+<timestamp>	file=samples/input/events_a.jsonl	line=8	status=500	reason={   "status": "error",   "error": "injected_failure" }
+<timestamp>	file=samples/input/events_a.jsonl	line=7	status=500	reason={   "status": "error",   "error": "injected_failure" }
+<timestamp>	file=samples/input/events_bad.jsonl	line=1	status=400	reason={   "status": "error",   "error": "invalid_json",   "detail": "Expected depth to be zero at the end of the JSON payload. There is an open JSON object or array that should be closed. LineNumber: 0 | BytePositionInLine: 134." }
+<timestamp>	file=samples/input/events_bad.jsonl	line=5	status=500	reason={   "status": "error",   "error": "injected_failure" }
+<timestamp>	file=samples/input/events_bad.jsonl	line=4	status=n/a	reason=malformed JSON: Unexpected character encountered while parsing value: n. Path '', line 0, position 0.

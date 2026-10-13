@@ -1,0 +1,6 @@
+{"resource_type": "product", "resource_id": "TENT-6P", "name": "Family 6-Person Tent", "category": "Camping", "price": 449.0, "brand": "Acme"}
+{"resource_type": "product", "name": "Mystery Item", "price": 1.0}
+
+{"resource_type": "product", "resource_id": "LAMP 1/2", "name": "Camp Lamp", "price": 24.0, "brand": "Acme"}
+{"resource_type": "product", "resource_id": "BAD-1", "name": "Broken
+{"resource_type": "product", "resource_id": 77, "name": "Numeric id", "price": 5.0}

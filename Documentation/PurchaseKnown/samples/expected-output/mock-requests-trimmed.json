@@ -1,0 +1,128 @@
+[
+  {
+    "id": 1,
+    "method": "POST",
+    "path": "/ver2/demo/subscribers/identify",
+    "route": "identify",
+    "hadAuthorizationHeader": true,
+    "status": 202,
+    "body": {
+      "subscriber": {
+        "uid": "1008",
+        "unique_client_ids": [
+          {
+            "name": "email_address",
+            "value": "barbara.liskov@example.com"
+          }
+        ],
+        "properties": {
+          "first_name": "Barbara",
+          "last_name": "Liskov"
+        },
+        "contacts": [
+          {
+            "contact_type": "email",
+            "contact_value": "barbara.liskov@example.com",
+            "subscription_status": "active"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": 2,
+    "method": "POST",
+    "path": "/ver2/demo/subscribers/identify",
+    "route": "identify",
+    "hadAuthorizationHeader": true,
+    "status": 202,
+    "body": {
+      "subscriber": {
+        "uid": "1005",
+        "unique_client_ids": [
+          {
+            "name": "email_address",
+            "value": "linus.torvalds@example.com"
+          }
+        ],
+        "properties": {
+          "first_name": "Linus",
+          "last_name": "Torvalds"
+        },
+        "contacts": [
+          {
+            "contact_type": "email",
+            "contact_value": "linus.torvalds@example.com",
+            "subscription_status": "active"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": 11,
+    "method": "POST",
+    "path": "/ver2/demo/activities",
+    "route": "activities",
+    "hadAuthorizationHeader": true,
+    "status": 202,
+    "body": {
+      "activity": {
+        "identify_person": true,
+        "subscriber": {
+          "uid": "1010"
+        },
+        "event": "purchased",
+        "properties": {
+          "order_id": "TST-ORD-681724683",
+          "items": [
+            {
+              "id": "P-2007",
+              "resourceType": "product",
+              "price": 12.5,
+              "quantity": 3,
+              "productname": "Acme Wool Socks 3-Pack",
+              "category": "Accessories",
+              "subcategory": "Unisex",
+              "size": "L",
+              "url": "https://shop.example.com/p/2007"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": 12,
+    "method": "POST",
+    "path": "/ver2/demo/activities",
+    "route": "activities",
+    "hadAuthorizationHeader": true,
+    "status": 202,
+    "body": {
+      "activity": {
+        "identify_person": true,
+        "subscriber": {
+          "uid": "1004"
+        },
+        "event": "purchased",
+        "properties": {
+          "order_id": "TST-ORD-326140000",
+          "items": [
+            {
+              "id": "P-2005",
+              "resourceType": "product",
+              "price": 79.0,
+              "quantity": 1,
+              "productname": "Acme Summit Hiking Pants",
+              "category": "Bottoms",
+              "subcategory": "Mens",
+              "size": "32",
+              "url": "https://shop.example.com/p/2005?color=olive"
+            }
+          ]
+        }
+      }
+    }
+  }
+]

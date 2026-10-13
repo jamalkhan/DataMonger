@@ -1,0 +1,87 @@
+{
+  // 04-lookup: values that do not live on the customer row.
+  //  - single scalar lookup, array lookup (distinct + limit), exists-mode lookup with a filter
+  //  - lookup "expr" (a pipeline evaluated per lookup-source row)
+  //  - "lookups": extra lookups unioned into one array
+  //  - "coalesce": first non-empty candidate (value, then label)
+  //  - a pipeline on a lookup (map each raw value)
+  "version": 1,
+  "run": { "joinStrategy": "hashInMemory", "onError": "skip" },
+
+  "sources": {
+    "customers": { "file": "../data/customers.csv", "fields": { "customer_id": { "type": "integer" } } },
+    "emails":    { "file": "../data/emails.csv" },
+    "phones":    { "file": "../data/phones.csv" },
+    "orders":    { "file": "../data/orders.csv" }
+  },
+
+  "outputs": [
+    {
+      "name": "customer_lookups",
+      "mode": "object",
+      "source": "customers",
+      "fields": [
+        { "name": "customer_id", "from": "customer_id", "type": "integer" },
+
+        // single: true -> one scalar (the first match), coerced to "type".
+        { "name": "first_email_status", "type": "string",
+          "lookup": { "source": "emails", "on": { "parent": "customer_id", "child": "customer_id" },
+                      "column": "status", "single": true } },
+
+        // array lookup: distinct values (first-seen order), capped at 2.
+        { "name": "email_addresses", "type": "array",
+          "lookup": { "source": "emails", "on": { "parent": "customer_id", "child": "customer_id" },
+                      "column": "email_address", "distinct": true, "limit": 2 } },
+
+        // exists mode: a bool. The filter limits which lookup rows count.
+        { "name": "has_shipped_order", "type": "bool",
+          "lookup": { "source": "orders", "mode": "exists",
+                      "on": { "parent": "customer_id", "child": "customer_id" },
+                      "filter": [ { "column": "status", "op": "eq", "value": "shipped" } ] } },
+
+        // expr: the value indexed for each lookup row is computed by a pipeline instead of a raw column.
+        { "name": "order_summaries", "type": "array",
+          "lookup": { "source": "orders", "on": { "parent": "customer_id", "child": "customer_id" },
+                      "expr": [ { "op": "concat",
+                                  "values": [ { "field": "order_id" }, { "field": "status" } ],
+                                  "separator": ":" } ] } },
+
+        // expr + from: "from" names the lookup-source column the expr pipeline starts from.
+        { "name": "order_status_codes", "type": "array",
+          "lookup": { "source": "orders", "on": { "parent": "customer_id", "child": "customer_id" },
+                      "from": "status", "distinct": true,
+                      "expr": [ { "op": "map", "cases": { "shipped": "S", "returned": "R", "pending": "P" }, "default": "?" } ] } },
+
+        // lookups: extra lookups are unioned (de-duplicated) into the primary lookup's array.
+        { "name": "brands", "type": "array",
+          "lookup":  { "source": "emails", "on": { "parent": "customer_id", "child": "customer_id" },
+                       "column": "brand", "distinct": true },
+          "lookups": [
+                     { "source": "phones", "on": { "parent": "customer_id", "child": "customer_id" },
+                       "column": "brand", "distinct": true } ] },
+
+        // A pipeline on an array lookup runs once per element.
+        { "name": "brand_codes", "type": "array",
+          "lookup": { "source": "emails", "on": { "parent": "customer_id", "child": "customer_id" },
+                      "column": "brand", "distinct": true },
+          "pipeline": [ { "op": "map", "cases": { "Acme": "ACM", "Acme Kids": "KID" }, "default": "OTHER" } ] },
+
+        // coalesce: the first non-empty candidate wins. A candidate is a column on this row or a lookup.
+        { "name": "contact_value", "type": "string",
+          "coalesce": [
+            { "from": "email", "label": "email" },
+            { "from": "phone", "label": "phone" },
+            { "lookup": { "source": "phones", "on": { "parent": "customer_id", "child": "customer_id" }, "column": "phone_number" },
+              "label": "phone_on_file" } ] },
+        // Same candidates with coalesceEmit "label": emits WHICH candidate won.
+        { "name": "contact_type", "type": "string", "coalesceEmit": "label",
+          "coalesce": [
+            { "from": "email", "label": "email" },
+            { "from": "phone", "label": "phone" },
+            { "lookup": { "source": "phones", "on": { "parent": "customer_id", "child": "customer_id" }, "column": "phone_number" },
+              "label": "phone_on_file" } ] }
+      ],
+      "load": { "folder": "output", "fileBaseName": "customer_lookups", "sampling": { "enabled": false } }
+    }
+  ]
+}

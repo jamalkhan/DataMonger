@@ -1,0 +1,58 @@
+// Sample 1: the everyday case. Run with seed 42 so the output is reproducible.
+{
+  "version": 1,
+  "run": {
+    "onError": "skip",
+    "seed": 42,
+    "inputPrefix": "src_",
+    "outputPrefix": "anonymized_",
+    "emailDomains": [ "springfield.example" ]
+  },
+  // Relative paths resolve against THIS file's folder (samples/configs).
+  "inputFolder": "../input",
+  "outputFolder": "../expected-output/basic",
+  "files": [
+    {
+      "input": "src_customers.csv",
+      "columns": [
+        // Columns sharing group "person" describe ONE fake person per row.
+        { "name": "first_name", "method": "simpsonsName",  "options": { "part": "first", "group": "person" } },
+        { "name": "last_name",  "method": "simpsonsName",  "options": { "part": "last",  "group": "person" } },
+        { "name": "full_name",  "method": "simpsonsName",  "options": { "part": "full",  "group": "person" } },
+        { "name": "email",      "method": "simpsonsEmail", "options": { "group": "person" } },
+        { "name": "phone",      "method": "fakePhone",     "options": { "format": "dashes" } },
+        { "name": "dob",        "method": "fakeDate" },
+        // Columns sharing group "home" describe ONE fake address per row.
+        { "name": "address_line1", "method": "fakeAddress", "options": { "part": "line1",  "group": "home" } },
+        { "name": "address_line2", "method": "fakeAddress", "options": { "part": "line2",  "group": "home" } },
+        { "name": "city",          "method": "fakeAddress", "options": { "part": "city",   "group": "home" } },
+        { "name": "state",         "method": "fakeAddress", "options": { "part": "state",  "group": "home" } },
+        { "name": "postal_code",   "method": "fakeAddress", "options": { "part": "postal", "group": "home" } },
+        { "name": "email_sha256",  "method": "randomHex" },
+        { "name": "card_last4",    "method": "last4" }
+      ]
+    },
+    {
+      // No columns: byte-copied to anonymized_orders.csv (BOM and CRLF preserved).
+      "input": "src_orders.csv",
+      "columns": []
+    },
+    {
+      // Pipe-delimited. Empty cells stay empty (whenEmpty defaults to passthrough).
+      "input": "src_newsletter.psv",
+      "delimiter": "pipe",
+      "columns": [
+        { "name": "email",      "method": "simpsonsEmail", "options": { "group": "p" } },
+        { "name": "first_name", "method": "simpsonsName",  "options": { "part": "first", "group": "p" } }
+      ]
+    },
+    {
+      // Quoted cells with embedded newlines, quotes and commas, CRLF and BOM on the way in.
+      "input": "src_tickets.csv",
+      "columns": [
+        { "name": "contact_name",  "method": "simpsonsName",  "options": { "group": "p" } },
+        { "name": "contact_email", "method": "simpsonsEmail", "options": { "group": "p" } }
+      ]
+    }
+  ]
+}

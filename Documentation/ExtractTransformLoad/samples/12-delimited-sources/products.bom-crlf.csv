@@ -1,0 +1,4 @@
+﻿sku,product_name,category,notes
+STOVE-1,Pocket Stove,camping,CRLF line endings and a UTF-8 BOM
+
+BOTTLE-1L,Steel Bottle 1L,hydration,blank line above is ignored

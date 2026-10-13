@@ -1,0 +1,48 @@
+=== Extract / Transform / Load (config-driven) ===
+
+Available ETL configs (~/Documents/DataMonger/Config/EtlConfig):
+  1) example.etlconfig
+Select a number, enter a path to your own .etlconfig, 'c' to change the config folder, or 'q' to cancel: 
+Config        : samples/12-delimited-sources/delimited.etlconfig
+Sources       : 6
+Outputs       : 6
+Join strategy : HashInMemory
+On error      : Skip
+Sample        : (full run)
+Max records   : (no cap)
+Output folder : (from config)
+Run timestamp : 20260101_000000
+
+    output 'pipe': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- pipe (Object, HashInMemory) ---
+    output folder: samples/12-delimited-sources/output/run_20260101_000000
+    output 'tsv': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- tsv (Object, HashInMemory) ---
+    output folder: samples/12-delimited-sources/output/run_20260101_000000
+    output 'semicolon': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- semicolon (Object, HashInMemory) ---
+    output folder: samples/12-delimited-sources/output/run_20260101_000000
+    output 'tilde': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- tilde (Object, HashInMemory) ---
+    output folder: samples/12-delimited-sources/output/run_20260101_000000
+    output 'bom_crlf': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- bom_crlf (Object, HashInMemory) ---
+    output folder: samples/12-delimited-sources/output/run_20260101_000000
+    output 'gz': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- gz (Object, HashInMemory) ---
+    output folder: samples/12-delimited-sources/output/run_20260101_000000
+
+=== Done ===
+pipe: 3 records across 1 file(s):
+    samples/12-delimited-sources/output/run_20260101_000000/pipe_20260101_000000.jsonl
+tsv: 2 records across 1 file(s):
+    samples/12-delimited-sources/output/run_20260101_000000/tsv_20260101_000000.jsonl
+semicolon: 2 records across 1 file(s):
+    samples/12-delimited-sources/output/run_20260101_000000/semicolon_20260101_000000.jsonl
+tilde: 2 records across 1 file(s):
+    samples/12-delimited-sources/output/run_20260101_000000/tilde_20260101_000000.jsonl
+bom_crlf: 2 records across 1 file(s):
+    samples/12-delimited-sources/output/run_20260101_000000/bom_crlf_20260101_000000.jsonl
+gz: 6 records across 1 file(s):
+    samples/12-delimited-sources/output/run_20260101_000000/gz_20260101_000000.jsonl
+Total elapsed: 00:00:00.000

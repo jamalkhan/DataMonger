@@ -1,0 +1,7 @@
+# reason	row
+# field 'quantity': The input string 'three' was not in a correct format.
+6002,1002,three,5.00,2025-01-11,0.40
+# field 'unit_price': The input string 'n/a' was not in a correct format.
+6003,1003,1,n/a,2025-01-12,2.00
+# field 'ship_date': '12-25' has no year (month-day only) — refusing to guess a year.
+6004,1004,4,12.50,12-25,1.5e-05

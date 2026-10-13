@@ -1,0 +1,25 @@
+=== Extract / Transform / Load (config-driven) ===
+
+Available ETL configs (~/Documents/DataMonger/Config/EtlConfig):
+  1) example.etlconfig
+Select a number, enter a path to your own .etlconfig, 'c' to change the config folder, or 'q' to cancel: 
+Config        : samples/04-lookup/lookup.etlconfig
+Sources       : 4
+Outputs       : 1
+Join strategy : HashInMemory
+On error      : Skip
+Sample        : (full run)
+Max records   : (no cap)
+Output folder : (from config)
+Run timestamp : 20260101_000000
+
+    output 'customer_lookups': 10 lookup(s) (1 exists-mode), 0 keyed relation group(s) compiled.
+--- customer_lookups (Object, HashInMemory) ---
+    lookup reused from an earlier output in this run (identical source/join/projection) — skipped re-scanning it.
+    lookup reused from an earlier output in this run (identical source/join/projection) — skipped re-scanning it.
+    output folder: samples/04-lookup/output/run_20260101_000000
+
+=== Done ===
+customer_lookups: 6 records across 1 file(s):
+    samples/04-lookup/output/run_20260101_000000/customer_lookups_20260101_000000.jsonl
+Total elapsed: 00:00:00.000

@@ -1,0 +1,11 @@
+=== Split CSV into N-row files ===
+
+Source CSV path (a glob like .../customers_*.csv is allowed), or 'q' to cancel: Output folder for the split files [<samples>/input/split]: Rows per file [100,000]: 
+Source        : input/empty.csv
+Output folder : expected-output/empty
+Rows per file : 5
+
+[split] empty.csv has no data rows — nothing written.
+
+=== Done ===
+0 data rows split across 0 file(s):

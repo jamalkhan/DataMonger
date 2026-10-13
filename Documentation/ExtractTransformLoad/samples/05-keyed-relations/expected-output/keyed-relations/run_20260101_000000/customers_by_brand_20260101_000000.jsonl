@@ -1,0 +1,6 @@
+{"customer_id":1001,"brand_codes":["ACM","KID"],"emails_by_brand":{"ACM":[{"email_address":"ada.lovelace@example.com","status":"active"},{"email_address":"ada.l@example.org","status":"inactive"}],"KID":[{"email_address":"ada.lovelace@example.com","status":"active"}]},"phones_by_brand":{"ACM":{"phone_number":"555-0101","priority":1}}}
+{"customer_id":1002,"brand_codes":["ACM","KID"],"emails_by_brand":{"ACM":[{"email_address":"alan.turing@example.com","status":"active"}]},"phones_by_brand":{"ACM":{"phone_number":"555-0112","priority":1},"KID":{"phone_number":"555-0192","priority":1}}}
+{"customer_id":1003,"brand_codes":["ACM"],"emails_by_brand":{"ACM":[{"email_address":"grace.hopper@example.com","status":"inactive"},{"email_address":"grace.hopper@example.com","status":"active"}]},"phones_by_brand":{}}
+{"customer_id":1004,"brand_codes":["KID"],"emails_by_brand":{},"phones_by_brand":{"KID":{"phone_number":"555-0104","priority":1}}}
+{"customer_id":1005,"emails_by_brand":{},"phones_by_brand":{}}
+{"customer_id":1006,"brand_codes":["KID","ACM"],"emails_by_brand":{"KID":[{"email_address":"katherine.johnson@example.com","status":"active"}]},"phones_by_brand":{"ACM":{"phone_number":"555-0106"}}}

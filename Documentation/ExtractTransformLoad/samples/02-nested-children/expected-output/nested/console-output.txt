@@ -1,0 +1,28 @@
+=== Extract / Transform / Load (config-driven) ===
+
+Available ETL configs (~/Documents/DataMonger/Config/EtlConfig):
+  1) example.etlconfig
+Select a number, enter a path to your own .etlconfig, 'c' to change the config folder, or 'q' to cancel: 
+Config        : samples/02-nested-children/nested.etlconfig
+Sources       : 7
+Outputs       : 2
+Join strategy : HashInMemory
+On error      : Skip
+Sample        : (full run)
+Max records   : (no cap)
+Output folder : (from config)
+Run timestamp : 20260101_000000
+
+    output 'customers_nested': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- customers_nested (Object, HashInMemory) ---
+    output folder: samples/02-nested-children/output/run_20260101_000000
+    output 'order_lines_flat': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- order_lines_flat (Object, HashInMemory) ---
+    output folder: samples/02-nested-children/output/run_20260101_000000
+
+=== Done ===
+customers_nested: 6 records across 1 file(s):
+    samples/02-nested-children/output/run_20260101_000000/customers_nested_20260101_000000.jsonl
+order_lines_flat: 11 records across 1 file(s):
+    samples/02-nested-children/output/run_20260101_000000/order_lines_flat_20260101_000000.jsonl
+Total elapsed: 00:00:00.000

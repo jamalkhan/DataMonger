@@ -1,0 +1,17 @@
+// Sample 4b: a column whose options make the anonymizer throw (minYear 0 is not a valid year).
+// onError "abort": the first bad cell stops the whole run (returns.csv is never reached).
+{
+  "run": { "seed": 1, "onError": "abort" },
+  "inputFolder": "../input",
+  "outputFolder": "../expected-output/bad-cell-abort",
+  "files": [
+    {
+      "input": "src_customers.csv",
+      "columns": [
+        { "name": "dob",   "method": "fakeDate", "options": { "minYear": 0 } },
+        { "name": "phone", "method": "fakePhone" }
+      ]
+    },
+    { "input": "src_returns.csv", "columns": [ { "name": "contact_name", "method": "simpsonsName" } ] }
+  ]
+}

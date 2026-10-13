@@ -1,0 +1,51 @@
+=== Extract / Transform / Load (config-driven) ===
+
+Available ETL configs (~/Documents/DataMonger/Config/EtlConfig):
+  1) example.etlconfig
+Select a number, enter a path to your own .etlconfig, 'c' to change the config folder, or 'q' to cancel: 
+Config        : samples/transforms/transforms.etlconfig
+Sources       : 1
+Outputs       : 6
+Join strategy : HashInMemory
+On error      : Skip
+Sample        : (full run)
+Max records   : (no cap)
+Output folder : (from config)
+Run timestamp : 20261007_213026
+
+    output 'convert': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- convert (Object, HashInMemory) ---
+    output folder: samples/transforms/output/run_20261007_213026
+    2 warning(s) (record kept) -> samples/transforms/output/run_20261007_213026/convert_20261007_213026_warnings.csv
+    output 'format': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- format (Object, HashInMemory) ---
+    output folder: samples/transforms/output/run_20261007_213026
+    output 'math': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- math (Object, HashInMemory) ---
+    output folder: samples/transforms/output/run_20261007_213026
+    1 warning(s) (record kept) -> samples/transforms/output/run_20261007_213026/math_20261007_213026_warnings.csv
+    output 'string': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- string (Object, HashInMemory) ---
+    output folder: samples/transforms/output/run_20261007_213026
+    output 'conditional': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- conditional (Object, HashInMemory) ---
+    output folder: samples/transforms/output/run_20261007_213026
+    output 'step_errors': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- step_errors (Object, HashInMemory) ---
+    output folder: samples/transforms/output/run_20261007_213026
+    1 warning(s) (record kept) -> samples/transforms/output/run_20261007_213026/step_errors_20261007_213026_warnings.csv
+
+=== Done ===
+convert: 10 records across 1 file(s), 2 warnings:
+    samples/transforms/output/run_20261007_213026/convert_20261007_213026.jsonl
+format: 10 records across 1 file(s):
+    samples/transforms/output/run_20261007_213026/format_20261007_213026.jsonl
+math: 10 records across 1 file(s), 1 warnings:
+    samples/transforms/output/run_20261007_213026/math_20261007_213026.jsonl
+string: 10 records across 1 file(s):
+    samples/transforms/output/run_20261007_213026/string_20261007_213026.jsonl
+conditional: 10 records across 1 file(s):
+    samples/transforms/output/run_20261007_213026/conditional_20261007_213026.jsonl
+step_errors: 10 records across 1 file(s), 1 warnings:
+    samples/transforms/output/run_20261007_213026/step_errors_20261007_213026.jsonl
+Total elapsed: 00:00:00.000

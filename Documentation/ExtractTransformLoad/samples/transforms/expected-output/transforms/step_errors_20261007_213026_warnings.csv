@@ -1,0 +1,2 @@
+record_key	field	reason	raw_value
+	err_field_warn	transform 'toDate' failed: '09-3' has no year (month-day only) — refusing to guess a year.	09-3

@@ -1,0 +1,96 @@
+{
+  "user_id": "CUST_1001",
+  "first_name": "Barbara",
+  "last_name": "Turing",
+  "full_name": "Barbara Turing",
+  "dob": "1977-10-21",
+  "gender": "F",
+  "timezone": "America/Los_Angeles",
+  "locale": "en-US",
+  "country": "US",
+  "created_at": "2026-01-03T17:41:52Z",
+  "source_system": "acme_synth",
+  "acquisition_channel": "web",
+  "is_employee": false,
+  "is_active": true,
+  "identifiers": [
+    {
+      "type": "email",
+      "value": "barbara.turing+1001@turing.example.com"
+    },
+    {
+      "type": "phone",
+      "value": "+12125550152"
+    }
+  ],
+  "addresses": [
+    {
+      "type": "billing",
+      "line1": "3809 Oak Ave",
+      "city": "Portland",
+      "region": "OR",
+      "postal_code": "97201",
+      "country": "US"
+    }
+  ],
+  "consent": {
+    "email": true,
+    "sms": false,
+    "push": false,
+    "postal": true
+  },
+  "preferences": {
+    "favorite_channel": "online",
+    "favorite_category": "Outerwear",
+    "contact_frequency": "monthly"
+  },
+  "order_summary": {
+    "order_count": 22,
+    "first_order_at": "2026-03-17T02:52:00Z",
+    "last_order_at": "2026-08-13T11:21:11Z",
+    "lifetime_spend": 700.48,
+    "average_order_value": 31.84,
+    "returns_count": 0
+  },
+  "memberships": [
+    {
+      "brand_code": "AC",
+      "brand_name": "Acme",
+      "storefront_id": "acme-us",
+      "member_id": "M100100",
+      "tier": "Bronze",
+      "previous_tier": "Silver",
+      "points": 289,
+      "joined_at": "2026-04-10",
+      "tier_since": "2026-08-23",
+      "tier_expires_at": "2027-08-23",
+      "status": "active"
+    },
+    {
+      "brand_code": "AK",
+      "brand_name": "Acme Kids",
+      "storefront_id": "acme-kids-us",
+      "member_id": "M100101",
+      "tier": "Bronze",
+      "previous_tier": "Silver",
+      "points": 628,
+      "joined_at": "2026-06-15",
+      "tier_since": "2026-08-31",
+      "tier_expires_at": "2027-08-31",
+      "status": "active"
+    }
+  ],
+  "contact": {
+    "email": "barbara.turing+1001@turing.example.com",
+    "phone": "+12125550152",
+    "email_domain": "turing.example.com",
+    "ac_member_id": "M100100",
+    "ac_tier": "Bronze",
+    "ac_points": 289,
+    "ac_status": "active",
+    "ak_member_id": "M100101",
+    "ak_tier": "Bronze",
+    "ak_points": 628,
+    "ak_status": "active"
+  }
+}

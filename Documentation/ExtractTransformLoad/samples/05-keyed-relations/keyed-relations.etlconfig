@@ -1,0 +1,54 @@
+{
+  // 05-keyed-relations: a relationship rendered as an OBJECT whose property names come from the data,
+  // instead of a plain array.
+  //  - keyBy: a pipeline, run against each CHILD row, produces the property name
+  //  - keyedSingle: one object per key instead of an array
+  //  - keyedSingleBestOf: when several rows share a key, keep the one with the smallest numeric value
+  //  - keysOf: an array field listing every key the named keyed relations actually produced
+  "version": 1,
+  "run": { "joinStrategy": "hashInMemory", "onError": "skip" },
+
+  "sources": {
+    "customers": { "file": "../data/customers.csv", "fields": { "customer_id": { "type": "integer" } } },
+    "emails":    { "file": "../data/emails.csv" },
+    "phones":    { "file": "../data/phones.csv" }
+  },
+
+  "outputs": [
+    {
+      "name": "customers_by_brand",
+      "mode": "object",
+      "source": "customers",
+      "fields": [
+        { "name": "customer_id", "from": "customer_id", "type": "integer" },
+        // Distinct keys produced by the two keyed relations below (derived from them, so it can't drift).
+        { "name": "brand_codes", "type": "array", "keysOf": [ "emails_by_brand", "phones_by_brand" ] }
+      ],
+      "children": [
+        // Array per key: { "ACM": [ {...}, {...} ], "KID": [ {...} ] }
+        { "source": "emails", "as": "emails_by_brand", "cardinality": "many",
+          "on": { "parent": "customer_id", "child": "customer_id" },
+          "keyBy": { "from": "brand",
+                     "pipeline": [ { "op": "map", "cases": { "Acme": "ACM", "Acme Kids": "KID" } } ] },
+          "fields": [
+            { "name": "email_address", "from": "email_address", "type": "string" },
+            { "name": "status",        "from": "status",        "type": "string" }
+          ] },
+
+        // Single object per key. Customer 1002 has two "Acme" phone rows; keyedSingleBestOf keeps the
+        // one with the smallest priority (1) instead of the first one in the file (priority 2).
+        { "source": "phones", "as": "phones_by_brand", "cardinality": "many",
+          "on": { "parent": "customer_id", "child": "customer_id" },
+          "keyBy": { "from": "brand",
+                     "pipeline": [ { "op": "map", "cases": { "Acme": "ACM", "Acme Kids": "KID" } } ] },
+          "keyedSingle": true,
+          "keyedSingleBestOf": "priority",
+          "fields": [
+            { "name": "phone_number", "from": "phone_number", "type": "string" },
+            { "name": "priority",     "from": "priority",     "type": "integer" }
+          ] }
+      ],
+      "load": { "folder": "output", "fileBaseName": "customers_by_brand", "sampling": { "enabled": false } }
+    }
+  ]
+}

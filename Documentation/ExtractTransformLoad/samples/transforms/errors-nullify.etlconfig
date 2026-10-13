@@ -1,0 +1,17 @@
+{
+  // Run-level error policy "nullify": what happens when a step with no step-level onError throws.
+  // "discount" holds values like 12.5 that toInteger rejects; blank cells are null and never fail.
+  "version": 1,
+  "run": { "onError": "nullify" },
+  "sources": { "items": { "file": "items.csv", "delimiter": "csv" } },
+  "outputs": [
+    {
+      "name": "errors_nullify", "source": "items",
+      "fields": [
+        { "name": "id",           "from": "customer_key", "type": "integer" },
+        { "name": "discount_int", "from": "discount",     "type": "integer", "pipeline": [ { "op": "toInteger" } ] }
+      ],
+      "load": { "folder": "output/{run_timestamp}", "fileBaseName": "errors_nullify", "sampling": { "enabled": false } }
+    }
+  ]
+}

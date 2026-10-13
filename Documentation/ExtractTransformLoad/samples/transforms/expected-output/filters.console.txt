@@ -1,0 +1,132 @@
+=== Extract / Transform / Load (config-driven) ===
+
+Available ETL configs (~/Documents/DataMonger/Config/EtlConfig):
+  1) example.etlconfig
+Select a number, enter a path to your own .etlconfig, 'c' to change the config folder, or 'q' to cancel: 
+Config        : samples/transforms/filters.etlconfig
+Sources       : 1
+Outputs       : 19
+Join strategy : HashInMemory
+On error      : Skip
+Sample        : (full run)
+Max records   : (no cap)
+Output folder : (from config)
+Run timestamp : 20261007_213028
+
+    output 'filter_onOrAfter': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- filter_onOrAfter (Object, HashInMemory) ---
+    output folder: samples/transforms/output/run_20261007_213028
+    6 record(s) filtered out -> samples/transforms/output/run_20261007_213028/filter_onOrAfter_20261007_213028_filtered.csv
+    output 'filter_after': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- filter_after (Object, HashInMemory) ---
+    output folder: samples/transforms/output/run_20261007_213028
+    7 record(s) filtered out
+    output 'filter_onOrBefore': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- filter_onOrBefore (Object, HashInMemory) ---
+    output folder: samples/transforms/output/run_20261007_213028
+    7 record(s) filtered out
+    output 'filter_before': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- filter_before (Object, HashInMemory) ---
+    output folder: samples/transforms/output/run_20261007_213028
+    8 record(s) filtered out
+    output 'filter_onOrAfter_relative': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- filter_onOrAfter_relative (Object, HashInMemory) ---
+    output folder: samples/transforms/output/run_20261007_213028
+    3 record(s) filtered out
+    output 'filter_before_relative': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- filter_before_relative (Object, HashInMemory) ---
+    output folder: samples/transforms/output/run_20261007_213028
+    3 record(s) filtered out
+    output 'filter_eq': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- filter_eq (Object, HashInMemory) ---
+    output folder: samples/transforms/output/run_20261007_213028
+    6 record(s) filtered out -> samples/transforms/output/run_20261007_213028/filter_eq_20261007_213028_filtered.csv
+    output 'filter_ne': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- filter_ne (Object, HashInMemory) ---
+    output folder: samples/transforms/output/run_20261007_213028
+    4 record(s) filtered out
+    output 'filter_eq_numeric': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- filter_eq_numeric (Object, HashInMemory) ---
+    output folder: samples/transforms/output/run_20261007_213028
+    9 record(s) filtered out
+    output 'filter_gt': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- filter_gt (Object, HashInMemory) ---
+    output folder: samples/transforms/output/run_20261007_213028
+    6 record(s) filtered out
+    output 'filter_ge': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- filter_ge (Object, HashInMemory) ---
+    output folder: samples/transforms/output/run_20261007_213028
+    5 record(s) filtered out
+    output 'filter_lt': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- filter_lt (Object, HashInMemory) ---
+    output folder: samples/transforms/output/run_20261007_213028
+    7 record(s) filtered out
+    output 'filter_le': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- filter_le (Object, HashInMemory) ---
+    output folder: samples/transforms/output/run_20261007_213028
+    6 record(s) filtered out
+    output 'filter_gt_string': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- filter_gt_string (Object, HashInMemory) ---
+    output folder: samples/transforms/output/run_20261007_213028
+    6 record(s) filtered out
+    output 'filter_in': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- filter_in (Object, HashInMemory) ---
+    output folder: samples/transforms/output/run_20261007_213028
+    3 record(s) filtered out
+    output 'filter_in_numeric': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- filter_in_numeric (Object, HashInMemory) ---
+    output folder: samples/transforms/output/run_20261007_213028
+    8 record(s) filtered out
+    output 'filter_empty': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- filter_empty (Object, HashInMemory) ---
+    output folder: samples/transforms/output/run_20261007_213028
+    7 record(s) filtered out
+    output 'filter_notEmpty': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- filter_notEmpty (Object, HashInMemory) ---
+    output folder: samples/transforms/output/run_20261007_213028
+    3 record(s) filtered out
+    output 'filter_and_combined': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
+--- filter_and_combined (Object, HashInMemory) ---
+    output folder: samples/transforms/output/run_20261007_213028
+    8 record(s) filtered out
+
+=== Done ===
+filter_onOrAfter: 4 records across 1 file(s), 6 filtered out:
+    samples/transforms/output/run_20261007_213028/filter_onOrAfter_20261007_213028.jsonl
+filter_after: 3 records across 1 file(s), 7 filtered out:
+    samples/transforms/output/run_20261007_213028/filter_after_20261007_213028.jsonl
+filter_onOrBefore: 3 records across 1 file(s), 7 filtered out:
+    samples/transforms/output/run_20261007_213028/filter_onOrBefore_20261007_213028.jsonl
+filter_before: 2 records across 1 file(s), 8 filtered out:
+    samples/transforms/output/run_20261007_213028/filter_before_20261007_213028.jsonl
+filter_onOrAfter_relative: 7 records across 1 file(s), 3 filtered out:
+    samples/transforms/output/run_20261007_213028/filter_onOrAfter_relative_20261007_213028.jsonl
+filter_before_relative: 7 records across 1 file(s), 3 filtered out:
+    samples/transforms/output/run_20261007_213028/filter_before_relative_20261007_213028.jsonl
+filter_eq: 4 records across 1 file(s), 6 filtered out:
+    samples/transforms/output/run_20261007_213028/filter_eq_20261007_213028.jsonl
+filter_ne: 6 records across 1 file(s), 4 filtered out:
+    samples/transforms/output/run_20261007_213028/filter_ne_20261007_213028.jsonl
+filter_eq_numeric: 1 records across 1 file(s), 9 filtered out:
+    samples/transforms/output/run_20261007_213028/filter_eq_numeric_20261007_213028.jsonl
+filter_gt: 4 records across 1 file(s), 6 filtered out:
+    samples/transforms/output/run_20261007_213028/filter_gt_20261007_213028.jsonl
+filter_ge: 5 records across 1 file(s), 5 filtered out:
+    samples/transforms/output/run_20261007_213028/filter_ge_20261007_213028.jsonl
+filter_lt: 3 records across 1 file(s), 7 filtered out:
+    samples/transforms/output/run_20261007_213028/filter_lt_20261007_213028.jsonl
+filter_le: 4 records across 1 file(s), 6 filtered out:
+    samples/transforms/output/run_20261007_213028/filter_le_20261007_213028.jsonl
+filter_gt_string: 4 records across 1 file(s), 6 filtered out:
+    samples/transforms/output/run_20261007_213028/filter_gt_string_20261007_213028.jsonl
+filter_in: 7 records across 1 file(s), 3 filtered out:
+    samples/transforms/output/run_20261007_213028/filter_in_20261007_213028.jsonl
+filter_in_numeric: 2 records across 1 file(s), 8 filtered out:
+    samples/transforms/output/run_20261007_213028/filter_in_numeric_20261007_213028.jsonl
+filter_empty: 3 records across 1 file(s), 7 filtered out:
+    samples/transforms/output/run_20261007_213028/filter_empty_20261007_213028.jsonl
+filter_notEmpty: 7 records across 1 file(s), 3 filtered out:
+    samples/transforms/output/run_20261007_213028/filter_notEmpty_20261007_213028.jsonl
+filter_and_combined: 2 records across 1 file(s), 8 filtered out:
+    samples/transforms/output/run_20261007_213028/filter_and_combined_20261007_213028.jsonl
+Total elapsed: 00:00:00.000

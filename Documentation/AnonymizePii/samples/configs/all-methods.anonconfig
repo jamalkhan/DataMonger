@@ -1,0 +1,29 @@
+// Sample 3: every method and its main options, one column each (seed 2024).
+{
+  "run": { "seed": 2024, "emailDomains": [ "shop-a.example", "shop-b.example" ] },
+  "inputFolder": "../input",
+  "outputFolder": "../expected-output/all-methods",
+  "files": [
+    {
+      "input": "src_customers.csv",
+      "output": "customers_all_methods.csv",
+      "columns": [
+        { "name": "customer_id",   "method": "guid",          "options": { "format": "n" } },
+        { "name": "first_name",    "method": "simpsonsName",  "options": { "part": "first" } },
+        { "name": "last_name",     "method": "simpsonsName",  "options": { "part": "middle" } },
+        { "name": "full_name",     "method": "simpsonsName" },
+        { "name": "email",         "method": "simpsonsEmail", "options": { "domain": "mail.example" } },
+        { "name": "phone",         "method": "fakePhone" },
+        { "name": "dob",           "method": "fakeDate",      "options": { "format": "yyyyMMdd", "minYear": 1970, "maxYear": 1975 } },
+        { "name": "address_line1", "method": "fakeAddress",   "options": { "part": "line1" } },
+        { "name": "address_line2", "method": "fakeAddress",   "options": { "part": "line2" }, "whenEmpty": "generate" },
+        { "name": "city",          "method": "constant",      "options": { "value": "Springfield" } },
+        { "name": "state",         "method": "fakeAddress",   "options": { "part": "province" } },
+        { "name": "postal_code",   "method": "fakeAddress",   "options": { "part": "postalExt" } },
+        { "name": "email_sha256",  "method": "randomHex",     "options": { "length": 16 } },
+        { "name": "card_last4",    "method": "last4",         "options": { "digits": 6 } },
+        { "name": "store_pref",    "method": "guid",          "options": { "format": "upper" } }
+      ]
+    }
+  ]
+}

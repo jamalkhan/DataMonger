@@ -1,0 +1,4 @@
+customer_id,first_name,last_name,email,city,lifetime_spend
+2001,Linus,Lovelace,linus.lovelace0@example.com,Springfield,0.00
+2002,Barbara,Dijkstra,barbara.dijkstra1@example.com,Riverton,91.03
+2003,Edsger,Hamilton,edsger.hamilton2@example.com,Lakeside,182.06

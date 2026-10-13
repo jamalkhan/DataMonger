@@ -1,0 +1,6 @@
+customer_id,first_name,last_name,email,city,lifetime_spend
+1021,Ada,Lovelace,ada.lovelace20@example.com,Springfield,240.40
+1022,Alan,Johnson,alan.johnson21@example.com,Riverton,277.47
+1023,Grace,Liskov,grace.liskov22@example.com,Lakeside,314.54
+1024,Katherine,Perlman,katherine.perlman23@example.com,Fairview,351.61
+1025,Margaret,Hopper,margaret.hopper24@example.com,Georgetown,388.68

@@ -1,0 +1,4 @@
+record_key	field	reason	raw_value
+1001|Acme	channel_rank	The input string 'newsletter' was not in a correct format.	newsletter
+1002|Acme	channel_rank	The input string 'newsletter' was not in a correct format.	newsletter
+1006|Acme Kids	channel_rank	The input string 'promos' was not in a correct format.	promos

@@ -1,0 +1,6 @@
+{"customer_id":1001,"first_name":"Ada","last_name":"Lovelace","orders":[{"order_id":5001},{"order_id":5002}],"emails":[{"email_address":"ada.lovelace@example.com"},{"email_address":"ada.lovelace@example.com"},{"email_address":"ada.l@example.org"}]}
+{"customer_id":1002,"first_name":"Alan","last_name":"Turing","orders":[{"order_id":5004}],"emails":[{"email_address":"alan.turing@example.com"}]}
+{"customer_id":1003,"first_name":"Grace","last_name":"Hopper","orders":[{"order_id":5005}],"emails":[{"email_address":"grace.hopper@example.com"},{"email_address":"grace.hopper@example.com"}]}
+{"customer_id":1004,"first_name":"Edith","last_name":"Clarke"}
+{"customer_id":1005,"first_name":"Barbara","last_name":"Liskov"}
+{"customer_id":1006,"first_name":"Katherine","last_name":"Johnson","orders":[{"order_id":5006},{"order_id":5007}],"emails":[{"email_address":"katherine.johnson@example.com"}]}

@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.0",
+  "event_id": "evt-a38ccffa",
+  "event_type": "page_view",
+  "event_time": "2026-09-17T10:59:09-07:00",
+  "session_id": "sess-03053cd9",
+  "user_id": "CUST_1001",
+  "email": "barbara.turing+1001@turing.example.com",
+  "storefront_id": "acme-us",
+  "channel": "mobile_app",
+  "locale": "en-US",
+  "currency": "USD",
+  "source_system": "web_store",
+  "page": {
+    "type": "product_detail",
+    "url": "https://www.acme.example.com/p/tj-100"
+  },
+  "product": {
+    "sku": "TJ-100-SLA-M",
+    "product_id": "TJ-100",
+    "name": "Acme Trail Jacket",
+    "brand": "Acme",
+    "category": "Outerwear",
+    "subcategory": "Rain Jackets",
+    "color": "Slate",
+    "size": "M",
+    "price": 59.5,
+    "list_price": 89.0,
+    "url": "https://www.acme.example.com/p/tj-100",
+    "image_url": "https://img.acme.example.com/tj-100-slate.jpg",
+    "rating": 3.38,
+    "review_count": 554
+  }
+}

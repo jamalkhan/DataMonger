@@ -1,0 +1,40 @@
+=== API => Upload JSONL Identifies (identify user) -> site: demo ===
+Available JSONL files in LocalData/jsonl/profile:
+  1) identifies.jsonl
+Choice [1-1], or type a full path to a .jsonl file or a folder (uploads every .jsonl file under it, recursively): 1
+Available sites:
+  1) demo  (http://localhost:5281)
+Choice [1-1]: 1
+
+Site ID: demo
+Target:  http://localhost:5281/ver2/demo/subscribers/identify
+Parallelism: 50
+
+--- File 1/1: LocalData/jsonl/profile/identifies.jsonl ---
+File: LocalData/jsonl/profile/identifies.jsonl
+
+First request preview:
+POST  http://localhost:5281/ver2/demo/subscribers/identify
+{
+  "user_id": "1001",
+  "email": "ada.lovelace@example.com",
+  "first_name": "Ada",
+  "last_name": "Lovelace",
+  "phone": "555-0100",
+  "brand": "Acme Kids",
+  "marketing_opt_in": true
+}
+
+Send this first request (of 10 total)? [Enter to continue, Esc to abort] 
+
+First response preview:
+202 Accepted
+{
+  "status": "accepted",
+  "requestId": 1,
+  "route": "identify"
+}
+
+Continue with the remaining 9 line(s)? [Enter to continue, Esc to abort] 
+
+=== API => Upload JSONL Identifies (identify user) summary ===  Site: demo   Success: 10   Failed: 0   Elapsed: <elapsed>

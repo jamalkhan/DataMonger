@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "event_id": "evt-053cd989",
+  "event_type": "marketing_opt_in",
+  "event_time": "2026-06-01T00:58:15-07:00",
+  "user_id": "CUST_1001",
+  "email": "barbara.turing+1001@turing.example.com",
+  "storefront_id": "acme-us",
+  "source_system": "account_service",
+  "consent": {
+    "channel": "postal",
+    "contact_value": "3809 Oak Ave, Portland, OR 97201",
+    "status": "subscribed",
+    "subscribed_at": "2026-06-01T00:58:15-07:00",
+    "opt_source": "checkout",
+    "page_source": "account_page"
+  }
+}

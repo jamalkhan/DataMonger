@@ -1,0 +1,2 @@
+{"customer_id":1001,"last_name":"Lovelace","email_addresses":["ada.lovelace@example.com","ada.l@example.org"],"orders":[{"order_id":5001},{"order_id":5002},{"order_id":5003}]}
+{"customer_id":1002,"last_name":"Turing","email_addresses":["alan.turing@example.com"],"orders":[{"order_id":5004}]}

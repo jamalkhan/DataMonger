@@ -1,0 +1,91 @@
+[
+  {
+    "id": 1,
+    "method": "GET",
+    "path": "/ver2/demo/ping",
+    "route": "ping",
+    "hadAuthorizationHeader": true,
+    "status": 202,
+    "body": null
+  },
+  {
+    "id": 2,
+    "method": "POST",
+    "path": "/ver2/demo/subscribers/identify",
+    "route": "identify",
+    "hadAuthorizationHeader": true,
+    "status": 202,
+    "body": {
+      "user_id": "1001",
+      "email": "ada.lovelace@example.com",
+      "first_name": "Ada"
+    }
+  },
+  {
+    "id": 3,
+    "method": "PUT",
+    "path": "/ver2/demo/resources/TENT-2P",
+    "route": "resources",
+    "hadAuthorizationHeader": true,
+    "status": 200,
+    "body": {
+      "resource_type": "product",
+      "resource_id": "TENT-2P",
+      "name": "Trail 2-Person Tent",
+      "price": 199.0
+    }
+  },
+  {
+    "id": 4,
+    "method": "DELETE",
+    "path": "/ver2/demo/ping",
+    "route": "ping",
+    "hadAuthorizationHeader": true,
+    "status": 202,
+    "body": null
+  },
+  {
+    "id": 5,
+    "method": "PUT",
+    "path": "/ver2/demo/resources/BOOT-RDG",
+    "route": "resources",
+    "hadAuthorizationHeader": true,
+    "status": 200,
+    "body": {
+      "resource_type": "product",
+      "resource_id": "BOOT-RDG",
+      "price": 129.5
+    }
+  },
+  {
+    "id": 6,
+    "method": "POST",
+    "path": "/ver2/demo/activities",
+    "route": "activities",
+    "hadAuthorizationHeader": true,
+    "status": 202,
+    "body": {
+      "activity": {
+        "user_id": "1001",
+        "event_name": "page_viewed",
+        "properties": {
+          "page": "/tents/trail-2p"
+        }
+      }
+    }
+  },
+  {
+    "id": 7,
+    "method": "POST",
+    "path": "/ver2/demo/activities",
+    "route": "activities",
+    "hadAuthorizationHeader": true,
+    "status": 202,
+    "body": {
+      "activity": {
+        "user_id": "1002",
+        "event_name": "add_to_cart"
+      }
+    }
+  }
+]

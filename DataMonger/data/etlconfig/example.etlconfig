@@ -1,0 +1,50 @@
+{
+  // Example ETL config: joins customers to their orders and writes one nested JSONL record per customer.
+  // Comments and trailing commas are allowed. File paths are relative to THIS file.
+  // See bleak.Data.Transformer/ETL-CONFIG.md for the full schema.
+  "version": 1,
+
+  "run": {
+    "joinStrategy": "externalMerge",   // hashInMemory | externalMerge  (bounded-memory disk join)
+    "onError": "skip"                  // skip(+reject file) | abort | nullify
+  },
+
+  "sources": {
+    "customers": {
+      "file": "~/Documents/DataMonger/Data/csvs/customers.csv",
+      "format": "delimited", "delimiter": "csv",
+      "fields": { "customer_id": { "type": "integer" } }
+    },
+    "orders": {
+      "file": "~/Documents/DataMonger/Data/csvs/orders.csv",
+      "format": "delimited", "delimiter": "csv",
+      "fields": { "customer_id": { "type": "integer" }, "order_id": { "type": "integer" } }
+    }
+  },
+
+  "outputs": [
+    {
+      "name": "customers",
+      "mode": "object",
+      "source": "customers",
+      "fields": [
+        { "name": "id",         "from": "customer_id", "type": "integer" },
+        { "name": "first_name", "from": "first_name",  "type": "string"  },
+        { "name": "last_name",  "from": "last_name",   "type": "string"  },
+        { "name": "email",      "from": "email",       "type": "string"  }
+      ],
+      "children": [
+        {
+          "source": "orders", "as": "orders", "cardinality": "many",
+          "on": { "parent": "customer_id", "child": "customer_id" },
+          "fields": [
+            { "name": "order_id",   "from": "order_id",   "type": "integer" },
+            { "name": "order_date", "from": "order_date", "type": "string"  },
+            { "name": "subtotal",   "from": "subtotal",   "type": "decimal" }
+          ]
+        }
+      ],
+      "load": { "format": "jsonl", "folder": "~/Desktop/{run_timestamp}", "fileBaseName": "customers", "splitEvery": 1000000 }
+    }
+  ]
+}

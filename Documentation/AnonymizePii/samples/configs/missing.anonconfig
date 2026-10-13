@@ -1,0 +1,16 @@
+// Sample 5: a missing column and a missing input file, with onError "skip". Seed 3.
+{
+  "run": { "seed": 3, "onError": "skip" },
+  "inputFolder": "../input",
+  "outputFolder": "../expected-output/missing",
+  "files": [
+    {
+      "input": "src_returns.csv",
+      "columns": [
+        { "name": "contact_name",  "method": "simpsonsName" },
+        { "name": "mobile_phone",  "method": "fakePhone" }   // not in the header: warned and skipped
+      ]
+    },
+    { "input": "src_does_not_exist.csv", "columns": [ { "name": "email", "method": "simpsonsEmail" } ] }
+  ]
+}

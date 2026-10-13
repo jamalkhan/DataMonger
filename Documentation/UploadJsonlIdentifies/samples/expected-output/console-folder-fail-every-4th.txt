@@ -1,0 +1,86 @@
+=== API => Upload JSONL Identifies (identify user) -> site: demo ===
+Available JSONL files in LocalData/jsonl/profile:
+  1) identifies.jsonl
+Choice [1-1], or type a full path to a .jsonl file or a folder (uploads every .jsonl file under it, recursively): samples/input
+Found 2 .jsonl file(s) under samples/input.
+Available sites:
+  1) demo  (http://localhost:5281)
+Choice [1-1]: 1
+
+Site ID: demo
+Target:  http://localhost:5281/ver2/demo/subscribers/identify
+Parallelism: 50
+
+--- File 1/2: samples/input/identifies.jsonl ---
+File: samples/input/identifies.jsonl
+
+First request preview:
+POST  http://localhost:5281/ver2/demo/subscribers/identify
+{
+  "user_id": "1001",
+  "email": "ada.lovelace@example.com",
+  "first_name": "Ada",
+  "last_name": "Lovelace",
+  "phone": "555-0100",
+  "brand": "Acme Kids",
+  "marketing_opt_in": true
+}
+
+Send this first request (of 10 total)? [Enter to continue, Esc to abort] 
+
+First response preview:
+202 Accepted
+{
+  "status": "accepted",
+  "requestId": 1,
+  "route": "identify"
+}
+
+Continue with the remaining 9 line(s)? [Enter to continue, Esc to abort] 
+[FAIL] L5 -> 500 InternalServerError
+       {
+         "status": "error",
+         "error": "injected_failure"
+       }
+[FAIL] L6 -> 500 InternalServerError
+       {
+         "status": "error",
+         "error": "injected_failure"
+       }
+
+=== API => Upload JSONL Identifies (identify user) summary ===  Site: demo   Success: 8   Failed: 2   Elapsed: <elapsed>
+
+--- File 2/2: samples/input/identifies_bad.jsonl ---
+File: samples/input/identifies_bad.jsonl
+
+First request preview:
+POST  http://localhost:5281/ver2/demo/subscribers/identify
+{
+  "user_id": "1011",
+  "email": "tim.berners-lee@example.com",
+  "first_name": "Tim",
+  "last_name": "Berners-Lee",
+  "brand": "Acme"
+}
+
+Send this first request (of 3 total)? [Enter to continue, Esc to abort] 
+
+First response preview:
+202 Accepted
+{
+  "status": "accepted",
+  "requestId": 11,
+  "route": "identify"
+}
+
+Continue with the remaining 2 line(s)? [Enter to continue, Esc to abort] 
+[WARN] Skipping malformed line 2: Unterminated string. Expected delimiter: ". Path 'email', line 1, position 30.
+[FAIL] L3 -> 500 InternalServerError
+       {
+         "status": "error",
+         "error": "injected_failure"
+       }
+
+=== API => Upload JSONL Identifies (identify user) summary ===  Site: demo   Success: 1   Failed: 2   Elapsed: <elapsed>
+
+=== API => Upload JSONL Identifies (identify user) grand total ===  Site: demo   Success: 9   Failed: 4

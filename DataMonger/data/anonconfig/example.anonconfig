@@ -1,0 +1,46 @@
+// ============================================================================
+//  Example PII anonymization config. See bleak.Data.Anonymizer/ANON-CONFIG.md for the full schema.
+// ----------------------------------------------------------------------------
+//  * Only the columns listed under each file are anonymized. Every other column
+//    (customer_id and all other join keys included) passes through UNCHANGED.
+//  * Fakes are obviously fake: names / e-mails come from recurring Simpsons
+//    characters; phones use the 555-01XX reserved-for-fiction range.
+//  * Files with an empty "columns" list are byte-copied to the renamed output.
+//  * Originals are never modified or deleted; output goes to a separate folder
+//    and each file is renamed  src_*  ->  anonymized_* .
+// ============================================================================
+{
+  "version": 1,
+
+  "run": {
+    "onError": "skip",
+    "inputPrefix": "src_",
+    "outputPrefix": "anonymized_",
+    "emailDomains": [ "springfield.example" ]
+    // "seed": 1234               // uncomment for reproducible fakes (e.g. demos/tests)
+  },
+
+  // Paths are relative to THIS config file's folder (the config folder).
+  "inputFolder": "~/Documents/DataMonger/Data/csvs",
+  "outputFolder": "~/Documents/DataMonger/Data/csvs_anonymized",
+
+  "files": [
+    {
+      "input": "src_customers.csv",
+      "delimiter": "csv",
+      "hasHeader": true,
+      "columns": [
+        { "name": "first_name", "method": "simpsonsName",  "options": { "part": "first", "group": "person" } },
+        { "name": "last_name",  "method": "simpsonsName",  "options": { "part": "last",  "group": "person" } },
+        { "name": "email",      "method": "simpsonsEmail", "options": { "group": "person" } },
+        { "name": "phone",      "method": "fakePhone" },
+        { "name": "birth_date", "method": "fakeDate" }
+      ]
+    },
+    {
+      // No PII columns: byte-copied to anonymized_orders.csv.
+      "input": "src_orders.csv",
+      "columns": []
+    }
+  ]
+}

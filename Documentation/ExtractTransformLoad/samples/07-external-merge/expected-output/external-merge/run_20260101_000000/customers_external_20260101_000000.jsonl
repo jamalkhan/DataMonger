@@ -1,0 +1,5 @@
+{"customer_id":1001,"last_name":"Lovelace","orders":[{"order_id":5001,"lines":[{"sku":"TENT-2P"},{"sku":"SOCK-WOOL"}]},{"order_id":5002,"lines":[{"sku":"SOCK-WOOL"},{"sku":"CAP-TRAIL"}]},{"order_id":5003,"lines":[{"sku":"CAP-TRAIL"}]}],"emails":[{"email_address":"ada.lovelace@example.com"},{"email_address":"ada.lovelace@example.com"},{"email_address":"ada.l@example.org"}]}
+{"customer_id":1002,"last_name":"Turing","orders":[{"order_id":5004,"lines":[{"sku":"STOVE-1"},{"sku":"LAMP-LED"}]}],"emails":[{"email_address":"alan.turing@example.com"}]}
+{"customer_id":1003,"last_name":"Hopper","orders":[{"order_id":5005,"lines":[{"sku":"BOTTLE-1L"}]}],"emails":[{"email_address":"grace.hopper@example.com"},{"email_address":"grace.hopper@example.com"}]}
+{"customer_id":1005,"last_name":"Liskov"}
+{"customer_id":1006,"last_name":"Johnson","orders":[{"order_id":5006,"lines":[{"sku":"TENT-2P"},{"sku":"STOVE-1"}]},{"order_id":5007,"lines":[{"sku":"SOCK-WOOL"}]}],"emails":[{"email_address":"katherine.johnson@example.com"}]}

@@ -1,0 +1,83 @@
+{
+  // 12-delimited-sources: reading different file layouts.
+  //   delimiter  shorthands csv|comma, tsv|tab, pipe, semicolon, or any single character
+  //   quote      the text qualifier (default a double quote); a doubled qualifier is a literal one
+  //   quoted cells may contain the delimiter, the quote character and line breaks
+  //   a UTF-8 BOM, CRLF line endings and blank lines are handled
+  //   a file name ending in .gz is transparently decompressed (see ../Sources.md for .pgp)
+  // Every output below writes the same four fields so the results are easy to compare.
+  "version": 1,
+  "run": { "joinStrategy": "hashInMemory", "onError": "skip" },
+
+  "sources": {
+    "pipe": { "file": "products.pipe.txt", "format": "delimited", "delimiter": "pipe" },
+    "tsv": { "file": "products.tsv", "format": "delimited", "delimiter": "tab" },
+    "semicolon": { "file": "products.semicolon.csv", "format": "delimited", "delimiter": ";" },
+    "tilde": { "file": "products.tilde.txt", "format": "delimited", "delimiter": "~", "quote": "'" },
+    "bom_crlf": { "file": "products.bom-crlf.csv", "format": "delimited", "delimiter": "comma" },
+    "gz": { "file": "products.csv.gz", "format": "delimited", "delimiter": "csv" }
+  },
+
+  "outputs": [
+    {
+      "name": "pipe", "mode": "object", "source": "pipe",
+      "fields": [
+        { "name": "sku",          "from": "sku",          "type": "string" },
+        { "name": "product_name", "from": "product_name", "type": "string" },
+        { "name": "category",     "from": "category",     "type": "string" },
+        { "name": "notes",        "from": "notes",        "type": "string" }
+      ],
+      "load": { "folder": "output", "fileBaseName": "pipe", "sampling": { "enabled": false } }
+    },
+    {
+      "name": "tsv", "mode": "object", "source": "tsv",
+      "fields": [
+        { "name": "sku",          "from": "sku",          "type": "string" },
+        { "name": "product_name", "from": "product_name", "type": "string" },
+        { "name": "category",     "from": "category",     "type": "string" },
+        { "name": "notes",        "from": "notes",        "type": "string" }
+      ],
+      "load": { "folder": "output", "fileBaseName": "tsv", "sampling": { "enabled": false } }
+    },
+    {
+      "name": "semicolon", "mode": "object", "source": "semicolon",
+      "fields": [
+        { "name": "sku",          "from": "sku",          "type": "string" },
+        { "name": "product_name", "from": "product_name", "type": "string" },
+        { "name": "category",     "from": "category",     "type": "string" },
+        { "name": "notes",        "from": "notes",        "type": "string" }
+      ],
+      "load": { "folder": "output", "fileBaseName": "semicolon", "sampling": { "enabled": false } }
+    },
+    {
+      "name": "tilde", "mode": "object", "source": "tilde",
+      "fields": [
+        { "name": "sku",          "from": "sku",          "type": "string" },
+        { "name": "product_name", "from": "product_name", "type": "string" },
+        { "name": "category",     "from": "category",     "type": "string" },
+        { "name": "notes",        "from": "notes",        "type": "string" }
+      ],
+      "load": { "folder": "output", "fileBaseName": "tilde", "sampling": { "enabled": false } }
+    },
+    {
+      "name": "bom_crlf", "mode": "object", "source": "bom_crlf",
+      "fields": [
+        { "name": "sku",          "from": "sku",          "type": "string" },
+        { "name": "product_name", "from": "product_name", "type": "string" },
+        { "name": "category",     "from": "category",     "type": "string" },
+        { "name": "notes",        "from": "notes",        "type": "string" }
+      ],
+      "load": { "folder": "output", "fileBaseName": "bom_crlf", "sampling": { "enabled": false } }
+    },
+    {
+      "name": "gz", "mode": "object", "source": "gz",
+      "fields": [
+        { "name": "sku",          "from": "sku",          "type": "string" },
+        { "name": "product_name", "from": "product_name", "type": "string" },
+        { "name": "category",     "from": "category",     "type": "string" },
+        { "name": "notes",        "from": "notes",        "type": "string" }
+      ],
+      "load": { "folder": "output", "fileBaseName": "gz", "sampling": { "enabled": false } }
+    }
+  ]
+}

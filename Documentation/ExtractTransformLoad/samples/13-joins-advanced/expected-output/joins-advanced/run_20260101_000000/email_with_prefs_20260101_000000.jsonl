@@ -1,0 +1,7 @@
+{"email_id":1,"email_address":"ada.lovelace@example.com","brand":"Acme","customer_brands":["Acme","Acme Kids"],"prefs":{"channel":"newsletter","opted_in":true}}
+{"email_id":2,"email_address":"ada.lovelace@example.com","brand":"Acme Kids","customer_brands":["Acme","Acme Kids"]}
+{"email_id":3,"email_address":"ada.l@example.org","brand":"Acme","customer_brands":["Acme","Acme Kids"],"prefs":{"channel":"newsletter","opted_in":true}}
+{"email_id":4,"email_address":"alan.turing@example.com","brand":"Acme","customer_brands":["Acme"],"prefs":{"channel":"newsletter","opted_in":false}}
+{"email_id":5,"email_address":"grace.hopper@example.com","brand":"Acme","customer_brands":["Acme"]}
+{"email_id":6,"email_address":"grace.hopper@example.com","brand":"Acme","customer_brands":["Acme"]}
+{"email_id":7,"email_address":"katherine.johnson@example.com","brand":"Acme Kids","customer_brands":["Acme Kids"],"prefs":{"channel":"promos","opted_in":true}}

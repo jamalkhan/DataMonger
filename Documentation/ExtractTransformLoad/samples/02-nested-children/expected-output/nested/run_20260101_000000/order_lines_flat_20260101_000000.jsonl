@@ -1,0 +1,11 @@
+{"line_id":1,"sku":"TENT-2P","quantity":1,"unit_price":100.00,"order_id":5001,"order_date":"2024-01-15","product_name":"Summit 2-Person Tent"}
+{"line_id":2,"sku":"SOCK-WOOL","quantity":2,"unit_price":10.00,"order_id":5001,"order_date":"2024-01-15","product_name":"Merino Trail Socks"}
+{"line_id":3,"sku":"SOCK-WOOL","quantity":3,"unit_price":10.00,"order_id":5002,"order_date":"2024-03-02","product_name":"Merino Trail Socks"}
+{"line_id":4,"sku":"CAP-TRAIL","quantity":1,"unit_price":34.50,"order_id":5002,"order_date":"2024-03-02","product_name":"Trail Cap"}
+{"line_id":5,"sku":"CAP-TRAIL","quantity":1,"unit_price":35.00,"order_id":5003,"order_date":"2025-08-20","product_name":"Trail Cap"}
+{"line_id":6,"sku":"STOVE-1","quantity":1,"unit_price":150.00,"order_id":5004,"order_date":"2024-02-11","product_name":"Pocket Stove"}
+{"line_id":7,"sku":"LAMP-LED","quantity":2,"unit_price":30.00,"order_id":5004,"order_date":"2024-02-11","product_name":"Basecamp Lantern"}
+{"line_id":8,"sku":"BOTTLE-1L","quantity":3,"unit_price":29.99,"order_id":5005,"order_date":"2024-05-05","product_name":"Steel Bottle 1L"}
+{"line_id":9,"sku":"TENT-2P","quantity":5,"unit_price":100.00,"order_id":5006,"order_date":"2024-06-18","product_name":"Summit 2-Person Tent"}
+{"line_id":10,"sku":"STOVE-1","quantity":1,"unit_price":40.00,"order_id":5006,"order_date":"2024-06-18","product_name":"Pocket Stove"}
+{"line_id":11,"sku":"SOCK-WOOL","quantity":5,"unit_price":15.00,"order_id":5007,"order_date":"2025-01-09","product_name":"Merino Trail Socks"}
