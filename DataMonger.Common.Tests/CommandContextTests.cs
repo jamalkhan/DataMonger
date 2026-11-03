@@ -1,4 +1,3 @@
-using bleak.Api.Rest;
 using DataMonger.Common;
 
 namespace DataMonger.Common.Tests;
@@ -16,7 +15,6 @@ public class CommandContextTests
 
         var ctx = new CommandContext
         {
-            Rest = new RestClient(),
             ActivityUri = activity,
             IdentifyUri = identify,
             Username = "user",

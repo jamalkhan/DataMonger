@@ -7,11 +7,17 @@ using bleak.Data.InfiniteDataLoader;
 
 namespace DataMonger.Commands;
 
-partial class PurchaseAnonymous(CommandContext ctx) : IConsoleCommand
+partial class PurchaseAnonymous(
+    CommandContext ctx,
+    RestClient rest,
+    ConfigFolders configFolders,
+    CommandConfigFile configFile,
+    CsvLoader csvLoader,
+    ILogger<PurchaseAnonymous> logger) : IConsoleCommand
 {
     public string Name => "Anonymous purchases";
 
-    private readonly ILogger _logger = ctx.LoggerFactory.CreateLogger<PurchaseAnonymous>();
+    private readonly ILogger _logger = logger;
 
     public async Task<(int success, int failure)> Execute()
     {
@@ -20,7 +26,7 @@ partial class PurchaseAnonymous(CommandContext ctx) : IConsoleCommand
         var successCount = 0;
         var failureCount = 0;
 
-        var configPath = new ConfigFolders(logger: ctx.LoggerFactory.CreateLogger<ConfigFolders>()).PromptForConfig(ConfigKind.PurchaseAnonymous);
+        var configPath = configFolders.PromptForConfig(ConfigKind.PurchaseAnonymous);
         if (configPath is null)
         {
             Console.WriteLine("[FAIL] No config file provided or it does not exist. Aborting.");
@@ -35,15 +41,14 @@ partial class PurchaseAnonymous(CommandContext ctx) : IConsoleCommand
         var loadStart = Stopwatch.GetTimestamp();
         try
         {
-            config = CommandConfigFile.Load<PurchaseConfig>(configPath, ctx.LoggerFactory.CreateLogger(typeof(CommandConfigFile)));
+            config = configFile.Load<PurchaseConfig>(configPath);
             var configDir = Path.GetDirectoryName(Path.GetFullPath(configPath))!;
             var customersFile = CommandConfigFile.ResolvePath(config.CustomersFile, configDir, DataPaths.Combine("anonymous.csv"));
             var productsFile = CommandConfigFile.ResolvePath(config.ProductsFile, configDir, DataPaths.Combine("products.csv"));
             customersFileName = Path.GetFileName(customersFile);
             productsFileName = Path.GetFileName(productsFile);
-            var csvLogger = ctx.LoggerFactory.CreateLogger(typeof(CsvLoader));
-            people = CsvLoader.ReadPeople(customersFile, csvLogger).ToList();
-            products = CsvLoader.ReadProducts(productsFile, csvLogger).ToArray();
+            people = csvLoader.ReadPeople(customersFile).ToList();
+            products = csvLoader.ReadProducts(productsFile).ToArray();
             Console.WriteLine($"Config        : {configPath}");
             Console.WriteLine($"Customers     : {people.Count} (from {customersFile})");
             Console.WriteLine($"Products      : {products.Length} (from {productsFile})");
@@ -105,7 +110,7 @@ partial class PurchaseAnonymous(CommandContext ctx) : IConsoleCommand
             };
 
             var requestStart = stats.Begin();
-            var result = await ctx.Rest.ExecuteRestMethodAsync<string, string>(
+            var result = await rest.ExecuteRestMethodAsync<string, string>(
                 uri: ctx.ActivityUri,
                 verb: HttpVerbs.POST,
                 payload: payload,

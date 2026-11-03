@@ -11,7 +11,10 @@ namespace DataMonger.Commands;
 // Stress-test runner. Reads massive_apis.jsonl where each line fully describes ONE API call
 // (url + verb + payload) and fires them all at once. No inter-request delay and no rate limiter:
 // the point is to hammer the target as hard as the local machine allows.
-public partial class ApiBulkRunner(CommandContext ctx) : IConsoleCommand
+public partial class ApiBulkRunner(
+    CommandContext ctx,
+    RestClient rest,
+    ILogger<ApiBulkRunner> logger) : IConsoleCommand
 {
     public string Name => "API => Bulk Runner (stress test)";
 
@@ -25,7 +28,7 @@ public partial class ApiBulkRunner(CommandContext ctx) : IConsoleCommand
 
     private const int MaxExampleLineNumbers = 10;
 
-    private readonly ILogger _logger = ctx.LoggerFactory.CreateLogger<ApiBulkRunner>();
+    private readonly ILogger _logger = logger;
 
     public async Task<(int success, int failure)> Execute()
     {
@@ -184,7 +187,7 @@ public partial class ApiBulkRunner(CommandContext ctx) : IConsoleCommand
             async (call, ct) =>
         {
             var requestStart = stats.Begin();
-            var result = await ctx.Rest.ExecuteRestMethodAsync<string, string>(
+            var result = await rest.ExecuteRestMethodAsync<string, string>(
                 uri: call.Uri,
                 verb: call.Verb,
                 payload: null!,

@@ -9,18 +9,19 @@ namespace DataMonger.Common;
 // reads the whole line eagerly, and is hard-coded to the Person/Product/IdentifiedPerson domain records. CsvReader
 // is the forward-only, RFC-4180-aware, bounded-memory replacement. Migrate the remaining callers
 // (PurchaseAnonymous, PurchaseKnown, GenerateEmailConversions, Program), then delete this class.
-public static partial class CsvLoader
+/// <summary>Reads the positional people / products / identified CSV files. Registered as a singleton; stateless.</summary>
+public sealed partial class CsvLoader(ILogger<CsvLoader> logger)
 {
     // All three readers share the same contract: the first line is a header and is discarded
     // (columns are positional), blank/whitespace-only lines are skipped, and a row with too few
     // columns (or an unparseable number) raises InvalidDataException naming the file and the
     // 1-based physical line number. No quoting / escaping and no header detection.
     //
-    // Each reader takes an optional logger (category "DataMonger.Common.CsvLoader"); when the enumeration
+    // Each reader logs through the injected logger (category "DataMonger.Common.CsvLoader"): when the enumeration
     // completes it logs one Debug line with the file name, row count, byte count and duration. Nothing is
     // logged per row, and no field values are logged.
 
-    public static IEnumerable<Person> ReadPeople(string path, ILogger? logger = null)
+    public IEnumerable<Person> ReadPeople(string path)
     {
         foreach (var (lineNumber, line) in ReadDataLines(path, "people", logger))
         {
@@ -30,7 +31,7 @@ public static partial class CsvLoader
         }
     }
 
-    public static IEnumerable<Product> ReadProducts(string path, ILogger? logger = null)
+    public IEnumerable<Product> ReadProducts(string path)
     {
         foreach (var (lineNumber, line) in ReadDataLines(path, "products", logger))
         {
@@ -57,7 +58,7 @@ public static partial class CsvLoader
         }
     }
 
-    public static IEnumerable<IdentifiedPerson> ReadIdentified(string path, ILogger? logger = null)
+    public IEnumerable<IdentifiedPerson> ReadIdentified(string path)
     {
         foreach (var (lineNumber, line) in ReadDataLines(path, "identified", logger))
         {
@@ -73,7 +74,7 @@ public static partial class CsvLoader
 
     // Yields (1-based physical line number, line) for every non-blank line after the header. Logs one Debug
     // summary when the file has been read to the end (not when the caller stops early or a row throws).
-    private static IEnumerable<(int LineNumber, string Line)> ReadDataLines(string path, string kind, ILogger? logger)
+    private static IEnumerable<(int LineNumber, string Line)> ReadDataLines(string path, string kind, ILogger logger)
     {
         var start = Stopwatch.GetTimestamp();
         using var reader = new StreamReader(path);
@@ -92,7 +93,7 @@ public static partial class CsvLoader
             yield return (lineNumber, line);
         }
 
-        if (logger is not null && logger.IsEnabled(LogLevel.Debug))
+        if (logger.IsEnabled(LogLevel.Debug))
         {
             Log.CsvLoaded(logger, kind, Path.GetFileName(path), path, rowCount, reader.BaseStream.Length,
                 Stopwatch.GetElapsedTime(start).TotalMilliseconds);

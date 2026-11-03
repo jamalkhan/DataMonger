@@ -14,7 +14,7 @@ config files, and the real output the command produced from them.
 
 | Topic | Page |
 |---|---|
-| How the app is put together | [Architecture](Architecture.md) |
+| How the app is put together (Generic Host, dependency injection, logging) | [Architecture](Architecture.md) |
 | `appsettings.json`, sites, local data folder | [Configuration](Configuration.md) |
 | Local mock HTTP API used by every API sample | [Mock API](MockApi/Readme.md) |
 
@@ -70,6 +70,10 @@ To try the API commands without a real service, start the [mock API](MockApi/Rea
 and point a site at it.
 
 ## How a command runs
+
+- At startup the app (a .NET 10 console app) builds a .NET Generic Host for configuration, logging and dependency
+  injection, without starting it. Each command is created with its services injected and the current site's
+  `CommandContext`; see [Architecture](Architecture.md#services-and-command-construction).
 
 - Commands that work only on local files (ETL, anonymize, split, synthesize) run **once**, regardless of how many
   sites are configured.

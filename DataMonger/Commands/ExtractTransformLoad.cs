@@ -16,7 +16,11 @@ namespace DataMonger.Commands;
 /// <see cref="EtlEngine"/>. Prompts for the config (from the saved ETL config folder, asking for the folder on first run) and the output folder; everything else
 /// (input files, split size, join strategy, error policy) comes from the config.
 /// </summary>
-public partial class ExtractTransformLoad(CommandContext ctx) : IConsoleCommand
+public partial class ExtractTransformLoad(
+    CommandContext ctx,
+    ConfigFolders configFolders,
+    ILoggerFactory loggerFactory,
+    ILogger<ExtractTransformLoad> logger) : IConsoleCommand
 {
     public string Name => "Extract / Transform / Load (config-driven)";
     public bool RunsPerSite => false;
@@ -24,7 +28,7 @@ public partial class ExtractTransformLoad(CommandContext ctx) : IConsoleCommand
     // Site-independent local transform; guard against the per-site run loop re-running it.
     private static bool _completedThisSession;
 
-    private readonly ILogger _logger = ctx.LoggerFactory.CreateLogger<ExtractTransformLoad>();
+    private readonly ILogger _logger = logger;
 
     public Task<(int success, int failure)> Execute()
     {
@@ -40,7 +44,7 @@ public partial class ExtractTransformLoad(CommandContext ctx) : IConsoleCommand
 
         try
         {
-            var configPath = new ConfigFolders(logger: ctx.LoggerFactory.CreateLogger<ConfigFolders>()).PromptForConfig(ConfigKind.Etl);
+            var configPath = configFolders.PromptForConfig(ConfigKind.Etl);
             if (configPath is null)
             {
                 Console.WriteLine("[FAIL] No config file provided or it does not exist. Aborting.");
@@ -91,7 +95,7 @@ public partial class ExtractTransformLoad(CommandContext ctx) : IConsoleCommand
             }
 
             var overall = Stopwatch.StartNew();
-            var results = EtlEngine.Run(config, configDir, outputFolder, timestamp, ctx.LoggerFactory);
+            var results = EtlEngine.Run(config, configDir, outputFolder, timestamp, loggerFactory);
             overall.Stop();
             PrintOutputDetails(config, configDir, outputFolder, timestamp, results);
 

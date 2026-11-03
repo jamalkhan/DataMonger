@@ -18,7 +18,11 @@ namespace DataMonger.Commands;
 /// output folder; everything else — input files, columns, methods — comes from the config. Mirrors
 /// <see cref="ExtractTransformLoad"/>.
 /// </summary>
-public partial class AnonymizePii(CommandContext ctx) : IConsoleCommand
+public partial class AnonymizePii(
+    CommandContext ctx,
+    ConfigFolders configFolders,
+    ILoggerFactory loggerFactory,
+    ILogger<AnonymizePii> logger) : IConsoleCommand
 {
     public string Name => "Anonymize PII (config-driven)";
     public bool RunsPerSite => false;
@@ -26,7 +30,7 @@ public partial class AnonymizePii(CommandContext ctx) : IConsoleCommand
     // Site-independent local transform; guard against the per-site run loop re-running it.
     private static bool _completedThisSession;
 
-    private readonly ILogger _logger = ctx.LoggerFactory.CreateLogger<AnonymizePii>();
+    private readonly ILogger _logger = logger;
 
     public Task<(int success, int failure)> Execute()
     {
@@ -42,7 +46,7 @@ public partial class AnonymizePii(CommandContext ctx) : IConsoleCommand
 
         try
         {
-            var configPath = new ConfigFolders(logger: ctx.LoggerFactory.CreateLogger<ConfigFolders>()).PromptForConfig(ConfigKind.Anon);
+            var configPath = configFolders.PromptForConfig(ConfigKind.Anon);
             if (configPath is null)
             {
                 Console.WriteLine("[FAIL] No config file provided or it does not exist. Aborting.");
@@ -85,7 +89,7 @@ public partial class AnonymizePii(CommandContext ctx) : IConsoleCommand
             }
 
             var overall = Stopwatch.StartNew();
-            var results = AnonymizeEngine.Run(config, configDir, outputFolder, registry: null, loggerFactory: ctx.LoggerFactory);
+            var results = AnonymizeEngine.Run(config, configDir, outputFolder, registry: null, loggerFactory: loggerFactory);
             overall.Stop();
             PrintFileDetails(config, results);
 

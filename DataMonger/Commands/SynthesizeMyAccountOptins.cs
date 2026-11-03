@@ -16,12 +16,15 @@ namespace DataMonger.Commands;
 /// dated anywhere in the last 4 years. Unlike Synthesize Session Events, this is NOT tied to a shopping session -
 /// see <see cref="OptinEventBuilder"/>. An optional seed and anchor date make the run reproducible.
 /// </summary>
-public partial class SynthesizeMyAccountOptins(CommandContext ctx) : IConsoleCommand
+public partial class SynthesizeMyAccountOptins(
+    CommandContext ctx,
+    ILogger<JsonlSplitWriter> splitWriterLogger,
+    ILogger<SynthesizeMyAccountOptins> logger) : IConsoleCommand
 {
     public string Name => "Synthesize MyAccount Optin Events (fake data)";
     public bool RunsPerSite => false;
 
-    private readonly ILogger _logger = ctx.LoggerFactory.CreateLogger<SynthesizeMyAccountOptins>();
+    private readonly ILogger _logger = logger;
 
     public Task<(int success, int failure)> Execute()
     {
@@ -122,7 +125,7 @@ public partial class SynthesizeMyAccountOptins(CommandContext ctx) : IConsoleCom
             // Step 2: the full run. The first profile's roll is replayed verbatim (same rng draw as
             // the preview); every subsequent profile continues from the same rng.
             var generateStart = Stopwatch.GetTimestamp();
-            using var split = new JsonlSplitWriter(outputFolder, baseName, timestamp, recordsPerFile: 50_000, ctx.LoggerFactory.CreateLogger<JsonlSplitWriter>());
+            using var split = new JsonlSplitWriter(outputFolder, baseName, timestamp, recordsPerFile: 50_000, splitWriterLogger);
             if (firstEvent is not null)
             {
                 split.WriteLine(firstEvent);

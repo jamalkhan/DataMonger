@@ -17,7 +17,10 @@ namespace DataMonger.Commands;
 /// then streams the input via <see cref="CsvSplitter"/> so it scales to multi-GB inputs. The original is
 /// never modified or deleted.
 /// </summary>
-public partial class SplitCsv(CommandContext ctx) : IConsoleCommand
+public partial class SplitCsv(
+    CommandContext ctx,
+    ILoggerFactory loggerFactory,
+    ILogger<SplitCsv> logger) : IConsoleCommand
 {
     public string Name => "Split CSV into N-row files";
     public bool RunsPerSite => false;
@@ -27,7 +30,7 @@ public partial class SplitCsv(CommandContext ctx) : IConsoleCommand
     // Site-independent local transform; guard against the per-site run loop re-running it.
     private static bool _completedThisSession;
 
-    private readonly ILogger _logger = ctx.LoggerFactory.CreateLogger<SplitCsv>();
+    private readonly ILogger _logger = logger;
 
     public Task<(int success, int failure)> Execute()
     {
@@ -66,7 +69,7 @@ public partial class SplitCsv(CommandContext ctx) : IConsoleCommand
             Log.Paths(_logger, inputPath, outputFolder);
 
             var overall = Stopwatch.StartNew();
-            var result = CsvSplitter.Split(inputPath, outputFolder, rowsPerFile, loggerFactory: ctx.LoggerFactory);
+            var result = CsvSplitter.Split(inputPath, outputFolder, rowsPerFile, loggerFactory: loggerFactory);
             overall.Stop();
             // bleak.Data.InfiniteDataLoader 1.x printed these lines through its console callback; 2.x logs them
             // instead (category bleak.Data.InfiniteDataLoader.CsvSplitter), so rebuild them from the result.

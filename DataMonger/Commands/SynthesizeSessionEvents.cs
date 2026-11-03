@@ -5,6 +5,7 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using bleak.Data.Transformer.Output;
 using DataMonger.Common;
+using DataMonger.Hosting;
 using DataMonger.Logging;
 using DataMonger.Synth;
 using Microsoft.Extensions.Logging;
@@ -18,12 +19,17 @@ namespace DataMonger.Commands;
 /// <see cref="SessionEventsBuilder"/> for the interleaving/eligibility rules and event shapes. An optional seed and
 /// anchor date make the run reproducible.
 /// </summary>
-public partial class SynthesizeSessionEvents(CommandContext ctx) : IConsoleCommand
+public partial class SynthesizeSessionEvents(
+    CommandContext ctx,
+    CommandFactory commandFactory,
+    ILogger<ProductCatalog> productCatalogLogger,
+    ILogger<JsonlSplitWriter> splitWriterLogger,
+    ILogger<SynthesizeSessionEvents> logger) : IConsoleCommand
 {
     public string Name => "Synthesize Session Events (page views/cart/purchase, fake data)";
     public bool RunsPerSite => false;
 
-    private readonly ILogger _logger = ctx.LoggerFactory.CreateLogger<SynthesizeSessionEvents>();
+    private readonly ILogger _logger = logger;
 
     public async Task<(int success, int failure)> Execute()
     {
@@ -48,7 +54,7 @@ public partial class SynthesizeSessionEvents(CommandContext ctx) : IConsoleComma
             }
 
             Console.WriteLine($"Loading product catalog: {productPath}");
-            var catalog = ProductCatalog.Load(productPath, ctx.LoggerFactory.CreateLogger<ProductCatalog>());
+            var catalog = ProductCatalog.Load(productPath, productCatalogLogger);
             Console.WriteLine($"  {catalog.Count:N0} purchasable products loaded " +
                 $"({catalog.SkippedInvalid:N0} invalid, {catalog.SkippedDuplicate:N0} duplicate, {catalog.SkippedOutOfStock:N0} out-of-stock rows skipped).");
 
@@ -149,7 +155,7 @@ public partial class SynthesizeSessionEvents(CommandContext ctx) : IConsoleComma
             // as the preview); every subsequent profile continues from the same rng/catalog. All
             // event types land in one combined, chronologically-ordered .jsonl per profile.
             var generateStart = Stopwatch.GetTimestamp();
-            using var split = new JsonlSplitWriter(outputFolder, baseName, timestamp, recordsPerFile: 50_000, ctx.LoggerFactory.CreateLogger<JsonlSplitWriter>());
+            using var split = new JsonlSplitWriter(outputFolder, baseName, timestamp, recordsPerFile: 50_000, splitWriterLogger);
             var eventTypeTotals = new Dictionary<string, int>();
             foreach (var evt in firstEvents)
             {
@@ -212,7 +218,7 @@ public partial class SynthesizeSessionEvents(CommandContext ctx) : IConsoleComma
                 Log.HandingOffToUpload(_logger, split.FinalPaths.Count);
                 Console.WriteLine();
                 Console.WriteLine("=== API => Upload JSONL Events (track event) ===");
-                await new UploadJsonlEvents(ctx).Execute(split.FinalPaths);
+                await commandFactory.Create<UploadJsonlEvents>(ctx).Execute(split.FinalPaths);
             }
 
             return ((int)Math.Min(int.MaxValue, split.RecordsWritten), 0);

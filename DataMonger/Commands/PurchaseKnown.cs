@@ -7,11 +7,17 @@ using bleak.Data.InfiniteDataLoader;
 
 namespace DataMonger.Commands;
 
-public partial class PurchaseKnown(CommandContext ctx) : IConsoleCommand
+public partial class PurchaseKnown(
+    CommandContext ctx,
+    RestClient rest,
+    ConfigFolders configFolders,
+    CommandConfigFile configFile,
+    CsvLoader csvLoader,
+    ILogger<PurchaseKnown> logger) : IConsoleCommand
 {
     public string Name => "Known (identified) purchases";
 
-    private readonly ILogger _logger = ctx.LoggerFactory.CreateLogger<PurchaseKnown>();
+    private readonly ILogger _logger = logger;
 
     public async Task<(int success, int failure)> Execute()
     {
@@ -20,7 +26,7 @@ public partial class PurchaseKnown(CommandContext ctx) : IConsoleCommand
         var successCount = 0;
         var failureCount = 0;
 
-        var configPath = new ConfigFolders(logger: ctx.LoggerFactory.CreateLogger<ConfigFolders>()).PromptForConfig(ConfigKind.PurchaseKnown);
+        var configPath = configFolders.PromptForConfig(ConfigKind.PurchaseKnown);
         if (configPath is null)
         {
             Console.WriteLine("[FAIL] No config file provided or it does not exist. Aborting.");
@@ -35,15 +41,14 @@ public partial class PurchaseKnown(CommandContext ctx) : IConsoleCommand
         var loadStart = Stopwatch.GetTimestamp();
         try
         {
-            config = CommandConfigFile.Load<PurchaseConfig>(configPath, ctx.LoggerFactory.CreateLogger(typeof(CommandConfigFile)));
+            config = configFile.Load<PurchaseConfig>(configPath);
             var configDir = Path.GetDirectoryName(Path.GetFullPath(configPath))!;
             var customersFile = CommandConfigFile.ResolvePath(config.CustomersFile, configDir, DataPaths.Combine("identified.csv"));
             var productsFile = CommandConfigFile.ResolvePath(config.ProductsFile, configDir, DataPaths.Combine("products.csv"));
             customersFileName = Path.GetFileName(customersFile);
             productsFileName = Path.GetFileName(productsFile);
-            var csvLogger = ctx.LoggerFactory.CreateLogger(typeof(CsvLoader));
-            people = CsvLoader.ReadIdentified(customersFile, csvLogger).ToList();
-            products = CsvLoader.ReadProducts(productsFile, csvLogger).ToArray();
+            people = csvLoader.ReadIdentified(customersFile).ToList();
+            products = csvLoader.ReadProducts(productsFile).ToArray();
             Console.WriteLine($"Config        : {configPath}");
             Console.WriteLine($"Customers     : {people.Count} (from {customersFile})");
             Console.WriteLine($"Products      : {products.Length} (from {productsFile})");
@@ -102,7 +107,7 @@ public partial class PurchaseKnown(CommandContext ctx) : IConsoleCommand
             };
 
             var identifyStart = identifyStats.Begin();
-            var identifyResult = await ctx.Rest.ExecuteRestMethodAsync<string, string>(
+            var identifyResult = await rest.ExecuteRestMethodAsync<string, string>(
                 uri: ctx.IdentifyUri,
                 verb: HttpVerbs.POST,
                 payload: identifyPayload,
@@ -163,7 +168,7 @@ public partial class PurchaseKnown(CommandContext ctx) : IConsoleCommand
             };
 
             var activityStart = activityStats.Begin();
-            var activityResult = await ctx.Rest.ExecuteRestMethodAsync<string, string>(
+            var activityResult = await rest.ExecuteRestMethodAsync<string, string>(
                 uri: ctx.ActivityUri,
                 verb: HttpVerbs.POST,
                 payload: activityPayload,

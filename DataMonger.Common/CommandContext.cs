@@ -1,18 +1,14 @@
-using bleak.Api.Rest;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-
 namespace DataMonger.Common;
 
+/// <summary>
+/// Per-site, per-run data handed to a command as a runtime constructor argument (Program builds one per configured
+/// site and creates the command with <c>ActivatorUtilities.CreateInstance</c>). Process-wide services (loggers, the
+/// REST client, config helpers) are not here: commands take those from the DI container through their constructor.
+/// </summary>
 public class CommandContext
 {
-    public required RestClient Rest { get; init; }
     public required Uri ActivityUri { get; init; }
     public required Uri IdentifyUri { get; init; }
-
-    /// <summary>Creates category-scoped loggers for commands to use. Defaults to a no-op factory so
-    /// existing construction sites (tests, etc.) remain valid without wiring real logging.</summary>
-    public ILoggerFactory LoggerFactory { get; init; } = NullLoggerFactory.Instance;
 
     // Raw site coordinates, used by commands (e.g. ApiBulkRunner) that resolve their own relative
     // URLs against the site base rather than the prebuilt ActivityUri/IdentifyUri. Non-required so

@@ -18,7 +18,10 @@ namespace DataMonger.Commands;
 // This command runs its own site picker rather than relying on the outer Program.cs per-site loop
 // (which iterates every Sites entry), so it must guard against being invoked once per configured
 // site and instead run exactly once per process, the same way UploadJsonlResources/Events do.
-public partial class UploadJsonlIdentifies(CommandContext ctx) : IConsoleCommand
+public partial class UploadJsonlIdentifies(
+    CommandContext ctx,
+    RestClient rest,
+    ILogger<UploadJsonlIdentifies> logger) : IConsoleCommand
 {
     public string Name => "API => Upload JSONL Identifies (identify user)";
 
@@ -27,7 +30,7 @@ public partial class UploadJsonlIdentifies(CommandContext ctx) : IConsoleCommand
     /// <summary>At most this many file names go into the Information "started" line (every file gets a Debug line).</summary>
     private const int MaxFileNamesInStartLine = 20;
 
-    private readonly ILogger _logger = ctx.LoggerFactory.CreateLogger<UploadJsonlIdentifies>();
+    private readonly ILogger _logger = logger;
 
     public Task<(int success, int failure)> Execute() => Execute(filePaths: null);
 
@@ -161,7 +164,7 @@ public partial class UploadJsonlIdentifies(CommandContext ctx) : IConsoleCommand
         // Send the first record on its own, outside the parallel batch, so its response can be
         // previewed and confirmed before the rest of the file is fired off behind it.
         var firstStart = stats.Begin();
-        var firstResult = await SendLine(uri, firstLine, username, password, ctx.Rest, CancellationToken.None);
+        var firstResult = await SendLine(uri, firstLine, username, password, rest, CancellationToken.None);
         stats.End(firstStart, (int)firstResult.Status);
         Log.FirstRequestResult(_logger, fileName, (int)firstResult.Status, stopwatch.Elapsed.TotalMilliseconds);
         var firstOk = (int)firstResult.Status is >= 200 and < 300;
@@ -225,7 +228,7 @@ public partial class UploadJsonlIdentifies(CommandContext ctx) : IConsoleCommand
             }
 
             var requestStart = stats.Begin();
-            var result = await SendLine(uri, line, username, password, ctx.Rest, ct);
+            var result = await SendLine(uri, line, username, password, rest, ct);
             stats.End(requestStart, (int)result.Status);
 
             var ok = (int)result.Status is >= 200 and < 300;

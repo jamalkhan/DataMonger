@@ -1,10 +1,13 @@
 using DataMonger.Common;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DataMonger.Common.Tests;
 
 [TestClass]
 public class CommandConfigTests
 {
+    private static readonly CommandConfigFile ConfigFile = new(NullLogger<CommandConfigFile>.Instance);
+
     private string _dir = "";
 
     [TestInitialize]
@@ -27,7 +30,7 @@ public class CommandConfigTests
     [TestMethod]
     public void Load_AllowsCommentsTrailingCommasAndAnyCase()
     {
-        var c = CommandConfigFile.Load<PurchaseConfig>(Write("// hi\n{ \"MINITEMS\": 2, \"maxItems\": 4, /* x */ \"orderIdPrefix\": \"X-\", }"));
+        var c = ConfigFile.Load<PurchaseConfig>(Write("// hi\n{ \"MINITEMS\": 2, \"maxItems\": 4, /* x */ \"orderIdPrefix\": \"X-\", }"));
         Assert.AreEqual(2, c.MinItems);
         Assert.AreEqual(4, c.MaxItems);
         Assert.AreEqual("X-", c.OrderIdPrefix);
@@ -36,7 +39,7 @@ public class CommandConfigTests
     [TestMethod]
     public void Load_EmptyObject_UsesDefaults()
     {
-        var c = CommandConfigFile.Load<PurchaseConfig>(Write("{}"));
+        var c = ConfigFile.Load<PurchaseConfig>(Write("{}"));
         Assert.AreEqual(1, c.MinItems);
         Assert.AreEqual(3, c.MaxItems);
         Assert.IsNull(c.ProductsFile);
@@ -46,17 +49,17 @@ public class CommandConfigTests
     public void Load_InvalidRange_Throws()
     {
         var ex = Assert.ThrowsExactly<CommandConfigException>(() =>
-            CommandConfigFile.Load<PurchaseConfig>(Write("{ \"minItems\": 3, \"maxItems\": 1 }")));
+            ConfigFile.Load<PurchaseConfig>(Write("{ \"minItems\": 3, \"maxItems\": 1 }")));
         StringAssert.Contains(ex.Message, "maxItems");
     }
 
     [TestMethod]
     public void Load_BadJson_Throws() =>
-        Assert.ThrowsExactly<CommandConfigException>(() => CommandConfigFile.Load<EmailConversionConfig>(Write("{ nope")));
+        Assert.ThrowsExactly<CommandConfigException>(() => ConfigFile.Load<EmailConversionConfig>(Write("{ nope")));
 
     [TestMethod]
     public void Load_EmailConfig_ReadsSeed() =>
-        Assert.AreEqual(7, CommandConfigFile.Load<EmailConversionConfig>(Write("{ \"seed\": 7 }")).Seed);
+        Assert.AreEqual(7, ConfigFile.Load<EmailConversionConfig>(Write("{ \"seed\": 7 }")).Seed);
 
     [TestMethod]
     public void ResolvePath_BlankRelativeAndAbsolute()

@@ -20,13 +20,16 @@ namespace DataMonger.Commands;
 // This command runs its own site picker rather than relying on the outer Program.cs per-site loop
 // (which now iterates every Sites entry), so it must guard against being invoked once per
 // configured site and instead run exactly once per process, like the other single-run commands.
-public partial class UploadJsonlResources(CommandContext ctx) : IConsoleCommand
+public partial class UploadJsonlResources(
+    CommandContext ctx,
+    RestClient rest,
+    ILogger<UploadJsonlResources> logger) : IConsoleCommand
 {
     public string Name => "API => Upload JSONL Resources (create/update)";
 
     private static bool _completedThisSession;
 
-    private readonly ILogger _logger = ctx.LoggerFactory.CreateLogger<UploadJsonlResources>();
+    private readonly ILogger _logger = logger;
 
     public async Task<(int success, int failure)> Execute()
     {
@@ -138,7 +141,7 @@ public partial class UploadJsonlResources(CommandContext ctx) : IConsoleCommand
             var uri = new Uri($"{baseUrl}/ver2/{siteId}/resources/{Uri.EscapeDataString(resourceId)}");
 
             var requestStart = stats.Begin();
-            var result = await ctx.Rest.ExecuteRestMethodAsync<string, string>(
+            var result = await rest.ExecuteRestMethodAsync<string, string>(
                 uri: uri,
                 verb: HttpVerbs.PUT,
                 payload: null!,

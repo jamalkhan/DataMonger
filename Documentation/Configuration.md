@@ -5,6 +5,17 @@
 The app reads `appsettings.json` from its output folder at startup. It is **required**: startup fails if the file
 is missing or the `Sites` array is empty.
 
+Configuration is loaded by the .NET Generic Host (`Host.CreateApplicationBuilder`), so the standard sources apply, each
+overriding the one before it:
+
+1. `appsettings.json` in the output folder;
+2. `appsettings.{Environment}.json` in the output folder, when present (the environment comes from `DOTNET_ENVIRONMENT`
+   and defaults to `Production`);
+3. environment variables, with `__` as the section separator (for example `Logging__LogLevel__bleak=Debug`);
+4. command-line arguments (for example `dotnet DataMonger.dll --Logging:LogLevel:DataMonger=Debug`).
+
+The host is used only for configuration, logging and dependency injection; it is never started, so it prints nothing.
+
 ```json
 {
   "Sites": [
@@ -184,8 +195,10 @@ the queue runs empty and completely at exit.
 
 ### Levels
 
-Levels come from the optional `Logging` section of `appsettings.json` (the standard .NET format). Without the section
-everything at `Information` and above is written.
+Levels come from the optional `Logging` section of the configuration (the standard .NET format, normally in
+`appsettings.json`; any source above can set or override it). Without the section everything at `Information` and
+above is written. The log file is the only log output: the host's default console, debug and event-source loggers are
+removed, so logging never writes to the console.
 
 ```json
 "Logging": {
@@ -201,7 +214,7 @@ everything at `Information` and above is written.
 |---|---|
 | `Default` | Everything not matched by a more specific key. |
 | `DataMonger` | The app: `DataMonger.Commands.*` (one category per command), `DataMonger.Synth.*`, `DataMonger.Common.*` (config folders, CSV/config loaders), `DataMonger.Program`. A longer prefix such as `DataMonger.Commands.UploadJsonlEvents` targets one command. |
-| `bleak` | The bleak libraries the commands call, which log through the same factory: `bleak.Data.Transformer.*` (ETL engine, compiler, joins, source readers, `JsonlSplitWriter`), `bleak.Data.Anonymizer.Engine.AnonymizeEngine`, `bleak.Data.InfiniteDataLoader.*` (`CsvSplitter`, `CsvReader`, `ExternalSorter`) and `bleak.Api.Rest.RestClient` (one Debug line per HTTP call: method, URL path, status, duration). Set e.g. `"bleak.Data.Transformer": "Debug"` for per-phase ETL timings. |
+| `bleak` | The bleak libraries the commands call, which log through the same logging setup (they get their loggers from the app's container): `bleak.Data.Transformer.*` (ETL engine, compiler, joins, source readers, `JsonlSplitWriter`), `bleak.Data.Anonymizer.Engine.AnonymizeEngine`, `bleak.Data.InfiniteDataLoader.*` (`CsvSplitter`, `CsvReader`, `ExternalSorter`) and `bleak.Api.Rest.RestClient` (one Debug line per HTTP call: method, URL path, status, duration). Set e.g. `"bleak.Data.Transformer": "Debug"` for per-phase ETL timings, which also turns on the per-step transform costs from `bleak.Data.Transformer.Engine.RecordWriter` (invocations, errors and time per transform/filter op, per output). Set `"bleak.Data.Transformer.Engine.RecordWriter": "Trace"` to split those costs by field. Measuring step costs adds roughly 20% to the transform phase, so turn it on only for profiling runs. |
 
 | Level | What you get |
 |---|---|
@@ -213,7 +226,8 @@ everything at `Information` and above is written.
 To investigate a slow run, set `"DataMonger": "Debug"` and `"bleak": "Debug"`. Changing only `Default` is not
 enough while those two keys are present, because the more specific key wins. Use `Trace` only for short runs, as it
 is much more verbose (and the bleak libraries may include record values at Trace). `appsettings.json` is read from the build output folder, so edit `appsettings.user.json`
-(copied over it on every build) or the output copy.
+(copied over it on every build) or the output copy, or override a level for one run with an environment variable such
+as `Logging__LogLevel__bleak=Debug`.
 
 The app never logs record contents: no field values, e-mails or names at any level, only counts, sizes, durations,
 file names, column names, HTTP method, status code and URL path. Credentials are never logged.

@@ -2,12 +2,13 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using bleak.Api.Rest;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using DataMonger.Common;
+using DataMonger.Hosting;
 using DataMonger.Logging;
-using bleak.Data.InfiniteDataLoader;
 
 // Use Cases
 // Guest Checkout
@@ -23,12 +24,25 @@ partial class Program
 
     static async Task Main(string[] args)
     {
-        var config = new ConfigurationBuilder()
-            .SetBasePath(AppContext.BaseDirectory)
-            .AddJsonFile("appsettings.json", optional: false)
-            .Build();
+        // Generic Host for configuration, logging and DI only: the host is built but never started (no Run/RunAsync),
+        // so no hosted-service lifetime messages appear and Ctrl+C keeps its default behavior. Default sources apply:
+        // appsettings.json and appsettings.{Environment}.json from the output folder, environment variables, command line.
+        var builder = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings
+        {
+            Args = args,
+            ContentRootPath = AppContext.BaseDirectory,
+        });
 
-        var siteConfigs = config.GetSection("Sites").Get<SiteConfig[]>()
+        // The host loads appsettings.json as optional; DataMonger requires it.
+        var appSettingsPath = Path.Combine(builder.Environment.ContentRootPath, "appsettings.json");
+        if (!File.Exists(appSettingsPath))
+        {
+            throw new FileNotFoundException(
+                $"The configuration file 'appsettings.json' was not found and is not optional. The expected physical path was '{appSettingsPath}'.",
+                appSettingsPath);
+        }
+
+        var siteConfigs = builder.Configuration.GetSection("Sites").Get<SiteConfig[]>()
             ?? throw new InvalidOperationException("Sites must be a non-empty array in appsettings.json");
         if (siteConfigs.Length == 0)
         {
@@ -36,19 +50,17 @@ partial class Program
         }
 
         // One JSON-lines log file per run (LocalData/logs/datamonger_<local yyyyMMdd_HHmmss>.jsonl). Levels come
-        // from the "Logging" section of appsettings.json; Information when the section is missing.
+        // from the "Logging" section of the configuration (bound by the host); Information when the section is missing.
         var runId = Guid.NewGuid().ToString("N")[..8];
         var appLogPath = BuildRunLogPath(runId);
-        // Declared before the factory so it is disposed (drained and flushed) after the factory: providers
-        // registered through LoggerFactory.Create are not disposed by the factory itself.
-        using var fileLogProvider = new JsonLinesFileLoggerProvider(appLogPath);
-        using var loggerFactory = LoggerFactory.Create(b => b
-            .SetMinimumLevel(LogLevel.Information)
-            .AddConfiguration(config.GetSection("Logging"))
-            .AddProvider(fileLogProvider));
+        builder.Services.AddDataMonger(appLogPath);
+
+        // Disposing the host disposes the container, which drains and flushes the file sink it owns.
+        using var host = builder.Build();
+        var services = host.Services;
 
         // Program lives in the global namespace; name the category explicitly so the "DataMonger" level key covers it.
-        var logger = loggerFactory.CreateLogger("DataMonger.Program");
+        var logger = services.GetRequiredService<ILoggerFactory>().CreateLogger("DataMonger.Program");
         using var runScope = RunScope(logger, runId);
         var runStart = Stopwatch.GetTimestamp();
         var outcome = "completed";
@@ -57,7 +69,7 @@ partial class Program
 
         try
         {
-            await RunMenu(siteConfigs, loggerFactory, logger);
+            await RunMenu(siteConfigs, services, logger);
         }
         catch (Exception ex)
         {
@@ -71,14 +83,12 @@ partial class Program
         }
     }
 
-    static async Task RunMenu(SiteConfig[] siteConfigs, ILoggerFactory loggerFactory, ILogger logger)
+    static async Task RunMenu(SiteConfig[] siteConfigs, IServiceProvider services, ILogger logger)
     {
-        var serializer = new JsonSerializer();
-        using var httpClient = new HttpClient();
-        var rest = new RestClient(httpClient, serializer, serializer, loggerFactory.CreateLogger<RestClient>());
+        var commandFactory = services.GetRequiredService<CommandFactory>();
 
         Console.WriteLine("=== DataMonger ===");
-        new ConfigFolders(logger: loggerFactory.CreateLogger<ConfigFolders>()).EnsureAll(); // look for config folders under ~/Documents/DataMonger; prompt if missing
+        services.GetRequiredService<ConfigFolders>().EnsureAll(); // look for config folders under ~/Documents/DataMonger; prompt if missing
         Console.WriteLine($">>> Configured sites ({siteConfigs.Length}):");
         foreach (var cfg in siteConfigs)
         {
@@ -87,12 +97,9 @@ partial class Program
         Console.WriteLine();
 
         // Build a discovery context against the first config just to read command Names for the menu.
-        var menuContext = BuildContext(siteConfigs[0], rest, siteConfigs, loggerFactory);
-        var commandTypes = Assembly.GetExecutingAssembly().GetTypes()
-            .Where(t => typeof(IConsoleCommand).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract)
-            .ToList();
-        var menuCommands = commandTypes
-            .Select(t => (IConsoleCommand)Activator.CreateInstance(t, menuContext)!)
+        var menuContext = BuildContext(siteConfigs[0], siteConfigs);
+        var menuCommands = CommandFactory.DiscoverCommandTypes()
+            .Select(t => commandFactory.Create(t, menuContext))
             .OrderBy(c => c.Name)
             .ToList();
         var orderedTypes = menuCommands.Select(c => c.GetType()).ToList();
@@ -140,8 +147,8 @@ partial class Program
         {
             Console.WriteLine();
             Console.WriteLine($"=== {selectedName} ===");
-            var localCtx = BuildContext(siteConfigs[0], rest, siteConfigs, loggerFactory);
-            var localCommand = (IConsoleCommand)Activator.CreateInstance(selectedType, localCtx)!;
+            var localCtx = BuildContext(siteConfigs[0], siteConfigs);
+            var localCommand = commandFactory.Create(selectedType, localCtx);
             await ExecuteLogged(localCommand, selectedName, CommandLogging.LocalSiteId, logger);
             return;
         }
@@ -150,8 +157,8 @@ partial class Program
         {
             Console.WriteLine();
             Console.WriteLine($"=== {selectedName} -> site: {cfg.SiteId} ===");
-            var siteCtx = BuildContext(cfg, rest, siteConfigs, loggerFactory);
-            var siteCommand = (IConsoleCommand)Activator.CreateInstance(selectedType, siteCtx)!;
+            var siteCtx = BuildContext(cfg, siteConfigs);
+            var siteCommand = commandFactory.Create(selectedType, siteCtx);
             await ExecuteLogged(siteCommand, selectedName, cfg.SiteId, logger);
         }
     }
@@ -209,12 +216,11 @@ partial class Program
         public static partial void QuitFromMenu(ILogger logger);
     }
 
-    static CommandContext BuildContext(SiteConfig cfg, RestClient rest, IReadOnlyList<SiteConfig> allSites, ILoggerFactory loggerFactory)
+    static CommandContext BuildContext(SiteConfig cfg, IReadOnlyList<SiteConfig> allSites)
     {
         var baseUrl = cfg.BaseUrl.TrimEnd('/');
         return new CommandContext
         {
-            Rest = rest,
             ActivityUri = new Uri($"{baseUrl}/ver2/{cfg.SiteId}/activities"),
             IdentifyUri = new Uri($"{baseUrl}/ver2/{cfg.SiteId}/subscribers/identify"),
             BaseUrl = baseUrl,
@@ -223,7 +229,6 @@ partial class Program
             Password = cfg.Password,
             MaxParallelism = MaxParallelism,
             AllSites = allSites,
-            LoggerFactory = loggerFactory,
         };
     }
 }

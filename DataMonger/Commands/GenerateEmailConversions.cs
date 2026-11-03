@@ -14,7 +14,12 @@ namespace DataMonger.Commands;
 /// holding a short, time-ordered sequence of email_sent / email_delivered / email_opened / email_clicked /
 /// email_bounced / purchase events). Output is consumed by <see cref="ApiEmailConversionEvents"/>.
 /// </summary>
-public partial class GenerateEmailConversions(CommandContext ctx) : IConsoleCommand
+public partial class GenerateEmailConversions(
+    CommandContext ctx,
+    ConfigFolders configFolders,
+    CommandConfigFile configFile,
+    CsvLoader csvLoader,
+    ILogger<GenerateEmailConversions> logger) : IConsoleCommand
 {
     public string Name => "Generate Email Conversion data";
 
@@ -55,15 +60,14 @@ public partial class GenerateEmailConversions(CommandContext ctx) : IConsoleComm
 
     // --- Entry point ----------------------------------------------------------------------------
 
-    // Null-tolerant: tests construct this command without a context just to inspect RunsPerSite / Generate.
-    private readonly ILogger _logger = ctx?.LoggerFactory.CreateLogger<GenerateEmailConversions>()
-        ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<GenerateEmailConversions>.Instance;
+    private readonly ILogger _logger = logger;
 
     public async Task<(int success, int failure)> Execute()
     {
+        _ = ctx; // local file generator: no site/API context needed.
         using var scope = _logger.BeginCommandScope(Name, CommandLogging.LocalSiteId);
         var commandStart = Stopwatch.GetTimestamp();
-        var configPath = new ConfigFolders(logger: ctx.LoggerFactory.CreateLogger<ConfigFolders>()).PromptForConfig(ConfigKind.EmailConversion);
+        var configPath = configFolders.PromptForConfig(ConfigKind.EmailConversion);
         if (configPath is null)
         {
             Console.WriteLine("[FAIL] No config file provided or it does not exist. Aborting.");
@@ -79,16 +83,15 @@ public partial class GenerateEmailConversions(CommandContext ctx) : IConsoleComm
         var loadStart = Stopwatch.GetTimestamp();
         try
         {
-            config = CommandConfigFile.Load<EmailConversionConfig>(configPath, ctx.LoggerFactory.CreateLogger(typeof(CommandConfigFile)));
+            config = configFile.Load<EmailConversionConfig>(configPath);
             var configDir = Path.GetDirectoryName(Path.GetFullPath(configPath))!;
             var customersFile = CommandConfigFile.ResolvePath(config.CustomersFile, configDir, DataPaths.Combine("identified.csv"));
             var productsFile = CommandConfigFile.ResolvePath(config.ProductsFile, configDir, DataPaths.Combine("products.csv"));
             outputPath = CommandConfigFile.ResolvePath(config.OutputFile, configDir, DataPaths.Combine("EmailConversion.jsonl"));
             customersFileName = Path.GetFileName(customersFile);
             productsFileName = Path.GetFileName(productsFile);
-            var csvLogger = ctx.LoggerFactory.CreateLogger(typeof(CsvLoader));
-            people = CsvLoader.ReadIdentified(customersFile, csvLogger).ToList();
-            products = CsvLoader.ReadProducts(productsFile, csvLogger).ToArray();
+            people = csvLoader.ReadIdentified(customersFile).ToList();
+            products = csvLoader.ReadProducts(productsFile).ToArray();
             Console.WriteLine($"Config        : {configPath}");
             Console.WriteLine($"Customers     : {people.Count} (from {customersFile})");
             Console.WriteLine($"Products      : {products.Length} (from {productsFile})");

@@ -17,7 +17,12 @@ namespace DataMonger.Commands;
 /// (*.synthconfig) rather than CSV exports: record count and every picklist value pool live there, so running this
 /// repeatedly for new test scenarios means editing the config, not this command.
 /// </summary>
-public partial class SynthesizeUserProps(CommandContext ctx) : IConsoleCommand
+public partial class SynthesizeUserProps(
+    CommandContext ctx,
+    ConfigFolders configFolders,
+    SynthConfigLoader synthConfigLoader,
+    ILogger<JsonlSplitWriter> splitWriterLogger,
+    ILogger<SynthesizeUserProps> logger) : IConsoleCommand
 {
     public string Name => "Synthesize User Props (fake data)";
     public bool RunsPerSite => false;
@@ -28,7 +33,7 @@ public partial class SynthesizeUserProps(CommandContext ctx) : IConsoleCommand
     /// <summary>Generation progress is logged at Trace once per this many records.</summary>
     private const int TraceChunkRecords = 100_000;
 
-    private readonly ILogger _logger = ctx.LoggerFactory.CreateLogger<SynthesizeUserProps>();
+    private readonly ILogger _logger = logger;
 
     public Task<(int success, int failure)> Execute()
     {
@@ -44,7 +49,7 @@ public partial class SynthesizeUserProps(CommandContext ctx) : IConsoleCommand
 
         try
         {
-            var configPath = new ConfigFolders(logger: ctx.LoggerFactory.CreateLogger<ConfigFolders>()).PromptForConfig(ConfigKind.Synth);
+            var configPath = configFolders.PromptForConfig(ConfigKind.Synth);
             if (configPath is null)
             {
                 Console.WriteLine("[FAIL] No config file provided or it does not exist. Aborting.");
@@ -55,7 +60,7 @@ public partial class SynthesizeUserProps(CommandContext ctx) : IConsoleCommand
             SynthConfig config;
             try
             {
-                config = SynthConfigLoader.FromFile(configPath, ctx.LoggerFactory.CreateLogger(typeof(SynthConfigLoader)));
+                config = synthConfigLoader.FromFile(configPath);
             }
             catch (SynthConfigException ex)
             {
@@ -146,7 +151,7 @@ public partial class SynthesizeUserProps(CommandContext ctx) : IConsoleCommand
             var traceChunks = _logger.IsEnabled(LogLevel.Trace);
             var chunkStart = generateStart;
             long bytesGenerated = firstRecordBytes.Length;
-            using var split = new JsonlSplitWriter(outputFolder, config.FileBaseName, timestamp, config.SplitEvery, ctx.LoggerFactory.CreateLogger<JsonlSplitWriter>());
+            using var split = new JsonlSplitWriter(outputFolder, config.FileBaseName, timestamp, config.SplitEvery, splitWriterLogger);
             split.WriteLine(firstRecordBytes);
             using (var json = new Utf8JsonWriter(buffer, JsonlRender.Options))
             {

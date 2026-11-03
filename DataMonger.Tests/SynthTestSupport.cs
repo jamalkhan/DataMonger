@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Text.Json;
 using DataMonger.Jsonl;
 using DataMonger.Synth;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DataMonger.Tests;
 
@@ -34,7 +35,7 @@ internal static class SynthTestSupport
 
     public static SynthConfig LoadExample(int? seed = 42)
     {
-        var c = SynthConfigLoader.FromFile(FindExampleConfig());
+        var c = new SynthConfigLoader(NullLogger<SynthConfigLoader>.Instance).FromFile(FindExampleConfig());
         c.Seed = seed;
         return c;
     }

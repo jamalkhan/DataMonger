@@ -12,8 +12,9 @@ public sealed class SynthConfigException(IReadOnlyList<string> errors)
 }
 
 /// <summary>Loads a <see cref="SynthConfig"/> from JSON. Comments and trailing commas are allowed so the
-/// config can be annotated (jsonc-style). Property names are matched case-insensitively.</summary>
-public static partial class SynthConfigLoader
+/// config can be annotated (jsonc-style). Property names are matched case-insensitively. Registered as a singleton
+/// (stateless); <see cref="FromJson"/> is static because it does no I/O and logs nothing.</summary>
+public sealed partial class SynthConfigLoader(ILogger<SynthConfigLoader> logger)
 {
     public static readonly JsonSerializerOptions Options = new()
     {
@@ -44,28 +45,22 @@ public static partial class SynthConfigLoader
         return config;
     }
 
-    /// <summary>Reads, parses and validates a config file. The optional logger (category
+    /// <summary>Reads, parses and validates a config file. The logger (category
     /// <c>DataMonger.Synth.SynthConfigLoader</c>) gets one Debug line with size and load time, or a Warning with the
     /// error count when the config is invalid.</summary>
-    public static SynthConfig FromFile(string path, ILogger? logger = null)
+    public SynthConfig FromFile(string path)
     {
         var start = Stopwatch.GetTimestamp();
         var json = File.ReadAllText(path);
         try
         {
             var config = FromJson(json);
-            if (logger is not null)
-            {
-                Log.Loaded(logger, Path.GetFileName(path), path, json.Length, config.RecordCount, Stopwatch.GetElapsedTime(start).TotalMilliseconds);
-            }
+            Log.Loaded(logger, Path.GetFileName(path), path, json.Length, config.RecordCount, Stopwatch.GetElapsedTime(start).TotalMilliseconds);
             return config;
         }
         catch (SynthConfigException ex)
         {
-            if (logger is not null)
-            {
-                Log.Invalid(logger, Path.GetFileName(path), ex.Errors.Count);
-            }
+            Log.Invalid(logger, Path.GetFileName(path), ex.Errors.Count);
             throw;
         }
     }

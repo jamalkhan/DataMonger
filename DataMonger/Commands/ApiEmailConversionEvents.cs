@@ -9,7 +9,10 @@ using Microsoft.Extensions.Logging;
 
 namespace DataMonger.Commands;
 
-public partial class ApiEmailConversionEvents(CommandContext ctx) : IConsoleCommand
+public partial class ApiEmailConversionEvents(
+    CommandContext ctx,
+    RestClient rest,
+    ILogger<ApiEmailConversionEvents> logger) : IConsoleCommand
 {
     public string Name => "API => Email Conversion Events";
 
@@ -23,7 +26,7 @@ public partial class ApiEmailConversionEvents(CommandContext ctx) : IConsoleComm
     private const int RateLimitRequestsPerMinute = 50_000;
     // --------------------------------------------------------------------------------
 
-    private readonly ILogger _logger = ctx.LoggerFactory.CreateLogger<ApiEmailConversionEvents>();
+    private readonly ILogger _logger = logger;
 
     public async Task<(int success, int failure)> Execute()
     {
@@ -170,7 +173,7 @@ public partial class ApiEmailConversionEvents(CommandContext ctx) : IConsoleComm
                 using var lease = await rateLimiter.AcquireAsync(1, ct);
 
                 var requestStart = stats.Begin();
-                var result = await ctx.Rest.ExecuteRestMethodAsync<string, string>(
+                var result = await rest.ExecuteRestMethodAsync<string, string>(
                     uri: ctx.ActivityUri,
                     verb: HttpVerbs.POST,
                     payload: null!,

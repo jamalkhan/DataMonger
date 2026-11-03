@@ -14,9 +14,10 @@ public sealed class CommandConfigException(IReadOnlyList<string> errors)
 /// <summary>
 /// Shared by <see cref="PurchaseConfig"/> and <see cref="EmailConversionConfig"/>: JSON with comments and trailing commas
 /// allowed, key names matched case-insensitively. Relative file paths resolve against the config file's own folder
-/// (a leading <c>~</c> is expanded); omitted paths fall back to the <c>LocalData</c> defaults.
+/// (a leading <c>~</c> is expanded); omitted paths fall back to the <c>LocalData</c> defaults. Registered as a
+/// singleton; stateless.
 /// </summary>
-public static partial class CommandConfigFile
+public sealed partial class CommandConfigFile(ILogger<CommandConfigFile> logger)
 {
     private static readonly JsonSerializerOptions Options = new()
     {
@@ -26,9 +27,9 @@ public static partial class CommandConfigFile
     };
 
     /// <param name="path">The config file.</param>
-    /// <param name="logger">Optional; logs one Debug line with the file name, size and load time (category
-    /// <c>DataMonger.Common.CommandConfigFile</c>), or a Warning with the error count when validation fails.</param>
-    public static T Load<T>(string path, ILogger? logger = null) where T : class, IValidatableConfig
+    /// <remarks>Logs one Debug line with the file name, size and load time (category
+    /// <c>DataMonger.Common.CommandConfigFile</c>), or a Warning with the error count when validation fails.</remarks>
+    public T Load<T>(string path) where T : class, IValidatableConfig
     {
         var start = Stopwatch.GetTimestamp();
         T config;
@@ -39,22 +40,16 @@ public static partial class CommandConfigFile
         }
         catch (JsonException ex)
         {
-            if (logger is not null)
-            {
-                Log.ConfigInvalid(logger, typeof(T).Name, Path.GetFileName(path), 1);
-            }
+            Log.ConfigInvalid(logger, typeof(T).Name, Path.GetFileName(path), 1);
             throw new CommandConfigException(new[] { $"Could not parse JSON: {ex.Message}" });
         }
         var errors = config.Validate();
         if (errors.Count > 0)
         {
-            if (logger is not null)
-            {
-                Log.ConfigInvalid(logger, typeof(T).Name, Path.GetFileName(path), errors.Count);
-            }
+            Log.ConfigInvalid(logger, typeof(T).Name, Path.GetFileName(path), errors.Count);
             throw new CommandConfigException(errors);
         }
-        if (logger is not null && logger.IsEnabled(LogLevel.Debug))
+        if (logger.IsEnabled(LogLevel.Debug))
         {
             Log.ConfigLoaded(logger, typeof(T).Name, Path.GetFileName(path), path, new FileInfo(path).Length,
                 Stopwatch.GetElapsedTime(start).TotalMilliseconds);

@@ -1,5 +1,6 @@
 using DataMonger.Commands;
 using DataMonger.Common;
+using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json.Linq;
 
 namespace DataMonger.Tests;
@@ -95,7 +96,12 @@ public class EmailConversionGeneratorTests
     [TestMethod]
     public void RunsPerSite_IsFalse()
     {
-        var cmd = new GenerateEmailConversions(null!);
+        var cmd = new GenerateEmailConversions(
+            TestContexts.Site(),
+            new ConfigFolders(logger: NullLogger<ConfigFolders>.Instance),
+            new CommandConfigFile(NullLogger<CommandConfigFile>.Instance),
+            new CsvLoader(NullLogger<CsvLoader>.Instance),
+            NullLogger<GenerateEmailConversions>.Instance);
         Assert.IsFalse(((IConsoleCommand)cmd).RunsPerSite);
     }
 
