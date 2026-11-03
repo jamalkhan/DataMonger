@@ -14,8 +14,6 @@ Output folder : (from config)
 Run timestamp : 20260101_000000
 
 [SAMPLE RUN] customers: first 2 'customers' row(s), scoped by customer_id; children are complete for those parents.
-    sample: 2 primary row(s) from 'customers' -> 2 distinct customer_id value(s); other sources are scoped to those parents.
-    output 'customers': 1 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
 --- customers (Object, HashInMemory) ---
     output folder: samples/09-run-limits/output/run_20260101_000000
 

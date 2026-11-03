@@ -168,8 +168,9 @@ What to do when anonymizing a single cell throws.
 
 **Remarks.**
 
-* `skip`: log `[warn] <file> row N column '<name>': <message> (left unchanged)`, leave that cell as it was in the
-  source, count it in the file's error total, and carry on with the next cell.
+* `skip`: leave that cell as it was in the source, count it in the file's error total, and carry on with the next
+  cell. The console prints one `[warn] <file>: N cell(s) left unchanged after anonymizer errors.` line per file; the
+  first failed cells' row numbers and columns are logged at Debug.
 * `abort`: rethrow. The command prints `[FAIL] <ExceptionType>: <message>` and stops; later files are not
   processed. The file being written is left on disk with only the rows written so far (possibly just the header).
   The failure message does not name the file, row or column.

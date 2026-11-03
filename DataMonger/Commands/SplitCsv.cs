@@ -3,6 +3,8 @@ using System.Globalization;
 using bleak.Data.InfiniteDataLoader;
 using bleak.Data.Transformer;
 using DataMonger.Common;
+using DataMonger.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace DataMonger.Commands;
 
@@ -15,7 +17,7 @@ namespace DataMonger.Commands;
 /// then streams the input via <see cref="CsvSplitter"/> so it scales to multi-GB inputs. The original is
 /// never modified or deleted.
 /// </summary>
-public class SplitCsv(CommandContext ctx) : IConsoleCommand
+public partial class SplitCsv(CommandContext ctx) : IConsoleCommand
 {
     public string Name => "Split CSV into N-row files";
     public bool RunsPerSite => false;
@@ -25,13 +27,17 @@ public class SplitCsv(CommandContext ctx) : IConsoleCommand
     // Site-independent local transform; guard against the per-site run loop re-running it.
     private static bool _completedThisSession;
 
+    private readonly ILogger _logger = ctx.LoggerFactory.CreateLogger<SplitCsv>();
+
     public Task<(int success, int failure)> Execute()
     {
         _ = ctx; // local file transform: no site/API context needed.
+        using var scope = _logger.BeginCommandScope(Name, CommandLogging.LocalSiteId);
 
         if (_completedThisSession)
         {
             Console.WriteLine("[skip] SplitCsv already ran this session (it is site-independent).");
+            Log.SkippedAlreadyRan(_logger);
             return Task.FromResult((0, 0));
         }
 
@@ -41,6 +47,7 @@ public class SplitCsv(CommandContext ctx) : IConsoleCommand
             if (inputPath is null)
             {
                 Console.WriteLine("[FAIL] No source CSV provided or it does not exist. Aborting.");
+                Log.NoInput(_logger);
                 return Task.FromResult((0, 1));
             }
 
@@ -54,9 +61,23 @@ public class SplitCsv(CommandContext ctx) : IConsoleCommand
             Console.WriteLine($"Rows per file : {rowsPerFile:N0}");
             Console.WriteLine();
 
+            var inputBytes = new FileInfo(inputPath).Length;
+            Log.Started(_logger, Path.GetFileName(inputPath), inputBytes, rowsPerFile);
+            Log.Paths(_logger, inputPath, outputFolder);
+
             var overall = Stopwatch.StartNew();
-            var result = CsvSplitter.Split(inputPath, outputFolder, rowsPerFile, log: Console.WriteLine);
+            var result = CsvSplitter.Split(inputPath, outputFolder, rowsPerFile, loggerFactory: ctx.LoggerFactory);
             overall.Stop();
+            // bleak.Data.InfiniteDataLoader 1.x printed these lines through its console callback; 2.x logs them
+            // instead (category bleak.Data.InfiniteDataLoader.CsvSplitter), so rebuild them from the result.
+            if (result.Rows == 0)
+            {
+                Console.WriteLine($"[split] {Path.GetFileName(inputPath)} has no data rows — nothing written.");
+            }
+            foreach (var part in result.Files)
+            {
+                Console.WriteLine($"[split] writing {Path.GetFileName(part)}");
+            }
 
             Console.WriteLine();
             Console.WriteLine("=== Done ===");
@@ -66,6 +87,9 @@ public class SplitCsv(CommandContext ctx) : IConsoleCommand
                 Console.WriteLine($"    {f}");
             }
             Console.WriteLine($"Total elapsed: {overall.Elapsed:hh\\:mm\\:ss\\.fff}");
+            var durationMs = overall.Elapsed.TotalMilliseconds;
+            Log.Completed(_logger, Path.GetFileName(inputPath), result.Rows, result.Files.Count, inputBytes, rowsPerFile, durationMs,
+                CommandLogging.RecordsPerSecond(result.Rows, durationMs));
 
             _completedThisSession = true;
             return Task.FromResult((result.Files.Count, 0));
@@ -74,6 +98,7 @@ public class SplitCsv(CommandContext ctx) : IConsoleCommand
         {
             Console.WriteLine($"[FAIL] {ex.GetType().Name}: {ex.Message}");
             Console.WriteLine(ex.StackTrace);
+            Log.Failed(_logger, ex);
             return Task.FromResult((0, 1));
         }
     }
@@ -199,5 +224,32 @@ public class SplitCsv(CommandContext ctx) : IConsoleCommand
             }
             Console.WriteLine("  [warn] enter a positive whole number.");
         }
+    }
+
+    private static partial class Log
+    {
+        [LoggerMessage(EventId = 1700, EventName = "SplitCsvStarted", Level = LogLevel.Information,
+            Message = "Split CSV started: {FileName} ({ByteCount} bytes), {BatchSize} rows per file")]
+        public static partial void Started(ILogger logger, string fileName, long byteCount, int batchSize);
+
+        [LoggerMessage(EventId = 1701, EventName = "SplitCsvPaths", Level = LogLevel.Debug,
+            Message = "Split CSV input {FilePath}, output folder {OutputFolder}")]
+        public static partial void Paths(ILogger logger, string filePath, string outputFolder);
+
+        [LoggerMessage(EventId = 1702, EventName = "SplitCsvCompleted", Level = LogLevel.Information,
+            Message = "Split CSV completed: {FileName}, {RowCount} rows into {FileCount} file(s) ({ByteCount} input bytes, {BatchSize} rows per file) in {DurationMs} ms ({RecordsPerSecond} rows/s)")]
+        public static partial void Completed(ILogger logger, string fileName, long rowCount, int fileCount, long byteCount, int batchSize, double durationMs, double recordsPerSecond);
+
+        [LoggerMessage(EventId = 1703, EventName = "SplitCsvNoInput", Level = LogLevel.Warning,
+            Message = "No source CSV selected; aborting")]
+        public static partial void NoInput(ILogger logger);
+
+        [LoggerMessage(EventId = 1704, EventName = "SplitCsvFailed", Level = LogLevel.Error,
+            Message = "Split CSV failed")]
+        public static partial void Failed(ILogger logger, Exception exception);
+
+        [LoggerMessage(EventId = 1705, EventName = "SplitCsvSkippedAlreadyRan", Level = LogLevel.Information,
+            Message = "Skipped: already ran once this session")]
+        public static partial void SkippedAlreadyRan(ILogger logger);
     }
 }

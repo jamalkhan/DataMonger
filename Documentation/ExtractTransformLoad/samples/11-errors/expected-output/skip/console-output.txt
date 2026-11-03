@@ -13,7 +13,6 @@ Max records   : (no cap)
 Output folder : (from config)
 Run timestamp : 20260101_000000
 
-    output 'orders': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
 --- orders (Object, HashInMemory) ---
     output folder: samples/11-errors/output/run_20260101_000000
     3 record(s) skipped -> samples/11-errors/output/run_20260101_000000/orders_20260101_000000_rejects.csv

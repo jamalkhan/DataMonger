@@ -13,22 +13,16 @@ Max records   : (no cap)
 Output folder : (from config)
 Run timestamp : 20260101_000000
 
-    output 'pipe': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
 --- pipe (Object, HashInMemory) ---
     output folder: samples/12-delimited-sources/output/run_20260101_000000
-    output 'tsv': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
 --- tsv (Object, HashInMemory) ---
     output folder: samples/12-delimited-sources/output/run_20260101_000000
-    output 'semicolon': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
 --- semicolon (Object, HashInMemory) ---
     output folder: samples/12-delimited-sources/output/run_20260101_000000
-    output 'tilde': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
 --- tilde (Object, HashInMemory) ---
     output folder: samples/12-delimited-sources/output/run_20260101_000000
-    output 'bom_crlf': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
 --- bom_crlf (Object, HashInMemory) ---
     output folder: samples/12-delimited-sources/output/run_20260101_000000
-    output 'gz': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
 --- gz (Object, HashInMemory) ---
     output folder: samples/12-delimited-sources/output/run_20260101_000000
 

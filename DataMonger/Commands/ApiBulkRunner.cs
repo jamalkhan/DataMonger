@@ -1,14 +1,17 @@
 using bleak.Api.Rest;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Diagnostics;
 using DataMonger.Common;
+using DataMonger.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace DataMonger.Commands;
 
 // Stress-test runner. Reads massive_apis.jsonl where each line fully describes ONE API call
 // (url + verb + payload) and fires them all at once. No inter-request delay and no rate limiter:
 // the point is to hammer the target as hard as the local machine allows.
-public class ApiBulkRunner(CommandContext ctx) : IConsoleCommand
+public partial class ApiBulkRunner(CommandContext ctx) : IConsoleCommand
 {
     public string Name => "API => Bulk Runner (stress test)";
 
@@ -20,16 +23,34 @@ public class ApiBulkRunner(CommandContext ctx) : IConsoleCommand
 
     private sealed record Call(Uri Uri, HttpVerbs Verb, string Payload, string Label);
 
+    private const int MaxExampleLineNumbers = 10;
+
+    private readonly ILogger _logger = ctx.LoggerFactory.CreateLogger<ApiBulkRunner>();
+
     public async Task<(int success, int failure)> Execute()
     {
+        using var scope = _logger.BeginCommandScope(Name, ctx.SiteId);
+        var commandStart = Stopwatch.GetTimestamp();
         var inputPath = DataPaths.Combine("massive_apis.jsonl");
         if (!File.Exists(inputPath))
         {
             Console.WriteLine($"[FAIL] {inputPath} not found.");
+            Log.InputMissing(_logger, Path.GetFileName(inputPath), inputPath);
             return (0, 1);
         }
 
         var calls = new List<Call>();
+        var parseStart = Stopwatch.GetTimestamp();
+        var lineCount = 0;
+        int missingUrl = 0, unknownVerb = 0, malformed = 0;
+        var skippedLines = new List<int>(MaxExampleLineNumbers);
+        void NoteSkipped(int n)
+        {
+            if (skippedLines.Count < MaxExampleLineNumbers)
+            {
+                skippedLines.Add(n);
+            }
+        }
         using (var reader = new StreamReader(inputPath))
         {
             string? line;
@@ -37,6 +58,7 @@ public class ApiBulkRunner(CommandContext ctx) : IConsoleCommand
             while ((line = await reader.ReadLineAsync()) != null)
             {
                 lineNum++;
+                lineCount = lineNum;
                 if (string.IsNullOrWhiteSpace(line))
                 {
                     continue;
@@ -49,6 +71,8 @@ public class ApiBulkRunner(CommandContext ctx) : IConsoleCommand
                     if (string.IsNullOrWhiteSpace(rawUrl))
                     {
                         Console.WriteLine($"[WARN] Skipping line {lineNum}: missing 'url'.");
+                        missingUrl++;
+                        NoteSkipped(lineNum);
                         continue;
                     }
 
@@ -56,6 +80,8 @@ public class ApiBulkRunner(CommandContext ctx) : IConsoleCommand
                     if (!Enum.TryParse<HttpVerbs>(verbStr, ignoreCase: true, out var verb))
                     {
                         Console.WriteLine($"[WARN] Skipping line {lineNum}: unknown verb '{verbStr}'.");
+                        unknownVerb++;
+                        NoteSkipped(lineNum);
                         continue;
                     }
 
@@ -72,13 +98,28 @@ public class ApiBulkRunner(CommandContext ctx) : IConsoleCommand
                 catch (JsonException ex)
                 {
                     Console.WriteLine($"[WARN] Skipping malformed line {lineNum}: {ex.Message}");
+                    malformed++;
+                    NoteSkipped(lineNum);
                 }
+            }
+        }
+
+        var skippedTotal = missingUrl + unknownVerb + malformed;
+        Log.ParseFinished(_logger, Path.GetFileName(inputPath), lineCount, calls.Count, skippedTotal, new FileInfo(inputPath).Length,
+            Stopwatch.GetElapsedTime(parseStart).TotalMilliseconds);
+        if (skippedTotal > 0)
+        {
+            Log.LinesSkipped(_logger, Path.GetFileName(inputPath), skippedTotal, malformed, missingUrl, unknownVerb);
+            if (_logger.IsEnabled(LogLevel.Debug))
+            {
+                Log.SkippedLineExamples(_logger, Path.GetFileName(inputPath), string.Join(",", skippedLines));
             }
         }
 
         if (calls.Count == 0)
         {
             Console.WriteLine("[FAIL] No valid API calls parsed from massive_apis.jsonl.");
+            Log.NoValidCalls(_logger, Path.GetFileName(inputPath));
             return (0, 1);
         }
 
@@ -87,7 +128,10 @@ public class ApiBulkRunner(CommandContext ctx) : IConsoleCommand
         Console.WriteLine($"Firing with MaxDegreeOfParallelism = {BulkParallelism}. No delay, no rate limit.");
         Console.WriteLine($"Progress refreshes every ~3 seconds. Failures will scroll past the progress line.");
         Console.WriteLine();
+        Log.Started(_logger, Path.GetFileName(inputPath), total, skippedTotal, BulkParallelism);
 
+        var stats = new HttpFanOutStats(BulkParallelism);
+        var fanOutStart = Stopwatch.GetTimestamp();
         var ok = 0;
         var failed = 0;
         var completed = 0;
@@ -119,6 +163,7 @@ public class ApiBulkRunner(CommandContext ctx) : IConsoleCommand
             {
                 Console.Write("\r" + lineText.PadRight(110));
             }
+            Log.Progress(_logger, done, total, ok, failed, elapsed.TotalMilliseconds);
         }
 
         void WriteFailure(string label, Uri uri, int status, string statusText, string detail)
@@ -138,6 +183,7 @@ public class ApiBulkRunner(CommandContext ctx) : IConsoleCommand
             new ParallelOptions { MaxDegreeOfParallelism = BulkParallelism },
             async (call, ct) =>
         {
+            var requestStart = stats.Begin();
             var result = await ctx.Rest.ExecuteRestMethodAsync<string, string>(
                 uri: call.Uri,
                 verb: call.Verb,
@@ -152,6 +198,7 @@ public class ApiBulkRunner(CommandContext ctx) : IConsoleCommand
                 cancellationToken: ct);
 
             var status = (int)result.Status;
+            stats.End(requestStart, status);
             if (status is >= 200 and < 300)
             {
                 Interlocked.Increment(ref ok);
@@ -172,6 +219,10 @@ public class ApiBulkRunner(CommandContext ctx) : IConsoleCommand
         WriteProgress();
         Console.WriteLine();
 
+        stats.LogSummary(_logger, Path.GetFileName(inputPath), Stopwatch.GetElapsedTime(fanOutStart).TotalMilliseconds);
+        var durationMs = Stopwatch.GetElapsedTime(commandStart).TotalMilliseconds;
+        Log.Completed(_logger, Path.GetFileName(inputPath), total, ok, failed, durationMs, CommandLogging.RecordsPerSecond(total, durationMs));
+
         return (ok, failed);
     }
 
@@ -187,5 +238,40 @@ public class ApiBulkRunner(CommandContext ctx) : IConsoleCommand
         }
         var baseUrl = ctx.BaseUrl.TrimEnd('/');
         return new Uri($"{baseUrl}/{url.TrimStart('/')}");
+    }
+
+    private static partial class Log
+    {
+        [LoggerMessage(EventId = 1100, EventName = "BulkRunnerStarted", Level = LogLevel.Information,
+            Message = "API bulk runner started: {FileName}, {RecordCount} call(s) ({SkippedCount} line(s) skipped), max parallelism {MaxParallelism}")]
+        public static partial void Started(ILogger logger, string fileName, int recordCount, int skippedCount, int maxParallelism);
+
+        [LoggerMessage(EventId = 1101, EventName = "BulkRunnerCompleted", Level = LogLevel.Information,
+            Message = "API bulk runner completed: {FileName}, {RecordCount} call(s), {SuccessCount} succeeded, {ErrorCount} failed in {DurationMs} ms ({RecordsPerSecond} calls/s)")]
+        public static partial void Completed(ILogger logger, string fileName, int recordCount, int successCount, int errorCount, double durationMs, double recordsPerSecond);
+
+        [LoggerMessage(EventId = 1102, EventName = "BulkRunnerParseFinished", Level = LogLevel.Debug,
+            Message = "Parse phase finished: {FileName}, {RowCount} line(s), {RecordCount} valid call(s), {SkippedCount} skipped, {ByteCount} bytes in {DurationMs} ms")]
+        public static partial void ParseFinished(ILogger logger, string fileName, int rowCount, int recordCount, int skippedCount, long byteCount, double durationMs);
+
+        [LoggerMessage(EventId = 1103, EventName = "BulkRunnerLinesSkipped", Level = LogLevel.Warning,
+            Message = "{FileName}: {SkippedCount} line(s) skipped ({MalformedCount} malformed JSON, {MissingUrlCount} missing url, {UnknownVerbCount} unknown verb)")]
+        public static partial void LinesSkipped(ILogger logger, string fileName, int skippedCount, int malformedCount, int missingUrlCount, int unknownVerbCount);
+
+        [LoggerMessage(EventId = 1104, EventName = "BulkRunnerSkippedLineExamples", Level = LogLevel.Debug,
+            Message = "{FileName}: first skipped line numbers [{LineNumbers}]")]
+        public static partial void SkippedLineExamples(ILogger logger, string fileName, string lineNumbers);
+
+        [LoggerMessage(EventId = 1105, EventName = "BulkRunnerInputMissing", Level = LogLevel.Warning,
+            Message = "Input {FileName} not found ({FilePath}); aborting")]
+        public static partial void InputMissing(ILogger logger, string fileName, string filePath);
+
+        [LoggerMessage(EventId = 1106, EventName = "BulkRunnerNoValidCalls", Level = LogLevel.Warning,
+            Message = "No valid API calls parsed from {FileName}; aborting")]
+        public static partial void NoValidCalls(ILogger logger, string fileName);
+
+        [LoggerMessage(EventId = 1107, EventName = "BulkRunnerProgress", Level = LogLevel.Trace,
+            Message = "Progress: {CompletedCount}/{RecordCount} done, {SuccessCount} ok, {ErrorCount} failed after {DurationMs} ms")]
+        public static partial void Progress(ILogger logger, int completedCount, int recordCount, int successCount, int errorCount, double durationMs);
     }
 }

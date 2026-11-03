@@ -2,11 +2,14 @@ using System.Threading.RateLimiting;
 using bleak.Api.Rest;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Diagnostics;
 using DataMonger.Common;
+using DataMonger.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace DataMonger.Commands;
 
-public class ApiEmailConversionEvents(CommandContext ctx) : IConsoleCommand
+public partial class ApiEmailConversionEvents(CommandContext ctx) : IConsoleCommand
 {
     public string Name => "API => Email Conversion Events";
 
@@ -20,12 +23,17 @@ public class ApiEmailConversionEvents(CommandContext ctx) : IConsoleCommand
     private const int RateLimitRequestsPerMinute = 50_000;
     // --------------------------------------------------------------------------------
 
+    private readonly ILogger _logger = ctx.LoggerFactory.CreateLogger<ApiEmailConversionEvents>();
+
     public async Task<(int success, int failure)> Execute()
     {
+        using var scope = _logger.BeginCommandScope(Name, ctx.SiteId);
         var inputPath = DataPaths.Combine("EmailConversion.jsonl");
+        var fileName = Path.GetFileName(inputPath);
         if (!File.Exists(inputPath))
         {
             Console.WriteLine($"[FAIL] {inputPath} not found. Run 'Generate Email Conversion data' first.");
+            Log.InputMissing(_logger, fileName, inputPath);
             return (0, 1);
         }
 
@@ -33,6 +41,9 @@ public class ApiEmailConversionEvents(CommandContext ctx) : IConsoleCommand
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
         var rows = new List<(string Email, JArray Events)>();
+        var parseStart = Stopwatch.GetTimestamp();
+        var lineCount = 0;
+        var malformed = 0;
         using (var reader = new StreamReader(inputPath))
         {
             string? line;
@@ -40,6 +51,7 @@ public class ApiEmailConversionEvents(CommandContext ctx) : IConsoleCommand
             while ((line = await reader.ReadLineAsync()) != null)
             {
                 lineNum++;
+                lineCount = lineNum;
                 if (string.IsNullOrWhiteSpace(line))
                 {
                     continue;
@@ -54,18 +66,29 @@ public class ApiEmailConversionEvents(CommandContext ctx) : IConsoleCommand
                 catch (JsonException ex)
                 {
                     Console.WriteLine($"[WARN] Skipping malformed line {lineNum}: {ex.Message}");
+                    malformed++;
                 }
             }
         }
 
         var totalEvents = rows.Sum(r => r.Events.Count);
+        Log.ParseFinished(_logger, fileName, lineCount, rows.Count, totalEvents, malformed, new FileInfo(inputPath).Length,
+            Stopwatch.GetElapsedTime(parseStart).TotalMilliseconds);
+        if (malformed > 0)
+        {
+            Log.LinesSkipped(_logger, fileName, malformed);
+        }
         Console.WriteLine($"Loaded {rows.Count} rows ({totalEvents} events) from {inputPath}");
         Console.WriteLine(maxEventDelay > MinEventDelay
             ? $"Posting with random 0-{maxEventDelay.TotalSeconds:0.###}s delays between events to simulate user behavior."
             : "Posting with no delay between events.");
         Console.WriteLine($"Progress refreshes every ~3 seconds. Failures will scroll past the progress line.");
         Console.WriteLine();
+        Log.Started(_logger, fileName, rows.Count, totalEvents, ctx.MaxParallelism, maxEventDelay.TotalMilliseconds, RateLimitRequestsPerMinute,
+            CommandLogging.UrlPath(ctx.ActivityUri));
 
+        var stats = new HttpFanOutStats(ctx.MaxParallelism);
+        var fanOutStart = Stopwatch.GetTimestamp();
         var eventsOk = 0;
         var eventsFailed = 0;
         var completed = 0;
@@ -97,6 +120,7 @@ public class ApiEmailConversionEvents(CommandContext ctx) : IConsoleCommand
             {
                 Console.Write("\r" + lineText.PadRight(100));
             }
+            Log.Progress(_logger, done, totalEvents, eventsOk, eventsFailed, elapsed.TotalMilliseconds);
         }
 
         void WriteFailure(string email, string eventName, int status, string statusText, string detail)
@@ -145,6 +169,7 @@ public class ApiEmailConversionEvents(CommandContext ctx) : IConsoleCommand
 
                 using var lease = await rateLimiter.AcquireAsync(1, ct);
 
+                var requestStart = stats.Begin();
                 var result = await ctx.Rest.ExecuteRestMethodAsync<string, string>(
                     uri: ctx.ActivityUri,
                     verb: HttpVerbs.POST,
@@ -159,6 +184,7 @@ public class ApiEmailConversionEvents(CommandContext ctx) : IConsoleCommand
                     cancellationToken: ct);
 
                 var status = (int)result.Status;
+                stats.End(requestStart, status);
                 if (status is >= 200 and < 300)
                 {
                     Interlocked.Increment(ref eventsOk);
@@ -183,6 +209,10 @@ public class ApiEmailConversionEvents(CommandContext ctx) : IConsoleCommand
         stopwatch.Stop();
         Console.WriteLine();
         Console.WriteLine($"=== {Name} summary ===  Success: {eventsOk}   Failed: {eventsFailed}   Elapsed: {stopwatch.Elapsed:hh\\:mm\\:ss\\.fff}");
+        stats.LogSummary(_logger, fileName, Stopwatch.GetElapsedTime(fanOutStart).TotalMilliseconds);
+        var durationMs = stopwatch.Elapsed.TotalMilliseconds;
+        Log.Completed(_logger, fileName, rows.Count, totalEvents, eventsOk, eventsFailed, durationMs,
+            CommandLogging.RecordsPerSecond(totalEvents, durationMs));
 
         return (eventsOk, eventsFailed);
     }
@@ -227,4 +257,31 @@ public class ApiEmailConversionEvents(CommandContext ctx) : IConsoleCommand
 
     internal static string ExtractEventName(JToken evt) =>
         evt["event_type"]?.Type == JTokenType.String ? evt["event_type"]!.Value<string>()! : "(unknown event)";
+
+    private static partial class Log
+    {
+        [LoggerMessage(EventId = 1200, EventName = "EmailEventsStarted", Level = LogLevel.Information,
+            Message = "Email conversion events upload started: {FileName}, {RowCount} row(s), {RecordCount} event(s), max parallelism {MaxParallelism}, max delay {MaxEventDelayMs} ms, rate limit {RateLimitPerMinute}/min, POST {UrlPath}")]
+        public static partial void Started(ILogger logger, string fileName, int rowCount, int recordCount, int maxParallelism, double maxEventDelayMs, int rateLimitPerMinute, string urlPath);
+
+        [LoggerMessage(EventId = 1201, EventName = "EmailEventsCompleted", Level = LogLevel.Information,
+            Message = "Email conversion events upload completed: {FileName}, {RowCount} row(s), {RecordCount} event(s), {SuccessCount} succeeded, {ErrorCount} failed in {DurationMs} ms ({RecordsPerSecond} events/s)")]
+        public static partial void Completed(ILogger logger, string fileName, int rowCount, int recordCount, int successCount, int errorCount, double durationMs, double recordsPerSecond);
+
+        [LoggerMessage(EventId = 1202, EventName = "EmailEventsParseFinished", Level = LogLevel.Debug,
+            Message = "Parse phase finished: {FileName}, {LineCount} line(s), {RowCount} row(s), {RecordCount} event(s), {SkippedCount} malformed, {ByteCount} bytes in {DurationMs} ms")]
+        public static partial void ParseFinished(ILogger logger, string fileName, int lineCount, int rowCount, int recordCount, int skippedCount, long byteCount, double durationMs);
+
+        [LoggerMessage(EventId = 1203, EventName = "EmailEventsLinesSkipped", Level = LogLevel.Warning,
+            Message = "{FileName}: {SkippedCount} malformed line(s) skipped")]
+        public static partial void LinesSkipped(ILogger logger, string fileName, int skippedCount);
+
+        [LoggerMessage(EventId = 1204, EventName = "EmailEventsInputMissing", Level = LogLevel.Warning,
+            Message = "Input {FileName} not found ({FilePath}); aborting")]
+        public static partial void InputMissing(ILogger logger, string fileName, string filePath);
+
+        [LoggerMessage(EventId = 1205, EventName = "EmailEventsProgress", Level = LogLevel.Trace,
+            Message = "Progress: {CompletedCount}/{RecordCount} events done, {SuccessCount} ok, {ErrorCount} failed after {DurationMs} ms")]
+        public static partial void Progress(ILogger logger, int completedCount, int recordCount, int successCount, int errorCount, double durationMs);
+    }
 }

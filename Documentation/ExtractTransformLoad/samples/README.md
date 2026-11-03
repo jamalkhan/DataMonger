@@ -178,9 +178,9 @@ single un-prefixed `order_ids` array.
 
 `external-merge.etlconfig` over `customers_shuffled.csv` (rows deliberately out of order).
 
-Look for: records sorted by `customer_id` although the file is not; the console lines `orders: sorted 8 records into
-1 run(s)` and `externalMerge: levels below 'orders' are nested using in-memory indexes.`; the composite-key join in
-`email_with_prefs`.
+Look for: records sorted by `customer_id` although the file is not; the composite-key join in `email_with_prefs`.
+With `Logging:LogLevel:bleak` at `Debug`, the run's log file shows the external sorts (category
+`bleak.Data.InfiniteDataLoader.ExternalSorter`) and the `join` phase lines of `ExternalMergeJoinStrategy`.
 
 ## 08-load-sampling
 
@@ -234,8 +234,8 @@ delimiter and a line break inside quoted cells; tab-separated with doubled quote
 `joins-advanced.etlconfig`: three outputs sharing sources.
 
 Look for: customer 1001 matching `email_match_ignoring_case` but not `email_match_exact`; `known_addresses` listing
-each address once although it exists in two files; the second output's console line
-`lookup reused from an earlier output in this run`.
+each address once although it exists in two files; with Debug logging on, the second output's lookup-reuse line
+in the run's log file (category `bleak.Data.Transformer.Engine.EtlEngine`).
 
 ## 14-load-folders
 

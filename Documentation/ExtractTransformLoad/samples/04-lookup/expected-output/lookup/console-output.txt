@@ -13,10 +13,7 @@ Max records   : (no cap)
 Output folder : (from config)
 Run timestamp : 20260101_000000
 
-    output 'customer_lookups': 10 lookup(s) (1 exists-mode), 0 keyed relation group(s) compiled.
 --- customer_lookups (Object, HashInMemory) ---
-    lookup reused from an earlier output in this run (identical source/join/projection) — skipped re-scanning it.
-    lookup reused from an earlier output in this run (identical source/join/projection) — skipped re-scanning it.
     output folder: samples/04-lookup/output/run_20260101_000000
 
 === Done ===

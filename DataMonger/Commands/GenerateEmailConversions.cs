@@ -1,6 +1,9 @@
+using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 using DataMonger.Common;
+using DataMonger.Logging;
+using Microsoft.Extensions.Logging;
 using bleak.Data.InfiniteDataLoader;
 using Newtonsoft.Json.Linq;
 
@@ -11,7 +14,7 @@ namespace DataMonger.Commands;
 /// holding a short, time-ordered sequence of email_sent / email_delivered / email_opened / email_clicked /
 /// email_bounced / purchase events). Output is consumed by <see cref="ApiEmailConversionEvents"/>.
 /// </summary>
-public class GenerateEmailConversions(CommandContext ctx) : IConsoleCommand
+public partial class GenerateEmailConversions(CommandContext ctx) : IConsoleCommand
 {
     public string Name => "Generate Email Conversion data";
 
@@ -52,27 +55,40 @@ public class GenerateEmailConversions(CommandContext ctx) : IConsoleCommand
 
     // --- Entry point ----------------------------------------------------------------------------
 
+    // Null-tolerant: tests construct this command without a context just to inspect RunsPerSite / Generate.
+    private readonly ILogger _logger = ctx?.LoggerFactory.CreateLogger<GenerateEmailConversions>()
+        ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<GenerateEmailConversions>.Instance;
+
     public async Task<(int success, int failure)> Execute()
     {
-        var configPath = new ConfigFolders().PromptForConfig(ConfigKind.EmailConversion);
+        using var scope = _logger.BeginCommandScope(Name, CommandLogging.LocalSiteId);
+        var commandStart = Stopwatch.GetTimestamp();
+        var configPath = new ConfigFolders(logger: ctx.LoggerFactory.CreateLogger<ConfigFolders>()).PromptForConfig(ConfigKind.EmailConversion);
         if (configPath is null)
         {
             Console.WriteLine("[FAIL] No config file provided or it does not exist. Aborting.");
+            Log.NoConfig(_logger);
             return (0, 1);
         }
         EmailConversionConfig config;
         List<IdentifiedPerson> people;
         Product[] products;
         string outputPath;
+        string customersFileName;
+        string productsFileName;
+        var loadStart = Stopwatch.GetTimestamp();
         try
         {
-            config = CommandConfigFile.Load<EmailConversionConfig>(configPath);
+            config = CommandConfigFile.Load<EmailConversionConfig>(configPath, ctx.LoggerFactory.CreateLogger(typeof(CommandConfigFile)));
             var configDir = Path.GetDirectoryName(Path.GetFullPath(configPath))!;
             var customersFile = CommandConfigFile.ResolvePath(config.CustomersFile, configDir, DataPaths.Combine("identified.csv"));
             var productsFile = CommandConfigFile.ResolvePath(config.ProductsFile, configDir, DataPaths.Combine("products.csv"));
             outputPath = CommandConfigFile.ResolvePath(config.OutputFile, configDir, DataPaths.Combine("EmailConversion.jsonl"));
-            people = CsvLoader.ReadIdentified(customersFile).ToList();
-            products = CsvLoader.ReadProducts(productsFile).ToArray();
+            customersFileName = Path.GetFileName(customersFile);
+            productsFileName = Path.GetFileName(productsFile);
+            var csvLogger = ctx.LoggerFactory.CreateLogger(typeof(CsvLoader));
+            people = CsvLoader.ReadIdentified(customersFile, csvLogger).ToList();
+            products = CsvLoader.ReadProducts(productsFile, csvLogger).ToArray();
             Console.WriteLine($"Config        : {configPath}");
             Console.WriteLine($"Customers     : {people.Count} (from {customersFile})");
             Console.WriteLine($"Products      : {products.Length} (from {productsFile})");
@@ -80,11 +96,15 @@ public class GenerateEmailConversions(CommandContext ctx) : IConsoleCommand
         catch (Exception ex) when (ex is CommandConfigException or IOException or InvalidDataException or UnauthorizedAccessException)
         {
             Console.WriteLine($"[FAIL] {ex.Message}");
+            // The message can quote a CSV cell, so only the exception type goes to the log.
+            Log.InputsInvalid(_logger, Path.GetFileName(configPath), ex.GetType().Name);
             return (0, 1);
         }
+        Log.InputsLoaded(_logger, Path.GetFileName(configPath), people.Count, products.Length, Stopwatch.GetElapsedTime(loadStart).TotalMilliseconds);
         if (products.Length == 0)
         {
             Console.WriteLine("[FAIL] The products file has no rows: cannot pick featured products.");
+            Log.NoProducts(_logger, productsFileName);
             return (0, 1);
         }
 
@@ -96,9 +116,14 @@ public class GenerateEmailConversions(CommandContext ctx) : IConsoleCommand
             : "No seed: output differs on every run (events are anchored at the current time).");
 
         Directory.CreateDirectory(Path.GetDirectoryName(outputPath)!);
+        Log.Started(_logger, Path.GetFileName(configPath), customersFileName, people.Count, productsFileName, products.Length,
+            seed.HasValue, Path.GetFileName(outputPath));
 
+        var generateStart = Stopwatch.GetTimestamp();
         var rows = Generate(people, products, rnd, anchor);
+        Log.PhaseFinished(_logger, "generate", rows.Count, Stopwatch.GetElapsedTime(generateStart).TotalMilliseconds);
 
+        var writeStart = Stopwatch.GetTimestamp();
         await using (var writer = new StreamWriter(outputPath, append: false, new UTF8Encoding(false)) { NewLine = "\n" })
         {
             foreach (var row in rows)
@@ -106,9 +131,13 @@ public class GenerateEmailConversions(CommandContext ctx) : IConsoleCommand
                 await writer.WriteLineAsync(row.ToString(Newtonsoft.Json.Formatting.None));
             }
         }
+        Log.WriteFinished(_logger, Path.GetFileName(outputPath), outputPath, rows.Count, new FileInfo(outputPath).Length,
+            Stopwatch.GetElapsedTime(writeStart).TotalMilliseconds);
 
         var totalEvents = rows.Sum(r => ((JArray)r["events"]!).Count);
         Console.WriteLine($"Wrote {rows.Count} rows ({totalEvents} events total) to {outputPath}");
+        var durationMs = Stopwatch.GetElapsedTime(commandStart).TotalMilliseconds;
+        Log.Completed(_logger, Path.GetFileName(outputPath), rows.Count, totalEvents, durationMs, CommandLogging.RecordsPerSecond(rows.Count, durationMs));
         return (rows.Count, 0);
     }
 
@@ -343,5 +372,40 @@ public class GenerateEmailConversions(CommandContext ctx) : IConsoleCommand
             sb.Append(chars[rnd.Next(16)]);
         }
         return sb.ToString();
+    }
+
+    private static partial class Log
+    {
+        [LoggerMessage(EventId = 1400, EventName = "EmailConversionsStarted", Level = LogLevel.Information,
+            Message = "Generate email conversions started: config {JobName}, customers {FileName} ({CustomerCount}), products {ProductsFileName} ({ProductCount}), seeded {Seeded}, output {OutputName}")]
+        public static partial void Started(ILogger logger, string jobName, string fileName, int customerCount, string productsFileName, int productCount, bool seeded, string outputName);
+
+        [LoggerMessage(EventId = 1401, EventName = "EmailConversionsCompleted", Level = LogLevel.Information,
+            Message = "Generate email conversions completed: {OutputName}, {RowCount} row(s), {RecordCount} event(s) in {DurationMs} ms ({RecordsPerSecond} rows/s)")]
+        public static partial void Completed(ILogger logger, string outputName, int rowCount, int recordCount, double durationMs, double recordsPerSecond);
+
+        [LoggerMessage(EventId = 1402, EventName = "EmailConversionsInputsLoaded", Level = LogLevel.Debug,
+            Message = "Load phase finished: config {JobName}, {CustomerCount} customer(s), {ProductCount} product(s) in {DurationMs} ms")]
+        public static partial void InputsLoaded(ILogger logger, string jobName, int customerCount, int productCount, double durationMs);
+
+        [LoggerMessage(EventId = 1403, EventName = "EmailConversionsPhaseFinished", Level = LogLevel.Debug,
+            Message = "Phase {Phase} finished: {RowCount} row(s) in {DurationMs} ms")]
+        public static partial void PhaseFinished(ILogger logger, string phase, int rowCount, double durationMs);
+
+        [LoggerMessage(EventId = 1404, EventName = "EmailConversionsWriteFinished", Level = LogLevel.Debug,
+            Message = "Write phase finished: {OutputName}, {RowCount} row(s), {ByteCount} bytes in {DurationMs} ms ({FilePath})")]
+        public static partial void WriteFinished(ILogger logger, string outputName, string filePath, int rowCount, long byteCount, double durationMs);
+
+        [LoggerMessage(EventId = 1405, EventName = "EmailConversionsInputsInvalid", Level = LogLevel.Error,
+            Message = "Config {JobName} or its input files could not be loaded ({ExceptionType}); aborting")]
+        public static partial void InputsInvalid(ILogger logger, string jobName, string exceptionType);
+
+        [LoggerMessage(EventId = 1406, EventName = "EmailConversionsNoConfig", Level = LogLevel.Warning,
+            Message = "No config selected; aborting")]
+        public static partial void NoConfig(ILogger logger);
+
+        [LoggerMessage(EventId = 1407, EventName = "EmailConversionsNoProducts", Level = LogLevel.Warning,
+            Message = "Products file {FileName} has no rows; aborting")]
+        public static partial void NoProducts(ILogger logger, string fileName);
     }
 }

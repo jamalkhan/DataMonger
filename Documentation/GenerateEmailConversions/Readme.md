@@ -63,7 +63,7 @@ Wrote 10 rows (33 events total) to <path>/LocalData/EmailConversion.jsonl
 ```
 
 Unseeded runs print `No seed: output differs on every run (events are anchored at the current time).` instead. The
-return value is (rows written, 0). Nothing is written to `app.log`.
+return value is (rows written, 0). The run's log file (`LocalData/logs/datamonger_<timestamp>.jsonl`) gets this command's start, phase and completion lines (counts and timings only).
 
 ## Seed and determinism
 

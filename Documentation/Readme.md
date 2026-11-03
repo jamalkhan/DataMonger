@@ -76,6 +76,6 @@ and point a site at it.
 - Commands that call an API run **once per configured site**, in the order the sites appear in
   `appsettings.json`.
 - Every command returns a `(success, failure)` count that it prints in its summary.
-- Diagnostics go to `LocalData/logs/app.log`.
+- Diagnostics go to one JSON-lines log file per run, `LocalData/logs/datamonger_<timestamp>.jsonl` (see [Configuration](Configuration.md#logging)).
 
 See [Architecture](Architecture.md) for the details.

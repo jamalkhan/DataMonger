@@ -13,11 +13,9 @@ Max records   : (no cap)
 Output folder : (from config)
 Run timestamp : 20260101_000000
 
-    output 'email_map': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
 --- email_map (KeyedMap, HashInMemory) ---
     output folder: samples/03-keyed-map/output/run_20260101_000000
     2 record(s) filtered out -> samples/03-keyed-map/output/run_20260101_000000/email_map_20260101_000000_filtered.csv
-    output 'email_map_dedup': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
 --- email_map_dedup (KeyedMap, HashInMemory) ---
     output folder: samples/03-keyed-map/output/run_20260101_000000
 

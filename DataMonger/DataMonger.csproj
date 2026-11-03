@@ -76,18 +76,19 @@
   </Target>
 
   <ItemGroup>
-    <PackageReference Include="bleak.Api.Rest" Version="2.3.22" />
+    <PackageReference Include="bleak.Api.Rest" Version="2.5.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.8" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.8" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Configuration" Version="10.0.8" />
     <PackageReference Include="System.Threading.RateLimiting" Version="10.0.8" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\DataMonger.Common\DataMonger.Common.csproj" />
-    <PackageReference Include="bleak.Data.InfiniteDataLoader" Version="1.0.0" />
-    <PackageReference Include="bleak.Data.Transformer" Version="1.0.0" />
-    <PackageReference Include="bleak.Data.Anonymizer" Version="1.0.0" />
+    <PackageReference Include="bleak.Data.InfiniteDataLoader" Version="2.0.0" />
+    <PackageReference Include="bleak.Data.Transformer" Version="2.0.0" />
+    <PackageReference Include="bleak.Data.Anonymizer" Version="2.0.0" />
   </ItemGroup>
 
 </Project>

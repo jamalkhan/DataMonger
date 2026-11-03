@@ -109,7 +109,7 @@ is unseeded, so runs differ.
 ## Outputs
 
 No files other than the log. Diagnostics from the REST client (one `Executing REST method: POST <url>` line per request)
-go to `LocalData/logs/app.log`, appended. The mock API's `GET /mock/requests` shows the bodies received.
+go to the run's log file, `LocalData/logs/datamonger_<timestamp>.jsonl`. The mock API's `GET /mock/requests` shows the bodies received.
 
 ## Remarks
 

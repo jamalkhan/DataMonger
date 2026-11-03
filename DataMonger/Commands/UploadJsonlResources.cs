@@ -1,5 +1,8 @@
+using System.Diagnostics;
 using bleak.Api.Rest;
 using DataMonger.Common;
+using DataMonger.Logging;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 
 namespace DataMonger.Commands;
@@ -17,17 +20,21 @@ namespace DataMonger.Commands;
 // This command runs its own site picker rather than relying on the outer Program.cs per-site loop
 // (which now iterates every Sites entry), so it must guard against being invoked once per
 // configured site and instead run exactly once per process, like the other single-run commands.
-public class UploadJsonlResources(CommandContext ctx) : IConsoleCommand
+public partial class UploadJsonlResources(CommandContext ctx) : IConsoleCommand
 {
     public string Name => "API => Upload JSONL Resources (create/update)";
 
     private static bool _completedThisSession;
 
+    private readonly ILogger _logger = ctx.LoggerFactory.CreateLogger<UploadJsonlResources>();
+
     public async Task<(int success, int failure)> Execute()
     {
+        using var scope = _logger.BeginCommandScope(Name, ctx.SiteId);
         if (_completedThisSession)
         {
             Console.WriteLine("[skip] UploadJsonlResources already ran this session (it picks its own site).");
+            Log.SkippedAlreadyRan(_logger);
             return (0, 0);
         }
         _completedThisSession = true;
@@ -43,6 +50,7 @@ public class UploadJsonlResources(CommandContext ctx) : IConsoleCommand
         if (filePath is null)
         {
             Console.WriteLine("[FAIL] No file selected. Aborting.");
+            Log.Aborted(_logger, "no file selected");
             return (0, 1);
         }
 
@@ -50,8 +58,10 @@ public class UploadJsonlResources(CommandContext ctx) : IConsoleCommand
         if (site is null)
         {
             Console.WriteLine("[FAIL] No site selected. Aborting.");
+            Log.Aborted(_logger, "no site selected");
             return (0, 1);
         }
+        using var siteScope = _logger.BeginTargetSiteScope(site.SiteId);
 
         var siteId = site.SiteId;
         var username = site.Username;
@@ -65,13 +75,23 @@ public class UploadJsonlResources(CommandContext ctx) : IConsoleCommand
         Console.WriteLine($"Parallelism: {ctx.MaxParallelism}");
         Console.WriteLine();
 
+        var fileName = Path.GetFileName(filePath);
+        Log.Started(_logger, fileName, $"/ver2/{siteId}/resources/{{resource_id}}", ctx.MaxParallelism);
+        var readStart = Stopwatch.GetTimestamp();
         var lines = await File.ReadAllLinesAsync(filePath);
+        if (_logger.IsEnabled(LogLevel.Debug))
+        {
+            Log.ReadFinished(_logger, fileName, lines.Length, new FileInfo(filePath).Length, Stopwatch.GetElapsedTime(readStart).TotalMilliseconds);
+        }
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+        var stats = new HttpFanOutStats(ctx.MaxParallelism);
 
         var successCount = 0;
         var failureCount = 0;
         var completed = 0;
         var consoleLock = new object();
+        var malformedCount = 0;
+        var missingIdCount = 0;
 
         await Parallel.ForEachAsync(
             lines.Select((line, index) => (line, lineNum: index + 1)),
@@ -97,6 +117,7 @@ public class UploadJsonlResources(CommandContext ctx) : IConsoleCommand
                 lock (consoleLock)
                 {
                     Console.WriteLine($"[WARN] Skipping malformed line {lineNum}: {ex.Message}");
+                    malformedCount++;
                 }
                 return;
             }
@@ -109,12 +130,14 @@ public class UploadJsonlResources(CommandContext ctx) : IConsoleCommand
                 lock (consoleLock)
                 {
                     Console.WriteLine($"[WARN] Skipping line {lineNum}: missing 'resource_id'.");
+                    missingIdCount++;
                 }
                 return;
             }
 
             var uri = new Uri($"{baseUrl}/ver2/{siteId}/resources/{Uri.EscapeDataString(resourceId)}");
 
+            var requestStart = stats.Begin();
             var result = await ctx.Rest.ExecuteRestMethodAsync<string, string>(
                 uri: uri,
                 verb: HttpVerbs.PUT,
@@ -129,6 +152,7 @@ public class UploadJsonlResources(CommandContext ctx) : IConsoleCommand
                 cancellationToken: ct);
 
             var statusCode = (int)result.Status;
+            stats.End(requestStart, statusCode);
             var ok = statusCode is >= 200 and < 300;
             if (ok)
             {
@@ -156,12 +180,21 @@ public class UploadJsonlResources(CommandContext ctx) : IConsoleCommand
                 {
                     Console.WriteLine($"  ... {done:N0}/{lines.Length:N0} lines processed (ok {successCount}, fail {failureCount})");
                 }
+                Log.BatchProgress(_logger, fileName, done, lines.Length, successCount, failureCount, stopwatch.Elapsed.TotalMilliseconds);
             }
         });
 
         stopwatch.Stop();
         Console.WriteLine();
         Console.WriteLine($"=== {Name} summary ===  Site: {siteId}   Success: {successCount:N0}   Failed: {failureCount:N0}   Elapsed: {stopwatch.Elapsed:hh\\:mm\\:ss\\.fff}");
+        var durationMs = stopwatch.Elapsed.TotalMilliseconds;
+        stats.LogSummary(_logger, fileName, durationMs);
+        if (malformedCount + missingIdCount > 0)
+        {
+            Log.LinesSkipped(_logger, fileName, malformedCount + missingIdCount, malformedCount, missingIdCount);
+        }
+        Log.Completed(_logger, fileName, lines.Length, successCount, failureCount, durationMs,
+            CommandLogging.RecordsPerSecond(successCount + failureCount, durationMs));
 
         return (successCount, failureCount);
     }
@@ -225,5 +258,36 @@ public class UploadJsonlResources(CommandContext ctx) : IConsoleCommand
 
         Console.WriteLine("[FAIL] Invalid choice.");
         return null;
+    }
+
+    private static partial class Log
+    {
+        [LoggerMessage(EventId = 2300, EventName = "UploadResourcesStarted", Level = LogLevel.Information,
+            Message = "Upload JSONL resources started: {FileName}, PUT {UrlPath}, max parallelism {MaxParallelism}")]
+        public static partial void Started(ILogger logger, string fileName, string urlPath, int maxParallelism);
+
+        [LoggerMessage(EventId = 2301, EventName = "UploadResourcesCompleted", Level = LogLevel.Information,
+            Message = "Upload JSONL resources completed: {FileName}, {RowCount} line(s), {SuccessCount} succeeded, {ErrorCount} failed in {DurationMs} ms ({RecordsPerSecond} rec/s)")]
+        public static partial void Completed(ILogger logger, string fileName, int rowCount, int successCount, int errorCount, double durationMs, double recordsPerSecond);
+
+        [LoggerMessage(EventId = 2302, EventName = "UploadResourcesReadFinished", Level = LogLevel.Debug,
+            Message = "Read phase finished: {FileName}, {RowCount} line(s), {ByteCount} bytes in {DurationMs} ms")]
+        public static partial void ReadFinished(ILogger logger, string fileName, int rowCount, long byteCount, double durationMs);
+
+        [LoggerMessage(EventId = 2303, EventName = "UploadResourcesBatchProgress", Level = LogLevel.Debug,
+            Message = "File {FileName}: {CompletedCount}/{RowCount} line(s) processed ({SuccessCount} ok, {ErrorCount} failed) after {DurationMs} ms")]
+        public static partial void BatchProgress(ILogger logger, string fileName, int completedCount, int rowCount, int successCount, int errorCount, double durationMs);
+
+        [LoggerMessage(EventId = 2304, EventName = "UploadResourcesLinesSkipped", Level = LogLevel.Warning,
+            Message = "File {FileName}: {SkippedCount} line(s) skipped ({MalformedCount} malformed JSON, {MissingIdCount} missing resource_id)")]
+        public static partial void LinesSkipped(ILogger logger, string fileName, int skippedCount, int malformedCount, int missingIdCount);
+
+        [LoggerMessage(EventId = 2305, EventName = "UploadResourcesAborted", Level = LogLevel.Warning,
+            Message = "Aborting: {Reason}")]
+        public static partial void Aborted(ILogger logger, string reason);
+
+        [LoggerMessage(EventId = 2306, EventName = "UploadResourcesSkippedAlreadyRan", Level = LogLevel.Information,
+            Message = "Skipped: already ran once this session")]
+        public static partial void SkippedAlreadyRan(ILogger logger);
     }
 }

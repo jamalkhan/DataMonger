@@ -13,11 +13,9 @@ Max records   : (no cap)
 Output folder : (from config)
 Run timestamp : 20260101_000000
 
-    output 'customers_with_orders': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
 --- customers_with_orders (Object, HashInMemory) ---
     output folder: samples/11-errors/output/run_20260101_000000
     4 warning(s) (record kept) -> samples/11-errors/output/run_20260101_000000/customers_with_orders_20260101_000000_warnings.csv
-    output 'prefs_with_emails': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
 --- prefs_with_emails (Object, HashInMemory) ---
     output folder: samples/11-errors/output/run_20260101_000000
     3 warning(s) (record kept) -> samples/11-errors/output/run_20260101_000000/prefs_with_emails_20260101_000000_warnings.csv

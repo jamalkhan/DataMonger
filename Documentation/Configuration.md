@@ -160,7 +160,63 @@ absolute, `~/...` or relative to the config file itself).
 | `LocalData/products.csv` | Read at **startup** by every command (the app fails to start without it). |
 | `LocalData/identified.csv`, `anonymous.csv` | [PurchaseKnown](PurchaseKnown/Readme.md), [PurchaseAnonymous](PurchaseAnonymous/Readme.md), [GenerateEmailConversions](GenerateEmailConversions/Readme.md) |
 | `LocalData/jsonl/…` | Default input folders of the upload and synthesize commands (see each command page). |
-| `LocalData/logs/app.log` | Application log. |
+| `LocalData/logs/datamonger_<yyyyMMdd_HHmmss>.jsonl` | Application log, one file per run (see [Logging](#logging)). |
+
+## Logging
+
+Each run writes one log file, `LocalData/logs/datamonger_<yyyyMMdd_HHmmss>.jsonl` (local start time; if that name is
+already taken, the run id is appended). The file is **JSON lines**: one JSON object per line, for example:
+
+```json
+{"Timestamp":"2026-10-19T14:02:11.5170000Z","Level":"Information","Category":"DataMonger.Commands.SplitCsv","EventId":1702,"EventName":"SplitCsvCompleted","Message":"Split CSV completed: ...","FileName":"input.csv","RowCount":250000,"FileCount":3,"ByteCount":41000000,"BatchSize":100000,"DurationMs":812.4,"RecordsPerSecond":307730.9,"Command":"Split CSV into N-row files","SiteId":"(local)","RunId":"3f9c1a2b"}
+```
+
+| Field | Meaning |
+|---|---|
+| `Timestamp`, `Level`, `Category`, `EventId`, `EventName`, `Message` | Always present (`EventName` when the event has one). `Timestamp` is ISO-8601 UTC. |
+| Structured properties | The event's own values, e.g. `DurationMs`, `RecordCount`, `FileName`, `StatusCode`. |
+| `RunId` | Short id of this run; on every line. |
+| `Command`, `SiteId` | On every line written while a command runs. `SiteId` is `(local)` for file-only commands and the picked site for commands with their own site picker. |
+| `Exception` | Full exception text, on Error lines that have one. |
+
+Lines are written by a background writer, so logging does not slow the commands down; the file is flushed whenever
+the queue runs empty and completely at exit.
+
+### Levels
+
+Levels come from the optional `Logging` section of `appsettings.json` (the standard .NET format). Without the section
+everything at `Information` and above is written.
+
+```json
+"Logging": {
+  "LogLevel": {
+    "Default": "Information",
+    "bleak": "Information",
+    "DataMonger": "Information"
+  }
+}
+```
+
+| Key | Covers |
+|---|---|
+| `Default` | Everything not matched by a more specific key. |
+| `DataMonger` | The app: `DataMonger.Commands.*` (one category per command), `DataMonger.Synth.*`, `DataMonger.Common.*` (config folders, CSV/config loaders), `DataMonger.Program`. A longer prefix such as `DataMonger.Commands.UploadJsonlEvents` targets one command. |
+| `bleak` | The bleak libraries the commands call, which log through the same factory: `bleak.Data.Transformer.*` (ETL engine, compiler, joins, source readers, `JsonlSplitWriter`), `bleak.Data.Anonymizer.Engine.AnonymizeEngine`, `bleak.Data.InfiniteDataLoader.*` (`CsvSplitter`, `CsvReader`, `ExternalSorter`) and `bleak.Api.Rest.RestClient` (one Debug line per HTTP call: method, URL path, status, duration). Set e.g. `"bleak.Data.Transformer": "Debug"` for per-phase ETL timings. |
+
+| Level | What you get |
+|---|---|
+| `Information` | Run started (app version, OS, processor count, .NET version) and run finished (total `DurationMs`); each command's start (config/job name, input file names) and completion (totals, `DurationMs`, `RecordsPerSecond`). |
+| `Debug` | Per file and per phase: load/parse/generate/write timings, per-file upload results, upload progress every 1,000 lines, HTTP fan-out stats (requests, peak in-flight parallelism, successes, failures, 429 throttles, average/max latency), config folder decisions. |
+| `Trace` | Per chunk: progress ticks of the bulk/email-event uploaders, generation chunks of Synthesize User Props, plus whatever the bleak libraries log at Trace. |
+| `Warning` / `Error` | Aborts, skipped/malformed lines (as counts), throttling and failed requests (as counts), exceptions. |
+
+To investigate a slow run, set `"DataMonger": "Debug"` and `"bleak": "Debug"`. Changing only `Default` is not
+enough while those two keys are present, because the more specific key wins. Use `Trace` only for short runs, as it
+is much more verbose (and the bleak libraries may include record values at Trace). `appsettings.json` is read from the build output folder, so edit `appsettings.user.json`
+(copied over it on every build) or the output copy.
+
+The app never logs record contents: no field values, e-mails or names at any level, only counts, sizes, durations,
+file names, column names, HTTP method, status code and URL path. Credentials are never logged.
 
 ## Concurrency
 

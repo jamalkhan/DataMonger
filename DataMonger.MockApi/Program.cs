@@ -33,8 +33,13 @@ var logPath = cfg["RequestLogPath"];
 var received = new ConcurrentQueue<RecordedRequest>();
 long counter = 0;
 
+// Light request logging at Debug (the shipped appsettings.json keeps Default at Warning, so nothing is emitted
+// unless you lower the level). Metadata only: method, path without query string, route, status, size, duration.
+var requestLogger = app.Logger;
+
 async Task Handle(HttpContext ctx, string route, bool requireJsonBody)
 {
+    var started = System.Diagnostics.Stopwatch.GetTimestamp();
     var n = Interlocked.Increment(ref counter);
     if (latencyMs > 0)
     {
@@ -94,6 +99,8 @@ async Task Handle(HttpContext ctx, string route, bool requireJsonBody)
         }
     }
     await Results.Json(result, statusCode: status).ExecuteAsync(ctx);
+    MockApiLog.RequestHandled(requestLogger, n, ctx.Request.Method, ctx.Request.Path.Value ?? "", route, status, body.Length,
+        System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds);
 }
 
 app.MapPost("/ver2/{siteId}/activities", (HttpContext c) => Handle(c, "activities", true));
@@ -112,3 +119,10 @@ app.MapGet("/mock/health", () => Results.Ok(new { status = "ok" }));
 app.Run();
 
 record RecordedRequest(long Id, DateTimeOffset At, string Method, string Path, string Route, bool HadAuthorizationHeader, int Status, JsonNode? Body);
+
+static partial class MockApiLog
+{
+    [LoggerMessage(EventId = 100, EventName = "MockRequestHandled", Level = LogLevel.Debug,
+        Message = "Mock request {RequestId}: {HttpMethod} {UrlPath} ({Route}) -> {StatusCode}, {ByteCount} body chars in {DurationMs} ms")]
+    public static partial void RequestHandled(ILogger logger, long requestId, string httpMethod, string urlPath, string route, int statusCode, int byteCount, double durationMs);
+}

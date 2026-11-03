@@ -1,8 +1,12 @@
+using System.Diagnostics;
+using System.Globalization;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using bleak.Api.Rest;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using DataMonger.Common;
+using DataMonger.Logging;
 using bleak.Data.InfiniteDataLoader;
 
 // Use Cases
@@ -13,7 +17,7 @@ using bleak.Data.InfiniteDataLoader;
 // Shared Account
 // -- Multiple people sharing an email address. Email Address, Name, and a purchase. (This is common for B2B use cases where multiple users share a work email address.)
 
-class Program
+partial class Program
 {
     const int MaxParallelism = 50;
 
@@ -31,18 +35,50 @@ class Program
             throw new InvalidOperationException("Sites array is empty in appsettings.json");
         }
 
-        var appLogPath = DataPaths.Combine("logs", "app.log");
-        Directory.CreateDirectory(Path.GetDirectoryName(appLogPath)!);
+        // One JSON-lines log file per run (LocalData/logs/datamonger_<local yyyyMMdd_HHmmss>.jsonl). Levels come
+        // from the "Logging" section of appsettings.json; Information when the section is missing.
+        var runId = Guid.NewGuid().ToString("N")[..8];
+        var appLogPath = BuildRunLogPath(runId);
+        // Declared before the factory so it is disposed (drained and flushed) after the factory: providers
+        // registered through LoggerFactory.Create are not disposed by the factory itself.
+        using var fileLogProvider = new JsonLinesFileLoggerProvider(appLogPath);
         using var loggerFactory = LoggerFactory.Create(b => b
             .SetMinimumLevel(LogLevel.Information)
-            .AddProvider(new FileLoggerProvider(appLogPath)));
+            .AddConfiguration(config.GetSection("Logging"))
+            .AddProvider(fileLogProvider));
 
+        // Program lives in the global namespace; name the category explicitly so the "DataMonger" level key covers it.
+        var logger = loggerFactory.CreateLogger("DataMonger.Program");
+        using var runScope = RunScope(logger, runId);
+        var runStart = Stopwatch.GetTimestamp();
+        var outcome = "completed";
+        Log.RunStarted(logger, AppVersion(), RuntimeInformation.OSDescription, RuntimeInformation.OSArchitecture,
+            Environment.ProcessorCount, RuntimeInformation.FrameworkDescription, siteConfigs.Length, MaxParallelism, appLogPath);
+
+        try
+        {
+            await RunMenu(siteConfigs, loggerFactory, logger);
+        }
+        catch (Exception ex)
+        {
+            outcome = "failed";
+            Log.RunFailed(logger, ex);
+            throw;
+        }
+        finally
+        {
+            Log.RunFinished(logger, outcome, Stopwatch.GetElapsedTime(runStart).TotalMilliseconds);
+        }
+    }
+
+    static async Task RunMenu(SiteConfig[] siteConfigs, ILoggerFactory loggerFactory, ILogger logger)
+    {
         var serializer = new JsonSerializer();
         using var httpClient = new HttpClient();
         var rest = new RestClient(httpClient, serializer, serializer, loggerFactory.CreateLogger<RestClient>());
 
         Console.WriteLine("=== DataMonger ===");
-        new ConfigFolders().EnsureAll(); // look for config folders under ~/Documents/DataMonger; prompt if missing
+        new ConfigFolders(logger: loggerFactory.CreateLogger<ConfigFolders>()).EnsureAll(); // look for config folders under ~/Documents/DataMonger; prompt if missing
         Console.WriteLine($">>> Configured sites ({siteConfigs.Length}):");
         foreach (var cfg in siteConfigs)
         {
@@ -82,6 +118,7 @@ class Program
             if (input == "q")
             {
                 Console.WriteLine("Quitting.");
+                Log.QuitFromMenu(logger);
                 return;
             }
             if (int.TryParse(input, out var n) && n >= 1 && n <= menuCommands.Count)
@@ -97,6 +134,7 @@ class Program
         var selectedType = orderedTypes[selectedIndex];
         var selectedName = menuCommands[selectedIndex].Name;
         var selectedCommand = menuCommands[selectedIndex];
+        Log.CommandSelected(logger, selectedName, selectedType.Name, selectedCommand.RunsPerSite, selectedCommand.RunsPerSite ? siteConfigs.Length : 1);
 
         if (!selectedCommand.RunsPerSite)
         {
@@ -104,7 +142,7 @@ class Program
             Console.WriteLine($"=== {selectedName} ===");
             var localCtx = BuildContext(siteConfigs[0], rest, siteConfigs, loggerFactory);
             var localCommand = (IConsoleCommand)Activator.CreateInstance(selectedType, localCtx)!;
-            await localCommand.Execute();
+            await ExecuteLogged(localCommand, selectedName, CommandLogging.LocalSiteId, logger);
             return;
         }
 
@@ -114,8 +152,61 @@ class Program
             Console.WriteLine($"=== {selectedName} -> site: {cfg.SiteId} ===");
             var siteCtx = BuildContext(cfg, rest, siteConfigs, loggerFactory);
             var siteCommand = (IConsoleCommand)Activator.CreateInstance(selectedType, siteCtx)!;
-            await siteCommand.Execute();
+            await ExecuteLogged(siteCommand, selectedName, cfg.SiteId, logger);
         }
+    }
+
+    static async Task ExecuteLogged(IConsoleCommand command, string name, string siteId, ILogger logger)
+    {
+        var start = Stopwatch.GetTimestamp();
+        var (success, failure) = await command.Execute();
+        Log.CommandReturned(logger, name, siteId, success, failure, Stopwatch.GetElapsedTime(start).TotalMilliseconds);
+    }
+
+    /// <summary>LocalData/logs/datamonger_&lt;local yyyyMMdd_HHmmss&gt;.jsonl, with the run id appended if that name is taken.</summary>
+    static string BuildRunLogPath(string runId)
+    {
+        var stamp = DateTime.Now.ToString("yyyyMMdd_HHmmss", CultureInfo.InvariantCulture);
+        var path = DataPaths.Combine("logs", $"datamonger_{stamp}.jsonl");
+        return File.Exists(path) ? DataPaths.Combine("logs", $"datamonger_{stamp}_{runId}.jsonl") : path;
+    }
+
+    static string AppVersion()
+    {
+        var assembly = Assembly.GetExecutingAssembly();
+        return assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
+            ?? assembly.GetName().Version?.ToString()
+            ?? "unknown";
+    }
+
+    static readonly Func<ILogger, string, IDisposable?> RunScope = LoggerMessage.DefineScope<string>("Run {RunId}");
+
+    static partial class Log
+    {
+        [LoggerMessage(EventId = 1, EventName = "RunStarted", Level = LogLevel.Information,
+            Message = "DataMonger run started: version {AppVersion}, {OsDescription} ({OsArchitecture}), {ProcessorCount} processors, {DotNetVersion}; {SiteCount} site(s) configured, max parallelism {MaxParallelism}; log file {FilePath}")]
+        public static partial void RunStarted(ILogger logger, string appVersion, string osDescription, Architecture osArchitecture,
+            int processorCount, string dotNetVersion, int siteCount, int maxParallelism, string filePath);
+
+        [LoggerMessage(EventId = 2, EventName = "RunFinished", Level = LogLevel.Information,
+            Message = "DataMonger run finished ({Outcome}) in {DurationMs} ms")]
+        public static partial void RunFinished(ILogger logger, string outcome, double durationMs);
+
+        [LoggerMessage(EventId = 3, EventName = "RunFailed", Level = LogLevel.Error,
+            Message = "DataMonger run failed with an unhandled exception")]
+        public static partial void RunFailed(ILogger logger, Exception exception);
+
+        [LoggerMessage(EventId = 4, EventName = "CommandSelected", Level = LogLevel.Information,
+            Message = "Command selected: {Command} ({CommandType}); runs per site: {RunsPerSite}; invocations: {InvocationCount}")]
+        public static partial void CommandSelected(ILogger logger, string command, string commandType, bool runsPerSite, int invocationCount);
+
+        [LoggerMessage(EventId = 5, EventName = "CommandReturned", Level = LogLevel.Debug,
+            Message = "Command {Command} returned for site {SiteId}: success={SuccessCount}, failure={ErrorCount} in {DurationMs} ms")]
+        public static partial void CommandReturned(ILogger logger, string command, string siteId, int successCount, int errorCount, double durationMs);
+
+        [LoggerMessage(EventId = 6, EventName = "QuitFromMenu", Level = LogLevel.Information,
+            Message = "Quit from the command menu")]
+        public static partial void QuitFromMenu(ILogger logger);
     }
 
     static CommandContext BuildContext(SiteConfig cfg, RestClient rest, IReadOnlyList<SiteConfig> allSites, ILoggerFactory loggerFactory)

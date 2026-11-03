@@ -49,7 +49,7 @@ strategies (apart from the ordering rules below); the difference is memory use, 
 | --- | --- | --- |
 | **Primary source** | Streamed row by row in **file order**; never buffered | External-sorted by the join key, then streamed in **key order** |
 | **Child sources** | Each child source is read **completely into memory** (a dictionary from join key to rows) before the first record is written | Each *direct* child is external-sorted by its join key and merge-joined in one pass; never fully in memory |
-| **Grandchildren and deeper** | In memory | In memory (the engine logs `externalMerge: levels below '<as>' are nested using in-memory indexes.`) |
+| **Grandchildren and deeper** | In memory | In memory |
 | **Peak memory** | About the size of all child and grandchild sources (as parsed rows, which is considerably more than the files' size on disk) | One sort chunk (200,000 rows) per source being sorted, plus the in-memory grandchildren and lookups |
 | **Disk use** | None | Temporary sorted "run" files in the system temp directory, roughly the size of the data being sorted |
 | **Record order** | Primary file order | Ordinal order of the join key (see below) |
@@ -233,7 +233,8 @@ Consequences:
 * Each output is sampled against **its own** primary. With several outputs the sample key sets differ.
 * While sampling, identical lookups across outputs are not shared (each output builds its own scoped index).
 * The console shows `Sample : first N primary row(s), scoped by <keyColumn> (SAMPLE RUN)` and, per output,
-  `[SAMPLE RUN] ...` and `sample: N primary row(s) from '<alias>' -> M distinct <keyColumn> value(s); ...`.
+  `[SAMPLE RUN] ...`. The engine's sample notice and the `sampling` phase line (rows kept, distinct keys) go to the
+  run's log file (category `bleak.Data.Transformer.Engine.EtlEngine`, Information and Debug).
 * `keyColumn` missing from the primary source fails with `run.sample: keyColumn '<col>' not found in primary
   source '<alias>'`; an empty `keyColumn` fails with `run.sample requires 'keyColumn'`.
 * `sample` and [`keyFilter`](#keyfilter) are **mutually exclusive**: `run.sample and run.keyFilter are mutually
@@ -273,7 +274,8 @@ record while debugging.
   Write numbers as strings (`"1003"`). (A JSON number is not accepted here: `values` is a list of strings.)
 * The primary is filtered by value (not capped by count), as is every other source that has the column; sources
   without the column are read in full with the same `[warn]` as `sample`.
-* The console shows `[KEY FILTER RUN] ...` and `keyFilter: scoping to N explicit <col> value(s): ...`.
+* The console shows `[KEY FILTER RUN] ...`. The key-filter scope is logged at Debug in the run's log file (category
+  `bleak.Data.Transformer.Engine.EtlCompiler`; the key values themselves only at Trace).
 * Errors: `run.keyFilter requires 'keyColumn' ...`, `run.keyFilter: keyColumn '<col>' not found in primary source
   '<alias>'`, and the mutual-exclusion error shown under [`sample`](#sample).
 * A key that matches nothing silently produces no record for it; check the record count.

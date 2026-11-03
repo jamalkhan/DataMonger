@@ -13,7 +13,6 @@ Max records   : (no cap)
 Output folder : (from config)
 Run timestamp : 20260101_000000
 
-    output 'customers_by_brand': 0 lookup(s) (0 exists-mode), 2 keyed relation group(s) compiled.
 --- customers_by_brand (Object, HashInMemory) ---
     output folder: samples/05-keyed-relations/output/run_20260101_000000
 

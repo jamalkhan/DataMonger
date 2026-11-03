@@ -280,8 +280,8 @@ Remarks:
   ```
   `lookups` is only read when `lookup` is also set.
 * **Reuse.** Two lookups (in one output or different outputs of the same run) that index the identical thing
-  (same file, join column, projected column/`expr`/`from`, `filter` and mode) share one index; the console logs
-  `lookup reused from an earlier output in this run (identical source/join/projection) ...`. Sharing is turned off
+  (same file, join column, projected column/`expr`/`from`, `filter` and mode) share one index; the reuse is logged
+  at Debug in the run's log file (category `bleak.Data.Transformer.Engine.EtlEngine`). Sharing is turned off
   during a [`sample`](RunOptions.md#sample) or [`keyFilter`](RunOptions.md#keyfilter) run.
 * **Memory.** The whole indexed lookup source is held in memory regardless of
   [`joinStrategy`](RunOptions.md#joinstrategy).

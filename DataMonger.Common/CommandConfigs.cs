@@ -1,4 +1,6 @@
+using System.Diagnostics;
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
 
 namespace DataMonger.Common;
 
@@ -14,7 +16,7 @@ public sealed class CommandConfigException(IReadOnlyList<string> errors)
 /// allowed, key names matched case-insensitively. Relative file paths resolve against the config file's own folder
 /// (a leading <c>~</c> is expanded); omitted paths fall back to the <c>LocalData</c> defaults.
 /// </summary>
-public static class CommandConfigFile
+public static partial class CommandConfigFile
 {
     private static readonly JsonSerializerOptions Options = new()
     {
@@ -23,8 +25,12 @@ public static class CommandConfigFile
         AllowTrailingCommas = true,
     };
 
-    public static T Load<T>(string path) where T : class, IValidatableConfig
+    /// <param name="path">The config file.</param>
+    /// <param name="logger">Optional; logs one Debug line with the file name, size and load time (category
+    /// <c>DataMonger.Common.CommandConfigFile</c>), or a Warning with the error count when validation fails.</param>
+    public static T Load<T>(string path, ILogger? logger = null) where T : class, IValidatableConfig
     {
+        var start = Stopwatch.GetTimestamp();
         T config;
         try
         {
@@ -33,12 +39,25 @@ public static class CommandConfigFile
         }
         catch (JsonException ex)
         {
+            if (logger is not null)
+            {
+                Log.ConfigInvalid(logger, typeof(T).Name, Path.GetFileName(path), 1);
+            }
             throw new CommandConfigException(new[] { $"Could not parse JSON: {ex.Message}" });
         }
         var errors = config.Validate();
         if (errors.Count > 0)
         {
+            if (logger is not null)
+            {
+                Log.ConfigInvalid(logger, typeof(T).Name, Path.GetFileName(path), errors.Count);
+            }
             throw new CommandConfigException(errors);
+        }
+        if (logger is not null && logger.IsEnabled(LogLevel.Debug))
+        {
+            Log.ConfigLoaded(logger, typeof(T).Name, Path.GetFileName(path), path, new FileInfo(path).Length,
+                Stopwatch.GetElapsedTime(start).TotalMilliseconds);
         }
         return config;
     }
@@ -57,6 +76,17 @@ public static class CommandConfigFile
             v = v == "~" ? home : Path.Combine(home, v[2..]);
         }
         return Path.GetFullPath(v, configDir);
+    }
+
+    private static partial class Log
+    {
+        [LoggerMessage(EventId = 300, EventName = "CommandConfigLoaded", Level = LogLevel.Debug,
+            Message = "{ConfigType} config {FileName} loaded: {ByteCount} bytes in {DurationMs} ms ({FilePath})")]
+        public static partial void ConfigLoaded(ILogger logger, string configType, string fileName, string filePath, long byteCount, double durationMs);
+
+        [LoggerMessage(EventId = 301, EventName = "CommandConfigInvalid", Level = LogLevel.Warning,
+            Message = "{ConfigType} config {FileName} is invalid: {ErrorCount} error(s)")]
+        public static partial void ConfigInvalid(ILogger logger, string configType, string fileName, int errorCount);
     }
 }
 

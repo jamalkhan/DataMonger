@@ -152,7 +152,7 @@ Failures fall into three classes. Only the first is controlled by [`run.onError`
 
 | Failure | Detected | `skip` | `abort` |
 |---|---|---|---|
-| A cell throws while being anonymized (for example `fakeDate` with `minYear: 0` or a bad `format`) | Per cell | `[warn] <file> row N column '<name>': <message> (left unchanged)`; cell keeps its source value; counted in `error(s)`; continue | Throws; run stops; the partially written file stays on disk |
+| A cell throws while being anonymized (for example `fakeDate` with `minYear: 0` or a bad `format`) | Per cell | One `[warn] <file>: N cell(s) left unchanged after anonymizer errors.` line per file; cell keeps its source value; counted in `error(s)`; continue | Throws; run stops; the partially written file stays on disk |
 | An input file is missing | Per file | `[skip] <file>: input not found: <path>`; reported as `SKIPPED (...)`; continue with the next file | Throws `FileNotFoundException`; run stops |
 | A configured column is not in the header | Per file | Warn and skip the column | Same: warn and skip the column |
 | Unknown `method`, unrecognized `delimiter`, output path equal to input path, unparsable config, no output folder available | Per file (or at load time) | Run stops | Run stops |

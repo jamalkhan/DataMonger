@@ -13,7 +13,6 @@ Max records   : (no cap)
 Output folder : (from config)
 Run timestamp : 20260101_000000
 
-    output 'merged_contacts': 0 lookup(s) (0 exists-mode), 1 keyed relation group(s) compiled.
 --- merged_contacts (Object, HashInMemory) ---
     output folder: samples/06-merge-by/output/run_20260101_000000
 

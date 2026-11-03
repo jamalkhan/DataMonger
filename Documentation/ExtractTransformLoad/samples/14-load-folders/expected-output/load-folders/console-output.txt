@@ -13,13 +13,10 @@ Max records   : (no cap)
 Output folder : output/fallback
 Run timestamp : 20260101_000000
 
-    output 'customers': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
 --- customers (Object, HashInMemory) ---
     output folder: samples/14-load-folders/output/run_20260101_000000/customers
-    output 'orders': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
 --- orders (Object, HashInMemory) ---
     output folder: samples/14-load-folders/output/run_20260101_000000/orders
-    output 'products': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
 --- products (Object, HashInMemory) ---
     output folder: samples/14-load-folders/output/fallback/run_20260101_000000
 

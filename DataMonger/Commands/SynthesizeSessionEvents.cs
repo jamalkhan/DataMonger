@@ -1,10 +1,13 @@
+using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using bleak.Data.Transformer.Output;
 using DataMonger.Common;
+using DataMonger.Logging;
 using DataMonger.Synth;
+using Microsoft.Extensions.Logging;
 
 namespace DataMonger.Commands;
 
@@ -15,19 +18,24 @@ namespace DataMonger.Commands;
 /// <see cref="SessionEventsBuilder"/> for the interleaving/eligibility rules and event shapes. An optional seed and
 /// anchor date make the run reproducible.
 /// </summary>
-public class SynthesizeSessionEvents(CommandContext ctx) : IConsoleCommand
+public partial class SynthesizeSessionEvents(CommandContext ctx) : IConsoleCommand
 {
     public string Name => "Synthesize Session Events (page views/cart/purchase, fake data)";
     public bool RunsPerSite => false;
 
+    private readonly ILogger _logger = ctx.LoggerFactory.CreateLogger<SynthesizeSessionEvents>();
+
     public async Task<(int success, int failure)> Execute()
     {
+        using var scope = _logger.BeginCommandScope(Name, CommandLogging.LocalSiteId);
+        var commandStart = Stopwatch.GetTimestamp();
         try
         {
             var profilePath = SynthPrompts.PromptForJsonlFile("profile", "profile");
             if (profilePath is null)
             {
                 Console.WriteLine("[FAIL] No profile file selected. Aborting.");
+                Log.NoInputFile(_logger, "profile");
                 return (0, 1);
             }
 
@@ -35,11 +43,12 @@ public class SynthesizeSessionEvents(CommandContext ctx) : IConsoleCommand
             if (productPath is null)
             {
                 Console.WriteLine("[FAIL] No product file selected. Aborting.");
+                Log.NoInputFile(_logger, "product");
                 return (0, 1);
             }
 
             Console.WriteLine($"Loading product catalog: {productPath}");
-            var catalog = ProductCatalog.Load(productPath);
+            var catalog = ProductCatalog.Load(productPath, ctx.LoggerFactory.CreateLogger<ProductCatalog>());
             Console.WriteLine($"  {catalog.Count:N0} purchasable products loaded " +
                 $"({catalog.SkippedInvalid:N0} invalid, {catalog.SkippedDuplicate:N0} duplicate, {catalog.SkippedOutOfStock:N0} out-of-stock rows skipped).");
 
@@ -64,6 +73,8 @@ public class SynthesizeSessionEvents(CommandContext ctx) : IConsoleCommand
                 Console.WriteLine("[note] A seed without an anchor date is only reproducible within the same day: event times are relative to the current time.");
             }
             Console.WriteLine();
+            Log.Started(_logger, Path.GetFileName(profilePath), new FileInfo(profilePath).Length, Path.GetFileName(productPath), catalog.Count,
+                seed is not null, anchor is not null, timestamp);
 
             using var profileLines = SynthPrompts.ReadProfileLines(profilePath).GetEnumerator();
             var skipped = 0;
@@ -86,6 +97,7 @@ public class SynthesizeSessionEvents(CommandContext ctx) : IConsoleCommand
             if (firstDoc is null)
             {
                 Console.WriteLine("[FAIL] Profile file has no usable profiles.");
+                Log.NoUsableProfiles(_logger, Path.GetFileName(profilePath), skipped);
                 return (0, 1);
             }
 
@@ -122,19 +134,22 @@ public class SynthesizeSessionEvents(CommandContext ctx) : IConsoleCommand
                     doc.RootElement.WriteTo(pretty);
                     Console.WriteLine($"    {fileName}  ({evt.EventType})");
                 }
+                Log.PreviewWritten(_logger, firstEvents.Count, previewFolder);
             }
             Console.WriteLine();
 
             if (!SynthPrompts.PromptYesNo("Continue and generate session events for every profile in the file? [y/N]: "))
             {
                 Console.WriteLine("Stopped after the preview session. No .jsonl file was written.");
+                Log.StoppedAfterPreview(_logger, Path.GetFileName(profilePath));
                 return (1, 0);
             }
 
             // Step 2: the full run. The first profile's events are replayed verbatim (same rng draws
             // as the preview); every subsequent profile continues from the same rng/catalog. All
             // event types land in one combined, chronologically-ordered .jsonl per profile.
-            using var split = new JsonlSplitWriter(outputFolder, baseName, timestamp, recordsPerFile: 50_000);
+            var generateStart = Stopwatch.GetTimestamp();
+            using var split = new JsonlSplitWriter(outputFolder, baseName, timestamp, recordsPerFile: 50_000, ctx.LoggerFactory.CreateLogger<JsonlSplitWriter>());
             var eventTypeTotals = new Dictionary<string, int>();
             foreach (var evt in firstEvents)
             {
@@ -159,6 +174,26 @@ public class SynthesizeSessionEvents(CommandContext ctx) : IConsoleCommand
                 }
             }
             split.Dispose();
+            var generateMs = Stopwatch.GetElapsedTime(generateStart).TotalMilliseconds;
+            Log.GenerateFinished(_logger, profileCount, split.RecordsWritten, split.FinalPaths.Count, generateMs,
+                CommandLogging.RecordsPerSecond(profileCount, generateMs));
+            if (_logger.IsEnabled(LogLevel.Debug))
+            {
+                Log.EventTypeTotals(_logger, string.Join(",", eventTypeTotals
+                    .OrderBy(kv => kv.Key, StringComparer.Ordinal)
+                    .Select(kv => $"{kv.Key}={kv.Value}")));
+                foreach (var path in split.FinalPaths)
+                {
+                    Log.OutputFileWritten(_logger, Path.GetFileName(path), path, new FileInfo(path).Length);
+                }
+            }
+            if (skipped > 0)
+            {
+                Log.LinesSkipped(_logger, Path.GetFileName(profilePath), skipped);
+            }
+            var durationMs = Stopwatch.GetElapsedTime(commandStart).TotalMilliseconds;
+            Log.Completed(_logger, Path.GetFileName(profilePath), profileCount, skipped, split.RecordsWritten, split.FinalPaths.Count,
+                durationMs, CommandLogging.RecordsPerSecond(profileCount, durationMs));
 
             Console.WriteLine("=== Done ===");
             Console.WriteLine($"Profiles processed: {profileCount:N0}" + (skipped > 0 ? $" ({skipped:N0} line(s) skipped)" : ""));
@@ -174,6 +209,7 @@ public class SynthesizeSessionEvents(CommandContext ctx) : IConsoleCommand
 
             if (split.FinalPaths.Count > 0 && PromptUploadNow(split.FinalPaths.Count))
             {
+                Log.HandingOffToUpload(_logger, split.FinalPaths.Count);
                 Console.WriteLine();
                 Console.WriteLine("=== API => Upload JSONL Events (track event) ===");
                 await new UploadJsonlEvents(ctx).Execute(split.FinalPaths);
@@ -185,6 +221,7 @@ public class SynthesizeSessionEvents(CommandContext ctx) : IConsoleCommand
         {
             Console.WriteLine($"[FAIL] {ex.GetType().Name}: {ex.Message}");
             Console.WriteLine(ex.StackTrace);
+            Log.Failed(_logger, ex);
             return (0, 1);
         }
     }
@@ -221,5 +258,56 @@ public class SynthesizeSessionEvents(CommandContext ctx) : IConsoleCommand
     {
         var plural = fileCount == 1 ? "file" : "files";
         return SynthPrompts.PromptYesNo($"Upload the {fileCount} generated .jsonl {plural} now via API => Upload JSONL Events (track event)? [y/N]: ");
+    }
+
+    private static partial class Log
+    {
+        [LoggerMessage(EventId = 1900, EventName = "SessionEventsStarted", Level = LogLevel.Information,
+            Message = "Synthesize session events started: profiles {FileName} ({ByteCount} bytes), products {ProductsFileName} ({ProductCount} purchasable), seeded {Seeded}, fixed anchor {FixedAnchor}, run timestamp {RunTimestamp}")]
+        public static partial void Started(ILogger logger, string fileName, long byteCount, string productsFileName, int productCount, bool seeded, bool fixedAnchor, string runTimestamp);
+
+        [LoggerMessage(EventId = 1901, EventName = "SessionEventsCompleted", Level = LogLevel.Information,
+            Message = "Synthesize session events completed: {FileName}, {RowCount} profile(s), {SkippedCount} skipped, {RecordCount} event(s) across {FileCount} file(s) in {DurationMs} ms ({RecordsPerSecond} profiles/s)")]
+        public static partial void Completed(ILogger logger, string fileName, int rowCount, int skippedCount, long recordCount, int fileCount, double durationMs, double recordsPerSecond);
+
+        [LoggerMessage(EventId = 1902, EventName = "SessionEventsGenerateFinished", Level = LogLevel.Debug,
+            Message = "Generate phase finished: {RowCount} profile(s), {RecordCount} event(s), {FileCount} file(s) in {DurationMs} ms ({RecordsPerSecond} profiles/s)")]
+        public static partial void GenerateFinished(ILogger logger, int rowCount, long recordCount, int fileCount, double durationMs, double recordsPerSecond);
+
+        [LoggerMessage(EventId = 1903, EventName = "SessionEventsEventTypeTotals", Level = LogLevel.Debug,
+            Message = "Event type totals: {EventTypeTotals}")]
+        public static partial void EventTypeTotals(ILogger logger, string eventTypeTotals);
+
+        [LoggerMessage(EventId = 1904, EventName = "SessionEventsOutputFileWritten", Level = LogLevel.Debug,
+            Message = "Output file {FileName}: {ByteCount} bytes ({FilePath})")]
+        public static partial void OutputFileWritten(ILogger logger, string fileName, string filePath, long byteCount);
+
+        [LoggerMessage(EventId = 1905, EventName = "SessionEventsPreviewWritten", Level = LogLevel.Debug,
+            Message = "Preview session written: {RecordCount} event file(s) in {FilePath}")]
+        public static partial void PreviewWritten(ILogger logger, int recordCount, string filePath);
+
+        [LoggerMessage(EventId = 1906, EventName = "SessionEventsLinesSkipped", Level = LogLevel.Warning,
+            Message = "{FileName}: {SkippedCount} line(s) were not JSON objects and were skipped")]
+        public static partial void LinesSkipped(ILogger logger, string fileName, int skippedCount);
+
+        [LoggerMessage(EventId = 1907, EventName = "SessionEventsStoppedAfterPreview", Level = LogLevel.Information,
+            Message = "Stopped after the preview session ({FileName}); no .jsonl written")]
+        public static partial void StoppedAfterPreview(ILogger logger, string fileName);
+
+        [LoggerMessage(EventId = 1908, EventName = "SessionEventsNoInputFile", Level = LogLevel.Warning,
+            Message = "No {InputKind} file selected; aborting")]
+        public static partial void NoInputFile(ILogger logger, string inputKind);
+
+        [LoggerMessage(EventId = 1909, EventName = "SessionEventsNoUsableProfiles", Level = LogLevel.Warning,
+            Message = "{FileName} has no usable profiles ({SkippedCount} line(s) skipped); aborting")]
+        public static partial void NoUsableProfiles(ILogger logger, string fileName, int skippedCount);
+
+        [LoggerMessage(EventId = 1910, EventName = "SessionEventsHandingOffToUpload", Level = LogLevel.Information,
+            Message = "Handing {FileCount} generated file(s) to Upload JSONL Events")]
+        public static partial void HandingOffToUpload(ILogger logger, int fileCount);
+
+        [LoggerMessage(EventId = 1911, EventName = "SessionEventsFailed", Level = LogLevel.Error,
+            Message = "Synthesize session events failed")]
+        public static partial void Failed(ILogger logger, Exception exception);
     }
 }

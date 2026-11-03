@@ -54,7 +54,7 @@ Notes on the prompts:
 | Console transcript | stdout | Per-file summary line and, with more than one file, a grand total |
 | `processed_files.log` | `LocalData/logs/events_upload/processed_files.log` | Appended to, one tab-separated line per file: `<UTC timestamp>\t<path>\tsuccess=N failed=N elapsed=hh:mm:ss.fff[ (reason)]`. Reasons: `could not be read`, `no non-blank lines`, `cancelled at first-response preview` |
 | `failures_<yyyyMMdd_HHmmss>.log` | `LocalData/logs/events_upload/` | One file per run (UTC time the run started). Created **only** when a failure is logged. One line per failure: `<timestamp>\tfile=..\tline=N\tstatus=NNN|n/a\treason=...` (reason newline-flattened and cut at 500 chars) |
-| `app.log` | `LocalData/logs/app.log` | General application log (this command logs run start, file start/finish, malformed lines, progress, and the HTTP client logs one `Executing REST method: POST <url>` line per request) |
+| `datamonger_<timestamp>.jsonl` | `LocalData/logs/` | The run's JSON-lines application log (see [Configuration](../Configuration.md#logging)). This command logs run start/finish at Information; per-file start/finish, progress every 1,000 lines, HTTP fan-out stats and malformed-line counts at Debug/Warning. No record contents. |
 
 `LocalData/` is resolved as: the folder `LocalData` four levels above the executable's folder if it exists (the repo layout `bin/Debug/net10.0`), otherwise `./LocalData` relative to the current directory.
 

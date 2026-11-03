@@ -19,7 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DataMonger\DataMonger.csproj" />
-    <PackageReference Include="bleak.Data.InfiniteDataLoader" Version="1.0.0" />
+    <PackageReference Include="bleak.Data.InfiniteDataLoader" Version="2.0.0" />
   </ItemGroup>
 
 </Project>

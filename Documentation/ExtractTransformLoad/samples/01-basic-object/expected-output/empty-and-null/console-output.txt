@@ -13,7 +13,6 @@ Max records   : (no cap)
 Output folder : (from config)
 Run timestamp : 20260101_000000
 
-    output 'customers_blank_values': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
 --- customers_blank_values (Object, HashInMemory) ---
     output folder: samples/01-basic-object/output/run_20260101_000000
 

@@ -13,15 +13,11 @@ Max records   : (no cap)
 Output folder : (from config)
 Run timestamp : 20260101_000000
 
-    output 'customers_joined': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
 --- customers_joined (Object, HashInMemory) ---
     output folder: samples/13-joins-advanced/output/run_20260101_000000
-    output 'email_with_prefs': 1 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
 --- email_with_prefs (Object, HashInMemory) ---
     output folder: samples/13-joins-advanced/output/run_20260101_000000
-    output 'customer_brands': 1 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
 --- customer_brands (Object, HashInMemory) ---
-    lookup reused from an earlier output in this run (identical source/join/projection) — skipped re-scanning it.
     output folder: samples/13-joins-advanced/output/run_20260101_000000
 
 === Done ===

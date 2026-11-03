@@ -13,10 +13,8 @@ Max records   : (no cap)
 Output folder : (from config)
 Run timestamp : 20260101_000000
 
-    output 'customers_nested': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
 --- customers_nested (Object, HashInMemory) ---
     output folder: samples/02-nested-children/output/run_20260101_000000
-    output 'order_lines_flat': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
 --- order_lines_flat (Object, HashInMemory) ---
     output folder: samples/02-nested-children/output/run_20260101_000000
 

@@ -40,7 +40,7 @@ File discovery: `*.jsonl` files directly inside `LocalData/jsonl/products` (not 
 ## Outputs
 
 * Console: a header (`File:`, `Site ID:`, `Target:  <BaseUrl>/ver2/<SiteId>/resources/{resource_id}`, `Parallelism: 50`), warnings/failures, then `=== API => Upload JSONL Resources (create/update) summary ===  Site: <id>   Success: N   Failed: N   Elapsed: hh:mm:ss.fff`.
-* No failure log or processed-files log. Only the HTTP client's per-request lines go to `LocalData/logs/app.log`.
+* No failure log or processed-files log. Diagnostics (this command's start/finish totals and the HTTP client's per-request lines) go to the run's log file, `LocalData/logs/datamonger_<timestamp>.jsonl`.
 
 ## Remarks
 

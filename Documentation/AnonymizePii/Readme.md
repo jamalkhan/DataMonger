@@ -129,15 +129,16 @@ Output folder : (from config)
 Rename        : src_* -> anonymized_*
 ```
 
-`Output folder` shows `(from config)` when the config supplied it, otherwise the folder you typed. Then the
-engine logs one line per file as it finishes:
+`Output folder` shows `(from config)` when the config supplied it, otherwise the folder you typed. When the run
+finishes, the command prints one line per file (rebuilt from the engine's results; per-file timings and byte counts
+go to the run's log file, see [Configuration](../Configuration.md#logging)):
 
 | Line | Meaning |
 |---|---|
 | `[anon] src_x.csv -> anonymized_x.csv: 10 rows, 119 cells across 13 column(s)` | A file was anonymized. `, N error(s)` is appended when cells failed under `onError: skip`. |
 | `[copy] src_orders.csv -> anonymized_orders.csv (no PII columns)` | Byte-copy fast path. |
 | `[warn] src_x.csv: column 'c' not found in header — skipped.` | A configured column does not exist; the file is still processed. |
-| `[warn] src_x.csv row 3 column 'dob': <message> (left unchanged)` | One cell failed under `onError: skip`. The row number counts data rows from 1. |
+| `[warn] src_x.csv: 9 cell(s) left unchanged after anonymizer errors.` | Cells failed under `onError: skip` and kept their source values. The row numbers, columns and methods of the first 5 failed cells are logged at Debug (never the values or exception messages). |
 | `[skip] src_y.csv: input not found: <path>` | Input file missing under `onError: skip`. |
 
 The `=== Done ===` section then repeats one line per file and totals:

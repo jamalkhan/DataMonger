@@ -113,7 +113,7 @@ non-empty cell raises `ArgumentOutOfRangeException`. `phone` is also configured.
 
 | | `skip` | `abort` |
 |---|---|---|
-| Console | One `[warn] ... row N column 'dob': ... (left unchanged)` per bad cell (9 of them), then `anonymized_customers.csv: 10 rows, 9 cells anonymized, 9 error(s)` | `[FAIL] ArgumentOutOfRangeException: Year, Month, and Day parameters describe an un-representable DateTime.` and nothing else |
+| Console | `[warn] src_customers.csv: 9 cell(s) left unchanged after anonymizer errors.`, then `anonymized_customers.csv: 10 rows, 9 cells anonymized, 9 error(s)` | `[FAIL] ArgumentOutOfRangeException: Year, Month, and Day parameters describe an un-representable DateTime.` and nothing else |
 | `anonymized_customers.csv` | All rows; `dob` **unchanged** (`1815-12-10`...), `phone` anonymized | Header row only (file left half-written) |
 | `anonymized_returns.csv` | Written (second job runs) | Not created (run stopped) |
 

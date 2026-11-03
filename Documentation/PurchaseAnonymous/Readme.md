@@ -75,7 +75,7 @@ See [console-with-injected-failures.txt](samples/expected-output/console-with-in
 
 ## Outputs
 
-No data files. REST-client diagnostics are appended to `LocalData/logs/app.log`.
+No data files. Diagnostics (start/finish totals, HTTP fan-out stats, REST-client lines) go to the run's log file, `LocalData/logs/datamonger_<timestamp>.jsonl`.
 
 ## Remarks
 

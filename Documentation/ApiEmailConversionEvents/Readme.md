@@ -83,7 +83,7 @@ With the default delay, total time is roughly the longest row, about (events - 1
 
 ## Outputs
 
-No files. REST-client diagnostics go to `LocalData/logs/app.log`. Nothing is written back to the JSONL, so the command is
+No files. Diagnostics (this command's start/finish totals and HTTP fan-out stats, plus the REST client's lines) go to the run's log file, `LocalData/logs/datamonger_<timestamp>.jsonl`. Nothing is written back to the JSONL, so the command is
 **not idempotent**: running it twice sends every event twice.
 
 ## Remarks

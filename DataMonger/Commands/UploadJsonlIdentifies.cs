@@ -1,5 +1,8 @@
+using System.Diagnostics;
 using bleak.Api.Rest;
 using DataMonger.Common;
+using DataMonger.Logging;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 
 namespace DataMonger.Commands;
@@ -15,11 +18,16 @@ namespace DataMonger.Commands;
 // This command runs its own site picker rather than relying on the outer Program.cs per-site loop
 // (which iterates every Sites entry), so it must guard against being invoked once per configured
 // site and instead run exactly once per process, the same way UploadJsonlResources/Events do.
-public class UploadJsonlIdentifies(CommandContext ctx) : IConsoleCommand
+public partial class UploadJsonlIdentifies(CommandContext ctx) : IConsoleCommand
 {
     public string Name => "API => Upload JSONL Identifies (identify user)";
 
     private static bool _completedThisSession;
+
+    /// <summary>At most this many file names go into the Information "started" line (every file gets a Debug line).</summary>
+    private const int MaxFileNamesInStartLine = 20;
+
+    private readonly ILogger _logger = ctx.LoggerFactory.CreateLogger<UploadJsonlIdentifies>();
 
     public Task<(int success, int failure)> Execute() => Execute(filePaths: null);
 
@@ -29,11 +37,14 @@ public class UploadJsonlIdentifies(CommandContext ctx) : IConsoleCommand
     /// </summary>
     public async Task<(int success, int failure)> Execute(IReadOnlyList<string>? filePaths)
     {
+        using var scope = _logger.BeginCommandScope(Name, ctx.SiteId);
+        var runStart = Stopwatch.GetTimestamp();
         if (filePaths is null)
         {
             if (_completedThisSession)
             {
                 Console.WriteLine("[skip] UploadJsonlIdentifies already ran this session (it picks its own site).");
+                Log.SkippedAlreadyRan(_logger);
                 return (0, 0);
             }
             _completedThisSession = true;
@@ -49,12 +60,14 @@ public class UploadJsonlIdentifies(CommandContext ctx) : IConsoleCommand
             if (filePaths is null)
             {
                 Console.WriteLine("[FAIL] No file(s) selected. Aborting.");
+                Log.Aborted(_logger, "no file(s) selected");
                 return (0, 1);
             }
         }
         else if (filePaths.Count == 0)
         {
             Console.WriteLine("[FAIL] No files to upload. Aborting.");
+            Log.Aborted(_logger, "caller passed an empty file list");
             return (0, 1);
         }
 
@@ -62,8 +75,10 @@ public class UploadJsonlIdentifies(CommandContext ctx) : IConsoleCommand
         if (site is null)
         {
             Console.WriteLine("[FAIL] No site selected. Aborting.");
+            Log.Aborted(_logger, "no site selected");
             return (0, 1);
         }
+        using var siteScope = _logger.BeginTargetSiteScope(site.SiteId);
 
         var siteId = site.SiteId;
         var username = site.Username;
@@ -76,6 +91,12 @@ public class UploadJsonlIdentifies(CommandContext ctx) : IConsoleCommand
         Console.WriteLine($"Site ID: {siteId}");
         Console.WriteLine($"Target:  {uri}");
         Console.WriteLine($"Parallelism: {ctx.MaxParallelism}");
+        if (_logger.IsEnabled(LogLevel.Information))
+        {
+            Log.Started(_logger, filePaths.Count,
+                string.Join(",", filePaths.Take(MaxFileNamesInStartLine).Select(Path.GetFileName)) + (filePaths.Count > MaxFileNamesInStartLine ? ",..." : ""),
+                CommandLogging.UrlPath(uri), ctx.MaxParallelism);
+        }
 
         var totalSuccess = 0;
         var totalFailure = 0;
@@ -84,6 +105,7 @@ public class UploadJsonlIdentifies(CommandContext ctx) : IConsoleCommand
             var filePath = filePaths[fileIndex];
             Console.WriteLine();
             Console.WriteLine($"--- File {fileIndex + 1}/{filePaths.Count}: {filePath} ---");
+            Log.FileStarted(_logger, Path.GetFileName(filePath), filePath, fileIndex + 1, filePaths.Count);
             var (fileSuccess, fileFailure) = await UploadFile(filePath, uri, siteId, username, password);
             totalSuccess += fileSuccess;
             totalFailure += fileFailure;
@@ -95,6 +117,9 @@ public class UploadJsonlIdentifies(CommandContext ctx) : IConsoleCommand
             Console.WriteLine($"=== {Name} grand total ===  Site: {siteId}   Success: {totalSuccess:N0}   Failed: {totalFailure:N0}");
         }
 
+        var runMs = Stopwatch.GetElapsedTime(runStart).TotalMilliseconds;
+        Log.Completed(_logger, filePaths.Count, totalSuccess + totalFailure, totalSuccess, totalFailure, runMs,
+            CommandLogging.RecordsPerSecond(totalSuccess + totalFailure, runMs));
         return (totalSuccess, totalFailure);
     }
 
@@ -102,13 +127,20 @@ public class UploadJsonlIdentifies(CommandContext ctx) : IConsoleCommand
     {
         Console.WriteLine($"File: {filePath}");
         Console.WriteLine();
+        var fileName = Path.GetFileName(filePath);
 
+        var readStart = Stopwatch.GetTimestamp();
         var lines = await File.ReadAllLinesAsync(filePath);
+        if (_logger.IsEnabled(LogLevel.Debug))
+        {
+            Log.ReadFinished(_logger, fileName, lines.Length, new FileInfo(filePath).Length, Stopwatch.GetElapsedTime(readStart).TotalMilliseconds);
+        }
 
         var firstLineIndex = Array.FindIndex(lines, l => !string.IsNullOrWhiteSpace(l));
         if (firstLineIndex < 0)
         {
             Console.WriteLine("[FAIL] File has no non-blank lines to send.");
+            Log.FileEmpty(_logger, fileName, lines.Length);
             return (0, 1);
         }
         var firstLine = lines[firstLineIndex];
@@ -116,17 +148,22 @@ public class UploadJsonlIdentifies(CommandContext ctx) : IConsoleCommand
         if (!PreviewRequestAndConfirm(uri, firstLine, lines.Length))
         {
             Console.WriteLine("[ABORT] Upload cancelled.");
+            Log.FileCancelled(_logger, fileName, "first-request preview");
             return (0, 0);
         }
 
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+        var stats = new HttpFanOutStats(ctx.MaxParallelism);
 
         var successCount = 0;
         var failureCount = 0;
 
         // Send the first record on its own, outside the parallel batch, so its response can be
         // previewed and confirmed before the rest of the file is fired off behind it.
+        var firstStart = stats.Begin();
         var firstResult = await SendLine(uri, firstLine, username, password, ctx.Rest, CancellationToken.None);
+        stats.End(firstStart, (int)firstResult.Status);
+        Log.FirstRequestResult(_logger, fileName, (int)firstResult.Status, stopwatch.Elapsed.TotalMilliseconds);
         var firstOk = (int)firstResult.Status is >= 200 and < 300;
         if (firstOk)
         {
@@ -150,12 +187,14 @@ public class UploadJsonlIdentifies(CommandContext ctx) : IConsoleCommand
                 stopwatch.Stop();
                 Console.WriteLine("[ABORT] Remaining lines not sent.");
                 Console.WriteLine($"=== {Name} summary ===  Site: {siteId}   Success: {successCount:N0}   Failed: {failureCount:N0}   Elapsed: {stopwatch.Elapsed:hh\\:mm\\:ss\\.fff}");
+                Log.FileCancelled(_logger, fileName, "first-response preview");
                 return (successCount, failureCount);
             }
         }
 
         var completed = 1;
         var consoleLock = new object();
+        var malformedCount = 0;
 
         await Parallel.ForEachAsync(
             remaining,
@@ -180,11 +219,14 @@ public class UploadJsonlIdentifies(CommandContext ctx) : IConsoleCommand
                 lock (consoleLock)
                 {
                     Console.WriteLine($"[WARN] Skipping malformed line {lineNum}: {ex.Message}");
+                    malformedCount++;
                 }
                 return;
             }
 
+            var requestStart = stats.Begin();
             var result = await SendLine(uri, line, username, password, ctx.Rest, ct);
+            stats.End(requestStart, (int)result.Status);
 
             var ok = (int)result.Status is >= 200 and < 300;
             if (ok)
@@ -207,12 +249,20 @@ public class UploadJsonlIdentifies(CommandContext ctx) : IConsoleCommand
                 {
                     Console.WriteLine($"  ... {done:N0}/{lines.Length:N0} lines processed (ok {successCount}, fail {failureCount})");
                 }
+                Log.BatchProgress(_logger, fileName, done, lines.Length, successCount, failureCount, stopwatch.Elapsed.TotalMilliseconds);
             }
         });
 
         stopwatch.Stop();
         Console.WriteLine();
         Console.WriteLine($"=== {Name} summary ===  Site: {siteId}   Success: {successCount:N0}   Failed: {failureCount:N0}   Elapsed: {stopwatch.Elapsed:hh\\:mm\\:ss\\.fff}");
+        stats.LogSummary(_logger, fileName, stopwatch.Elapsed.TotalMilliseconds);
+        if (malformedCount > 0)
+        {
+            Log.MalformedLines(_logger, fileName, malformedCount);
+        }
+        Log.FileFinished(_logger, fileName, lines.Length, successCount, failureCount, stopwatch.Elapsed.TotalMilliseconds,
+            CommandLogging.RecordsPerSecond(successCount + failureCount, stopwatch.Elapsed.TotalMilliseconds));
 
         return (successCount, failureCount);
     }
@@ -399,5 +449,56 @@ public class UploadJsonlIdentifies(CommandContext ctx) : IConsoleCommand
 
         Console.WriteLine("[FAIL] Invalid choice.");
         return null;
+    }
+
+    private static partial class Log
+    {
+        [LoggerMessage(EventId = 2200, EventName = "UploadIdentifiesStarted", Level = LogLevel.Information,
+            Message = "Upload JSONL identifies started: {FileCount} file(s) [{InputFiles}], POST {UrlPath}, max parallelism {MaxParallelism}")]
+        public static partial void Started(ILogger logger, int fileCount, string inputFiles, string urlPath, int maxParallelism);
+
+        [LoggerMessage(EventId = 2201, EventName = "UploadIdentifiesCompleted", Level = LogLevel.Information,
+            Message = "Upload JSONL identifies completed: {FileCount} file(s), {RecordCount} record(s), {SuccessCount} succeeded, {ErrorCount} failed in {DurationMs} ms ({RecordsPerSecond} rec/s)")]
+        public static partial void Completed(ILogger logger, int fileCount, int recordCount, int successCount, int errorCount, double durationMs, double recordsPerSecond);
+
+        [LoggerMessage(EventId = 2202, EventName = "UploadIdentifiesFileStarted", Level = LogLevel.Debug,
+            Message = "File {FileIndex}/{FileCount} {FileName} starting ({FilePath})")]
+        public static partial void FileStarted(ILogger logger, string fileName, string filePath, int fileIndex, int fileCount);
+
+        [LoggerMessage(EventId = 2203, EventName = "UploadIdentifiesFileFinished", Level = LogLevel.Debug,
+            Message = "File {FileName} finished: {RowCount} line(s), {SuccessCount} succeeded, {ErrorCount} failed in {DurationMs} ms ({RecordsPerSecond} rec/s)")]
+        public static partial void FileFinished(ILogger logger, string fileName, int rowCount, int successCount, int errorCount, double durationMs, double recordsPerSecond);
+
+        [LoggerMessage(EventId = 2204, EventName = "UploadIdentifiesReadFinished", Level = LogLevel.Debug,
+            Message = "Read phase finished: {FileName}, {RowCount} line(s), {ByteCount} bytes in {DurationMs} ms")]
+        public static partial void ReadFinished(ILogger logger, string fileName, int rowCount, long byteCount, double durationMs);
+
+        [LoggerMessage(EventId = 2205, EventName = "UploadIdentifiesBatchProgress", Level = LogLevel.Debug,
+            Message = "File {FileName}: {CompletedCount}/{RowCount} line(s) processed ({SuccessCount} ok, {ErrorCount} failed) after {DurationMs} ms")]
+        public static partial void BatchProgress(ILogger logger, string fileName, int completedCount, int rowCount, int successCount, int errorCount, double durationMs);
+
+        [LoggerMessage(EventId = 2206, EventName = "UploadIdentifiesMalformedLines", Level = LogLevel.Warning,
+            Message = "File {FileName}: {SkippedCount} malformed line(s) skipped")]
+        public static partial void MalformedLines(ILogger logger, string fileName, int skippedCount);
+
+        [LoggerMessage(EventId = 2207, EventName = "UploadIdentifiesFileEmpty", Level = LogLevel.Warning,
+            Message = "File {FileName} has no non-blank lines to send ({RowCount} line(s))")]
+        public static partial void FileEmpty(ILogger logger, string fileName, int rowCount);
+
+        [LoggerMessage(EventId = 2208, EventName = "UploadIdentifiesFileCancelled", Level = LogLevel.Information,
+            Message = "File {FileName}: cancelled by the user at the {Phase}")]
+        public static partial void FileCancelled(ILogger logger, string fileName, string phase);
+
+        [LoggerMessage(EventId = 2209, EventName = "UploadIdentifiesFirstRequestResult", Level = LogLevel.Debug,
+            Message = "File {FileName}: first request returned {StatusCode} after {DurationMs} ms")]
+        public static partial void FirstRequestResult(ILogger logger, string fileName, int statusCode, double durationMs);
+
+        [LoggerMessage(EventId = 2210, EventName = "UploadIdentifiesAborted", Level = LogLevel.Warning,
+            Message = "Aborting: {Reason}")]
+        public static partial void Aborted(ILogger logger, string reason);
+
+        [LoggerMessage(EventId = 2211, EventName = "UploadIdentifiesSkippedAlreadyRan", Level = LogLevel.Information,
+            Message = "Skipped: already ran once this session")]
+        public static partial void SkippedAlreadyRan(ILogger logger);
     }
 }

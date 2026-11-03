@@ -42,7 +42,7 @@ File discovery: the picker lists `*.jsonl` directly inside `LocalData/jsonl/prof
 ## Outputs
 
 * Console only. Per file: `=== API => Upload JSONL Identifies (identify user) summary ===  Site: <id>   Success: N   Failed: N   Elapsed: hh:mm:ss.fff`; with 2+ files also a `grand total` line.
-* No failure log and no processed-files log. The only file written is the shared `LocalData/logs/app.log`, which contains the HTTP client's `Executing REST method: POST <url>` line per request (this command adds no lines of its own).
+* No failure log and no processed-files log. The only file written is the run's log file, `LocalData/logs/datamonger_<timestamp>.jsonl`, which holds this command's start/per-file/finish lines (counts and timings) and the HTTP client's per-request lines.
 
 ## Remarks
 

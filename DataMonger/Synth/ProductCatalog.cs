@@ -1,4 +1,6 @@
+using System.Diagnostics;
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
 
 namespace DataMonger.Synth;
 
@@ -24,7 +26,7 @@ public sealed record ProductVariant(
 /// and lets callers pick a random purchasable variant. Rows missing sku, name or a numeric price, rows that repeat
 /// an earlier sku, and rows with in_stock=false are skipped (and counted).
 /// </summary>
-public sealed class ProductCatalog
+public sealed partial class ProductCatalog
 {
     public const string DefaultBrand = "Acme";
     public const string KidsBrand = "Acme Kids";
@@ -55,7 +57,25 @@ public sealed class ProductCatalog
             e.Price, e.ListPrice, e.Color, e.Size, e.ImageUrl, e.Url);
     }
 
-    public static ProductCatalog Load(string path) => Parse(File.ReadLines(path), path);
+    /// <summary>Loads and parses a product-feed file. The optional logger gets one Debug line with the counts, size and
+    /// load time, and a Warning with the number of invalid rows (never row contents).</summary>
+    public static ProductCatalog Load(string path, ILogger<ProductCatalog>? logger = null)
+    {
+        var start = Stopwatch.GetTimestamp();
+        var lineCount = 0;
+        var catalog = Parse(File.ReadLines(path).Select(line => { lineCount++; return line; }), path);
+        if (logger is not null)
+        {
+            var fileName = Path.GetFileName(path);
+            Log.Loaded(logger, fileName, path, lineCount, catalog.Count, catalog.SkippedInvalid, catalog.SkippedDuplicate,
+                catalog.SkippedOutOfStock, new FileInfo(path).Length, Stopwatch.GetElapsedTime(start).TotalMilliseconds);
+            if (catalog.SkippedInvalid > 0)
+            {
+                Log.InvalidRows(logger, fileName, catalog.SkippedInvalid, lineCount);
+            }
+        }
+        return catalog;
+    }
 
     /// <summary>Parses feed lines. <paramref name="source"/> is only used in messages.</summary>
     public static ProductCatalog Parse(IEnumerable<string> lines, string source = "product feed")
@@ -169,4 +189,16 @@ public sealed class ProductCatalog
     private sealed record Entry(
         string Sku, string ProductId, string Name, string Brand, string[] Categories, string[] Subcategories,
         decimal Price, decimal ListPrice, string Color, string Size, string ImageUrl, string Url);
+
+    private static partial class Log
+    {
+        [LoggerMessage(EventId = 3000, EventName = "ProductCatalogLoaded", Level = LogLevel.Debug,
+            Message = "Product catalog {FileName} loaded: {RowCount} line(s), {RecordCount} purchasable product(s), {SkippedCount} invalid, {DuplicateCount} duplicate, {OutOfStockCount} out of stock, {ByteCount} bytes in {DurationMs} ms ({FilePath})")]
+        public static partial void Loaded(ILogger logger, string fileName, string filePath, int rowCount, int recordCount, int skippedCount,
+            int duplicateCount, int outOfStockCount, long byteCount, double durationMs);
+
+        [LoggerMessage(EventId = 3001, EventName = "ProductCatalogInvalidRows", Level = LogLevel.Warning,
+            Message = "Product catalog {FileName}: {SkippedCount} of {RowCount} line(s) were invalid and skipped")]
+        public static partial void InvalidRows(ILogger logger, string fileName, int skippedCount, int rowCount);
+    }
 }

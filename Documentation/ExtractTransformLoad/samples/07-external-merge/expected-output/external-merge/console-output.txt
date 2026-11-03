@@ -13,18 +13,10 @@ Max records   : (no cap)
 Output folder : (from config)
 Run timestamp : 20260101_000000
 
-    output 'customers_external': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
 --- customers_external (Object, ExternalMerge) ---
     output folder: samples/07-external-merge/output/run_20260101_000000
-    externalMerge: levels below 'orders' are nested using in-memory indexes.
-    orders: sorted 8 records into 1 run(s)
-    emails: sorted 7 records into 1 run(s)
-    primary: sorted 5 records into 1 run(s)
-    output 'email_with_prefs': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
 --- email_with_prefs (Object, ExternalMerge) ---
     output folder: samples/07-external-merge/output/run_20260101_000000
-    prefs: sorted 3 records into 1 run(s)
-    primary: sorted 7 records into 1 run(s)
 
 === Done ===
 customers_external: 5 records across 1 file(s):

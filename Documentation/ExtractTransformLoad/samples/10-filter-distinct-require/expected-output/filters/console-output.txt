@@ -13,14 +13,11 @@ Max records   : (no cap)
 Output folder : (from config)
 Run timestamp : 20260101_000000
 
-    output 'orders_filtered': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
 --- orders_filtered (Object, HashInMemory) ---
     output folder: samples/10-filter-distinct-require/output/run_20260101_000000
     3 record(s) filtered out -> samples/10-filter-distinct-require/output/run_20260101_000000/orders_filtered_20260101_000000_filtered.csv
-    output 'order_events': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
 --- order_events (Object, HashInMemory) ---
     output folder: samples/10-filter-distinct-require/output/run_20260101_000000
-    output 'customers_with_orders': 0 lookup(s) (0 exists-mode), 0 keyed relation group(s) compiled.
 --- customers_with_orders (Object, HashInMemory) ---
     output folder: samples/10-filter-distinct-require/output/run_20260101_000000
     2 record(s) filtered out -> samples/10-filter-distinct-require/output/run_20260101_000000/customers_with_orders_20260101_000000_filtered.csv

@@ -1,5 +1,7 @@
 using System.Globalization;
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DataMonger.Common;
 
@@ -32,18 +34,20 @@ public enum ConfigKind
 /// home folder. Set the <c>DATAMONGER_HOME</c> environment variable to relocate the home folder
 /// (default <c>~/Documents/DataMonger</c>).
 /// </summary>
-public sealed class ConfigFolders
+public sealed partial class ConfigFolders
 {
     private const string HomeEnvVar = "DATAMONGER_HOME";
     private const string SettingsFileName = "settings.json";
 
     private readonly TextReader _in;
     private readonly TextWriter _out;
+    private readonly ILogger _logger;
 
-    public ConfigFolders(TextReader? input = null, TextWriter? output = null)
+    public ConfigFolders(TextReader? input = null, TextWriter? output = null, ILogger<ConfigFolders>? logger = null)
     {
         _in = input ?? Console.In;
         _out = output ?? Console.Out;
+        _logger = logger ?? NullLogger<ConfigFolders>.Instance;
     }
 
     /// <summary>The DataMonger home folder: <c>$DATAMONGER_HOME</c>, else <c>~/Documents/DataMonger</c>.</summary>
@@ -116,6 +120,7 @@ public sealed class ConfigFolders
         var saved = SavedFolder(kind);
         if (saved is not null && Directory.Exists(saved))
         {
+            Log.FolderResolved(_logger, kind, saved);
             return saved;
         }
         return Choose(kind, firstRun: saved is null);
@@ -144,6 +149,7 @@ public sealed class ConfigFolders
         var line = _in.ReadLine()?.Trim().Trim('"');
         var folder = Path.GetFullPath(ExpandHome(string.IsNullOrEmpty(line) ? def : line));
 
+        var start = System.Diagnostics.Stopwatch.GetTimestamp();
         Directory.CreateDirectory(folder);
         var copied = SeedExamples(kind, folder);
         if (copied > 0)
@@ -155,6 +161,8 @@ public sealed class ConfigFolders
         settings[kind.ToString()] = folder;
         SaveSettings(settings);
         _out.WriteLine($"  Saved. Using {folder} (settings: {SettingsPath()})");
+        Log.FolderChosen(_logger, kind, folder, firstRun, copied,
+            System.Diagnostics.Stopwatch.GetElapsedTime(start).TotalMilliseconds);
         return folder;
     }
 
@@ -195,6 +203,7 @@ public sealed class ConfigFolders
                 var line = _in.ReadLine();
                 if (line is null)
                 {
+                    Log.ConfigPromptCancelled(_logger, kind);
                     return null; // EOF / no console input -> cancel (don't spin)
                 }
 
@@ -205,6 +214,7 @@ public sealed class ConfigFolders
                 }
                 if (string.Equals(input, "q", StringComparison.OrdinalIgnoreCase))
                 {
+                    Log.ConfigPromptCancelled(_logger, kind);
                     return null;
                 }
                 if (string.Equals(input, "c", StringComparison.OrdinalIgnoreCase))
@@ -215,12 +225,14 @@ public sealed class ConfigFolders
                 if (int.TryParse(input, NumberStyles.Integer, CultureInfo.InvariantCulture, out var n)
                     && n >= 1 && n <= configs.Count)
                 {
+                    Log.ConfigSelected(_logger, kind, Path.GetFileName(configs[n - 1]), configs[n - 1], configs.Count);
                     return configs[n - 1];
                 }
 
                 var path = ExpandHome(input); // allow ~/... custom paths
                 if (File.Exists(path))
                 {
+                    Log.ConfigSelected(_logger, kind, Path.GetFileName(path), path, configs.Count);
                     return path;
                 }
 
@@ -298,5 +310,24 @@ public sealed class ConfigFolders
             new Dictionary<string, Dictionary<string, string>> { ["ConfigFolders"] = folders },
             new JsonSerializerOptions { WriteIndented = true });
         File.WriteAllText(SettingsPath(), json);
+    }
+
+    private static partial class Log
+    {
+        [LoggerMessage(EventId = 200, EventName = "ConfigFolderResolved", Level = LogLevel.Debug,
+            Message = "Config folder for {ConfigKind} resolved from settings: {FolderPath}")]
+        public static partial void FolderResolved(ILogger logger, ConfigKind configKind, string folderPath);
+
+        [LoggerMessage(EventId = 201, EventName = "ConfigFolderChosen", Level = LogLevel.Debug,
+            Message = "Config folder for {ConfigKind} chosen (first run: {FirstRun}): {FolderPath}; {FileCount} example file(s) seeded in {DurationMs} ms")]
+        public static partial void FolderChosen(ILogger logger, ConfigKind configKind, string folderPath, bool firstRun, int fileCount, double durationMs);
+
+        [LoggerMessage(EventId = 202, EventName = "ConfigSelected", Level = LogLevel.Debug,
+            Message = "Config {FileName} selected for {ConfigKind} ({FileCount} listed; {FilePath})")]
+        public static partial void ConfigSelected(ILogger logger, ConfigKind configKind, string fileName, string filePath, int fileCount);
+
+        [LoggerMessage(EventId = 203, EventName = "ConfigPromptCancelled", Level = LogLevel.Debug,
+            Message = "Config prompt for {ConfigKind} cancelled")]
+        public static partial void ConfigPromptCancelled(ILogger logger, ConfigKind configKind);
     }
 }
