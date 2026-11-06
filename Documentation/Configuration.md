@@ -236,3 +236,36 @@ file names, column names, HTTP method, status code and URL path. Credentials are
 
 `MaxParallelism` is fixed at 50 in `Program.cs`; it is the ceiling on concurrent requests for commands that
 use it. It is not currently configurable.
+
+## ETL run options (`Etl`)
+
+The optional `Etl` section tunes *Extract / Transform / Load* for the machine it runs on. It is bound to
+`bleak.Data.Transformer`'s `EtlRunOptions` and injected into the command as `IOptions<EtlRunOptions>`; the engine
+receives it as a plain parameter. Every property is optional:
+
+```json
+"Etl": {
+  "MaxDegreeOfParallelism": 0,
+  "SortMemoryBudgetBytes": 4294967296,
+  "TempDirectory": "/Volumes/Scratch/etl-tmp"
+}
+```
+
+| Property | Default | Description |
+|---|---|---|
+| `MaxDegreeOfParallelism` | `0` (all cores) | Threads for preparing sorts, indexes and lookups and for rendering records. `1` runs everything on one thread. |
+| `SortMemoryBudgetBytes` | 4 GiB | Memory the external sorts running at once may hold in their chunks, split evenly between them. In-memory indexes and lookups are not counted. |
+| `SortChunkSize` | 200000 | Maximum records per sort chunk. |
+| `TempDirectory` | system temp folder | Where external sorts spill. Point it at a disk with room for the largest sorted inputs. |
+| `ShareScans` | `true` | Read and sort each file once per key, and produce outputs that share a primary file and join tree in one pass. |
+| `PruneColumns` | `true` | Blank columns a relation's config never names before sorting and indexing. |
+| `PushDownFilters` | `true` | Apply `many`-relation filters before sorting. |
+| `StreamNestedJoins` | `true` | Merge-join grandchildren whose key starts with the parent's key instead of loading them into memory. |
+| `CleanupStaleTempDirectories` | `true` | Delete sort folders left behind by killed runs when a run starts. |
+
+The switches exist to rule an optimization out while debugging; they do not change the output (the library's tests
+check this byte for byte). Like any setting, they can be given as environment variables, for example
+`Etl__MaxDegreeOfParallelism=1`.
+
+The app uses the .NET server garbage collector (set in `DataMonger.csproj`), which collects on all cores while the
+ETL renders on all cores. `DOTNET_gcServer=0` switches back to the workstation collector for one run.

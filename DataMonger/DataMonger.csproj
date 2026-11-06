@@ -5,6 +5,12 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <!--
+      The ETL renders records and prepares sorts on many threads at once: the server GC collects in parallel, and
+      DATAS (on by default with it since .NET 9) keeps the heap sized to the live data instead of per core.
+      Override per run with DOTNET_gcServer=0.
+    -->
+    <ServerGarbageCollection>true</ServerGarbageCollection>
   </PropertyGroup>
 
   <ItemGroup>
@@ -88,8 +94,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DataMonger.Common\DataMonger.Common.csproj" />
-    <PackageReference Include="bleak.Data.InfiniteDataLoader" Version="2.0.1" />
-    <PackageReference Include="bleak.Data.Transformer" Version="2.1.0" />
+    <PackageReference Include="bleak.Data.InfiniteDataLoader" Version="2.1.0" />
+    <PackageReference Include="bleak.Data.Transformer" Version="2.2.0" />
     <PackageReference Include="bleak.Data.Anonymizer" Version="2.0.1" />
   </ItemGroup>
 

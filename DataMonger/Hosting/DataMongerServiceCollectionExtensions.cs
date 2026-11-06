@@ -1,4 +1,5 @@
 using bleak.Api.Rest;
+using bleak.Data.Transformer.Engine;
 using DataMonger.Common;
 using DataMonger.Synth;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,6 +12,9 @@ public static class DataMongerServiceCollectionExtensions
 {
     /// <summary>Name of the <see cref="HttpClient"/> the shared <see cref="RestClient"/> sends with.</summary>
     public const string RestHttpClientName = "DataMonger.Rest";
+
+    /// <summary>Configuration section bound to <see cref="EtlRunOptions"/>.</summary>
+    public const string EtlOptionsSection = "Etl";
 
     /// <summary>
     /// Registers logging (only the JSON-lines file sink at <paramref name="logFilePath"/>), the shared REST client and the
@@ -50,6 +54,11 @@ public static class DataMongerServiceCollectionExtensions
                 serializer,
                 sp.GetRequiredService<ILogger<RestClient>>());
         });
+
+        // Machine-level ETL tuning (threads, sort memory, temp folder, optimization switches) from the "Etl" section;
+        // every property has a default, so the section is optional. The engine itself takes it as a plain parameter
+        // and has no dependency on the container.
+        services.AddOptions<EtlRunOptions>().BindConfiguration(EtlOptionsSection);
 
         // ConfigFolders has optional console-stream parameters (for tests); the app uses Console.In/Out.
         services.AddSingleton(sp => new ConfigFolders(logger: sp.GetRequiredService<ILogger<ConfigFolders>>()));

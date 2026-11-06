@@ -33,8 +33,9 @@ All projects target `net10.0`. NuGet packages:
 | `Microsoft.Extensions.Logging.Abstractions` | 10.0.14 | `DataMonger.Common` |
 | `System.Threading.RateLimiting` | 10.0.14 | `DataMonger` |
 | `bleak.Api.Rest` | 2.6.0 | `DataMonger` (brings in `Newtonsoft.Json`) |
-| `bleak.Data.InfiniteDataLoader`, `bleak.Data.Anonymizer` | 2.0.1 | `DataMonger`; `bleak.Data.InfiniteDataLoader` also in `DataMonger.Tests` |
-| `bleak.Data.Transformer` | 2.1.0 | `DataMonger` |
+| `bleak.Data.InfiniteDataLoader` | 2.1.0 | `DataMonger`, `DataMonger.Tests` |
+| `bleak.Data.Anonymizer` | 2.0.1 | `DataMonger` |
+| `bleak.Data.Transformer` | 2.2.0 | `DataMonger` |
 | `MSTest` | 4.5.2 | test projects |
 | `Microsoft.NET.Test.Sdk` | 18.11.0 | test projects |
 | `coverlet.collector` | 10.1.0 | test projects |

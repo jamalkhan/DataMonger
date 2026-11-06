@@ -18,7 +18,9 @@ See [Architecture](../Documentation/Architecture.md) and [Configuration](../Docu
 Packages referenced here: `Microsoft.Extensions.Hosting`, `Microsoft.Extensions.Http`,
 `Microsoft.Extensions.Configuration.Binder`, `Microsoft.Extensions.Configuration.Json`, `Microsoft.Extensions.Logging`,
 `Microsoft.Extensions.Logging.Configuration` and `System.Threading.RateLimiting` (all 10.0.14), `bleak.Api.Rest` 2.6.0,
-`bleak.Data.InfiniteDataLoader` and `bleak.Data.Anonymizer` 2.0.1, and `bleak.Data.Transformer` 2.1.0.
+`bleak.Data.InfiniteDataLoader` 2.1.0, `bleak.Data.Anonymizer` 2.0.1 and `bleak.Data.Transformer` 2.2.0. The project
+uses the server garbage collector, and binds the optional `Etl` section of the configuration to the ETL engine's
+`EtlRunOptions` (threads, sort memory, temp folder); see [Configuration](../Documentation/Configuration.md#etl-run-options-etl).
 
 ## Configuring API credentials
 

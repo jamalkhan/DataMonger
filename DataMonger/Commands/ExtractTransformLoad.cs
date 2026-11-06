@@ -6,6 +6,7 @@ using bleak.Data.Transformer.Engine;
 using DataMonger.Common;
 using DataMonger.Logging;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace DataMonger.Commands;
 
@@ -19,6 +20,7 @@ namespace DataMonger.Commands;
 public partial class ExtractTransformLoad(
     CommandContext ctx,
     ConfigFolders configFolders,
+    IOptions<EtlRunOptions> etlOptions,
     ILoggerFactory loggerFactory,
     ILogger<ExtractTransformLoad> logger) : IConsoleCommand
 {
@@ -95,7 +97,7 @@ public partial class ExtractTransformLoad(
             }
 
             var overall = Stopwatch.StartNew();
-            var results = EtlEngine.Run(config, configDir, outputFolder, timestamp, loggerFactory);
+            var results = EtlEngine.Run(config, configDir, outputFolder, timestamp, loggerFactory, etlOptions.Value);
             overall.Stop();
             PrintOutputDetails(config, configDir, outputFolder, timestamp, results);
 
